@@ -25,6 +25,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
+ * $Id$
  */
 
 #ifdef HAVE_CONFIG_H
@@ -93,7 +94,7 @@ php_varnish_log_obj_init(zend_class_entry *ze TSRMLS_DC)
 PHP_METHOD(VarnishLog, __construct)
 {
 	struct ze_varnish_log_obj *zvlo;
-	zval *opts, **ident;
+	zval *opts, **ident, **format;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a", &opts) == FAILURE) {
 		RETURN_NULL();
@@ -107,6 +108,10 @@ PHP_METHOD(VarnishLog, __construct)
 		zvlo->zvc.ident_len = Z_STRLEN_PP(ident);
 	}
 
+	if(zend_hash_find(Z_ARRVAL_P(opts), "format", sizeof("format"), (void**)&format) != FAILURE) {
+		zvlo->format = estrdup(Z_STRVAL_PP(format));
+		zvlo->format_len = Z_STRLEN_PP(format);
+	}
 }
 /* }}} */
 

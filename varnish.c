@@ -25,6 +25,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
+ * $Id$
  */
 
 #ifdef HAVE_CONFIG_H
@@ -201,6 +202,7 @@ PHP_MINFO_FUNCTION(varnish)
 	php_info_print_table_start();
 	php_info_print_table_header(2, "varnish support", "enabled");
 	php_info_print_table_row(2, "Version", PHP_VARNISH_EXT_VERSION);
+	php_info_print_table_row(2, "Revision", "$Id$");
 	php_info_print_table_end();
 
 	/* 

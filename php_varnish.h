@@ -73,6 +73,8 @@ PHP_METHOD(VarnishAdmin, test);
 PHP_METHOD(VarnishStat, __construct);
 PHP_METHOD(VarnishStat, getSnapshot);
 
+PHP_METHOD(VarnishLog, __construct);
+
 /*ZEND_BEGIN_MODULE_GLOBALS(varnish)
 ZEND_END_MODULE_GLOBALS(varnish)*/
 
@@ -84,11 +86,11 @@ ZEND_END_MODULE_GLOBALS(varnish)*/
 
 /*ZEND_EXTERN_MODULE_GLOBALS(varnish)*/
 
-extern zend_class_entry *VarnishAdmin_ce;
 extern zend_class_entry *VarnishException_ce;
 
 extern zend_object_value php_varnish_adm_obj_init(zend_class_entry *ze TSRMLS_DC);
 extern zend_object_value php_varnish_stat_obj_init(zend_class_entry *ze TSRMLS_DC);
+extern zend_object_value php_varnish_log_obj_init(zend_class_entry *ze TSRMLS_DC);
 
 struct ze_varnish_conn {
 	char *host;
@@ -112,8 +114,15 @@ struct ze_varnish_stat_obj {
 	zend_object zo;
 	struct ze_varnish_conn zvc;
 };
-#endif	/* PHP_VARNISH_H */
 
+struct ze_varnish_log_obj {
+	zend_object zo;
+	struct ze_varnish_conn zvc;
+	char *format;
+	long format_len;
+};
+
+#endif	/* PHP_VARNISH_H */
 
 /*
  * Local variables:

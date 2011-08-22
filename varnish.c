@@ -46,6 +46,7 @@ static int le_varnish;
 /* Class entry definition */
 zend_class_entry *VarnishAdmin_ce;
 zend_class_entry *VarnishStat_ce;
+zend_class_entry *VarnishLog_ce;
 zend_class_entry *VarnishException_ce;
 
 /* {{{ varnish_functions[]
@@ -78,6 +79,13 @@ const zend_function_entry VarnishAdmin_methods[] = {
 const zend_function_entry VarnishStat_methods[] = {
 	PHP_ME(VarnishStat, __construct, NULL, ZEND_ACC_PUBLIC)
 	PHP_ME(VarnishStat, getSnapshot, NULL, ZEND_ACC_PUBLIC)
+	{NULL, NULL, NULL}
+};
+/* }}} */
+
+/* {{{ VarnishLog_methods{} */
+const zend_function_entry VarnishLog_methods[] = {
+	PHP_ME(VarnishLog, __construct, NULL, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */
@@ -148,6 +156,10 @@ PHP_MINIT_FUNCTION(varnish)
 	INIT_CLASS_ENTRY(ce, "VarnishStat", VarnishStat_methods);
 	ce.create_object = php_varnish_stat_obj_init;
 	VarnishStat_ce = zend_register_internal_class(&ce TSRMLS_CC);
+
+	INIT_CLASS_ENTRY(ce, "VarnishLog", VarnishLog_methods);
+	ce.create_object = php_varnish_log_obj_init;
+	VarnishLog_ce = zend_register_internal_class(&ce TSRMLS_CC);
 
 	/* Init exceptions */
 	INIT_CLASS_ENTRY(ce, "VarnishException", NULL);

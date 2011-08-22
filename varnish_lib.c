@@ -650,7 +650,7 @@ php_varnish_is_running(int sock, int *status, int tmo TSRMLS_DC)
 	char *content, *msg;
 	int content_len, ret = 0, msg_len;
 
-	/* must parse the content message here, as the status would be always 200 in varnish 3.0 */
+	/* must parse the content message here, as the status would be always 200 in varnish 3.0 at least */
 	msg = "Child in state running";
 	msg_len = strlen(msg);
 

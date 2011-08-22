@@ -45,36 +45,42 @@
 void
 php_varnish_log_obj_destroy(void *obj TSRMLS_DC)
 {/*{{{*/
-	struct ze_varnish_stat_obj *zvso = (struct ze_varnish_stat_obj *)obj;
+	struct ze_varnish_log_obj *zvlo = (struct ze_varnish_log_obj *)obj;
 
-	zend_object_std_dtor(&zvso->zo TSRMLS_CC);
+	zend_object_std_dtor(&zvlo->zo TSRMLS_CC);
 
-	if (zvso->zvc.format_len > 0) {
-		efree(zvso->zvc.ident);
+	if (zvlo->zvc.ident_len > 0) {
+		efree(zvlo->zvc.ident);
 	}
 
-	efree(zvso);
+	if (zvlo->format_len > 0) {
+		efree(zvlo->format);
+	}
+
+	efree(zvlo);
 }/*}}}*/
 
 zend_object_value
 php_varnish_log_obj_init(zend_class_entry *ze TSRMLS_DC)
 {   /*{{{*/
 		zend_object_value ret;
-		struct ze_varnish_stat_obj *zvso;
+		struct ze_varnish_log_obj *zvlo;
 		zval *tmp;
 
-		zvso = (struct ze_varnish_stat_obj*)emalloc(sizeof(struct ze_varnish_stat_obj));
-		memset(&zvso->zo, 0, sizeof(zend_object));
+		zvlo = (struct ze_varnish_log_obj*)emalloc(sizeof(struct ze_varnish_log_obj));
+		memset(&zvlo->zo, 0, sizeof(zend_object));
 
-		zend_object_std_init(&zvso->zo, ze TSRMLS_CC);
-		zend_hash_copy(zvso->zo.properties, &ze->default_properties, (copy_ctor_func_t) zval_add_ref,
+		zend_object_std_init(&zvlo->zo, ze TSRMLS_CC);
+		zend_hash_copy(zvlo->zo.properties, &ze->default_properties, (copy_ctor_func_t) zval_add_ref,
 						(void *) &tmp, sizeof(zval *));
 
-		zvso->zvc.format	 = NULL;
-		zvso->zvc.format_len = 0;
+		zvlo->zvc.ident	    = NULL;
+		zvlo->zvc.ident_len = 0;
+		zvlo->format	    = NULL;
+		zvlo->format_len    = 0;
 
-		ret.handle = zend_objects_store_put(zvso, NULL,
-											(zend_objects_free_object_storage_t) php_varnish_stat_obj_destroy,
+		ret.handle = zend_objects_store_put(zvlo, NULL,
+											(zend_objects_free_object_storage_t) php_varnish_log_obj_destroy,
 											NULL TSRMLS_CC);
 		ret.handlers = zend_get_std_object_handlers();
 		ret.handlers->clone_obj = NULL;
@@ -84,9 +90,9 @@ php_varnish_log_obj_init(zend_class_entry *ze TSRMLS_DC)
 
 /* {{{ proto void VarnishLog::__construct(array options)
  *  Varnish admin constructor */
-PHP_METHOD(VarnishSLog, __construct)
+PHP_METHOD(VarnishLog, __construct)
 {
-	struct ze_varnish_stat_obj *zvso;
+	struct ze_varnish_log_obj *zvlo;
 	zval *opts, **ident;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a", &opts) == FAILURE) {
@@ -94,11 +100,11 @@ PHP_METHOD(VarnishSLog, __construct)
 		return;
 	}
 
-	zvso = (struct ze_varnish_stat_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+	zvlo = (struct ze_varnish_log_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
 
 	if(zend_hash_find(Z_ARRVAL_P(opts), "ident", sizeof("ident"), (void**)&ident) != FAILURE) {
-		zvso->zvc.ident = estrdup(Z_STRVAL_PP(ident));
-		zvso->zvc.ident_len = Z_STRLEN_PP(ident);
+		zvlo->zvc.ident = estrdup(Z_STRVAL_PP(ident));
+		zvlo->zvc.ident_len = Z_STRLEN_PP(ident);
 	}
 
 }

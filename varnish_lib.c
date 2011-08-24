@@ -333,7 +333,11 @@ php_varnish_sock_ident(const char *ident, char *addr, int *port, int tmo, int *s
 
 
 	} else {
-		/* XXX throw invalid param */
+		zend_throw_exception_ex(
+			VarnishException_ce,
+			PHP_VARNISH_CONN_EXCEPTION TSRMLS_CC,
+			"Invalid identity param"
+		);
 		return sock;
 	}
 
@@ -386,6 +390,8 @@ php_varnish_sock(const char *addr, int port, int tmo, int *status TSRMLS_DC)
 			if (1 == rc) {
 				hints.ai_family = AF_INET6;
 				hints.ai_flags |= AI_NUMERICHOST;
+			} else {
+				/* XXX get host by name ??? */
 			}
 		}
 

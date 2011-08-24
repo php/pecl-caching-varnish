@@ -636,12 +636,14 @@ php_varnish_snap_stats(zval *storage, const char *ident TSRMLS_DC)
 
 	VSC_Arg(vd, 'n', ident);
 
-	if (VSC_Open(vd, 1))
-		exit(1);
+	if (VSC_Open(vd, 1)) {
+		/* XXX throw could now open */
+		return 0;
+	}
 
 	vcm = VSC_Main(vd);
 
-	(void)VSC_Iter(vd, php_varnish_snap_stats_cb, storage);
+	return !VSC_Iter(vd, php_varnish_snap_stats_cb, storage);
 
 }/*}}}*/
 

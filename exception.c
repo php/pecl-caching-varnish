@@ -42,11 +42,11 @@
 void
 php_varnish_throw_comm_exception(void)
 {
-		zend_throw_exception_ex(
-			VarnishException_ce,
-			PHP_VARNISH_COMM_EXCEPTION TSRMLS_CC,
-			"Varnish communication error"
-		);  
+	zend_throw_exception_ex(
+		VarnishException_ce,
+		PHP_VARNISH_COMM_EXCEPTION TSRMLS_CC,
+		"Varnish communication error"
+	);  
 }
 
 /*

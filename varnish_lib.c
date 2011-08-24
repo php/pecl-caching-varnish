@@ -135,7 +135,6 @@ php_varnish_parse_add_param(zval *arr, char *line)
 	float dval;
 	char key[96], sval[160], *p;
 
-	line++; /* ??? */
 	p = strchr(line, ' ');
 	k = (p - line < sizeof key) ? p - line : sizeof(key) - 1; 
 	memcpy(key, line, k);

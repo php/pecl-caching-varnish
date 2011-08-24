@@ -132,8 +132,9 @@ php_varnish_parse_add_param(zval *arr, char *line)
 {/*{{{*/
 	int param_cnt = sizeof(PHP_VarnishParam)/sizeof(struct php_varnish_param);
 	int i, j, k, ival;
-	float dval;
+	double dval;
 	char key[96], sval[160], *p;
+	zval dbl;
 
 	p = strchr(line, ' ');
 	k = (p - line < sizeof key) ? p - line : sizeof(key) - 1; 
@@ -148,12 +149,15 @@ php_varnish_parse_add_param(zval *arr, char *line)
 
 	switch (PHP_VarnishParam[i].param_type) {
 		case PHP_VARNISH_PARAM_STRING:
-		case PHP_VARNISH_PARAM_FLOAT: /* thats unclean, i know */
 			j = sscanf(line, "%s %s\n", key, sval);
 			add_assoc_string(arr, key, sval, 1);
 			break;
 		case PHP_VARNISH_PARAM_QUOTED_STRING:
 			/* ignore for now */
+			break;
+		case PHP_VARNISH_PARAM_FLOAT:
+			j = sscanf(line, "%s %lf\n", key, &dval);
+			add_assoc_double(arr, key, dval);
 			break;
 		case PHP_VARNISH_PARAM_INT:
 			j = sscanf(line, "%s %d\n", key, &ival);
@@ -554,18 +558,20 @@ php_varnish_get_params(int sock, int *status, zval *storage, int tmo TSRMLS_DC)
 
 	p0 = p1 = content;
 	while(i < content_len) {
-		do {
+		while(*p1 != '\0' && *p1 != '\n') {
 			p1++;
-		} while(*p1 != '\0' && *p1 != '\n');
+		}
 
 		len = p1 - p0;
+		if (0 == len) {
+			continue;
+		}
 		memcpy(buf, p0, (len > 255 ? 255 : len));
 		buf[len] = '\0';
 		sscanf(buf, "%s %s", key, val); /* = 2 */
 		php_varnish_parse_add_param(storage, buf);
-		//add_assoc_string(storage, key, val, 1);
-		p0 = p1;
-		i += len;
+		p0 = ++p1;
+		i += len + 1;
 	}
 
 	//efree(content);

@@ -138,7 +138,6 @@ php_varnish_parse_add_param(zval *arr, char *line)
 	line++; /* ??? */
 	p = strchr(line, ' ');
 	k = (p - line < sizeof key) ? p - line : sizeof(key) - 1; 
-	/* XXX check length */
 	memcpy(key, line, k);
 	key[k] = '\0';
 
@@ -189,7 +188,6 @@ php_varnish_consume_bytes(int sock, char *ptr, int len, int tmo)
 			PHP_VARNISH_TMO_EXCEPTION TSRMLS_CC,
 			"Read operation timed out"
 		);
-		/* XXX throw timed out */
 		return -1;
 	}
 
@@ -305,13 +303,21 @@ php_varnish_sock_ident(const char *ident, char *addr, int *port, int tmo, int *s
 	vsd = VSM_New();
 	if (VSM_n_Arg(vsd, ident)) {
 		if (VSM_Open(vsd, 1)) {
-			/* XXX throw could not open */
+			zend_throw_exception_ex(
+				VarnishException_ce,
+				PHP_VARNISH_SHM_EXCEPTION TSRMLS_CC,
+				"Could not open shared memory"
+			);
 			return sock;
 		}
 
 		p = VSM_Find_Chunk(vsd, "Arg", "-T", "", NULL);
 		if (NULL == p) {
-			/* XXX throw no t_arg */
+			zend_throw_exception_ex(
+				VarnishException_ce,
+				PHP_VARNISH_SHM_EXCEPTION TSRMLS_CC,
+				"No address and port found in the shared memory"
+			);
 			return sock;
 		}
 		t_start = t_arg = estrdup(p);
@@ -325,6 +331,11 @@ php_varnish_sock_ident(const char *ident, char *addr, int *port, int tmo, int *s
 	while(*t_arg) {
 		p = strchr(t_arg, '\n');
 		if (NULL == p) {
+			zend_throw_exception_ex(
+				VarnishException_ce,
+				PHP_VARNISH_SHM_EXCEPTION TSRMLS_CC,
+				"Invalid address or port data in the shared memory"
+			);
 			return sock;
 		}
 		*p = '\0';
@@ -430,7 +441,11 @@ php_varnish_auth_ident(int sock, const char *ident, int tmo, int *status TSRMLS_
 		vsd = VSM_New();
 		if (VSM_n_Arg(vsd, ident)) {
 			if (VSM_Open(vsd, 1)) {
-				/* XXX throw could not open */
+				zend_throw_exception_ex(
+					VarnishException_ce,
+					PHP_VARNISH_SHM_EXCEPTION TSRMLS_CC,
+					"Could not open shared memory"
+				);
 				return sock;
 			}
 
@@ -637,7 +652,11 @@ php_varnish_snap_stats(zval *storage, const char *ident TSRMLS_DC)
 	VSC_Arg(vd, 'n', ident);
 
 	if (VSC_Open(vd, 1)) {
-		/* XXX throw could now open */
+		zend_throw_exception_ex(
+			VarnishException_ce,
+			PHP_VARNISH_SHM_EXCEPTION TSRMLS_CC,
+			"Could not open shared memory"
+		);
 		return 0;
 	}
 

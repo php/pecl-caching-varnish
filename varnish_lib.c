@@ -153,7 +153,13 @@ php_varnish_parse_add_param(zval *arr, char *line)
 			add_assoc_string(arr, key, sval, 1);
 			break;
 		case PHP_VARNISH_PARAM_QUOTED_STRING:
-			/* ignore for now */
+			p = strchr(p, '"');
+			p++;
+			for (i = 0; i < 159 && p[i] != '\0'; i++) {
+				sval[i] = p[i];
+			}
+			sval[i-1] = '\0';
+			add_assoc_string(arr, key, sval, 1);
 			break;
 		case PHP_VARNISH_PARAM_FLOAT:
 			j = sscanf(line, "%s %lf\n", key, &dval);

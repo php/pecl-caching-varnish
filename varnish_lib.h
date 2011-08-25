@@ -67,6 +67,12 @@ php_varnish_snap_stats(zval *storage, const char *ident TSRMLS_DC);
 int
 php_varnish_is_running(int sock, int *status, int timeout TSRMLS_DC);
 
+int
+php_varnish_get_panic(int sock, int *status, char **msg, int *msg_len, int tmo TSRMLS_DC);
+
+int
+php_varnish_clear_panic(int sock, int *status, int tmo TSRMLS_DC);
+
 /* First response line length including '\0' */
 #define PHP_VARNISH_LINE0_MAX_LEN CLI_LINE0_LEN
 

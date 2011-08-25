@@ -613,7 +613,7 @@ php_varnish_stop(int sock, int *status, int tmo)
 
 int
 php_varnish_start(int sock, int *status, int tmo)
-{/*{{{*/
+{/*{{{*/ 
 	char *content;
 	int content_len;
 
@@ -699,6 +699,25 @@ php_varnish_is_running(int sock, int *status, int tmo TSRMLS_DC)
 	}
 
 	return ret;
+}/*}}}*/
+
+int
+php_varnish_get_panic(int sock, int *status, char **content, int *content_len, int tmo TSRMLS_DC)
+{/*{{{*/
+	int ret;
+
+	ret = php_varnish_invoke_command(sock, "panic.show", 10, status, content, content_len, tmo TSRMLS_CC);
+
+	return ret;
+}/*}}}*/
+
+int
+php_varnish_clear_panic(int sock, int *status, int tmo TSRMLS_DC)
+{/*{{{*/
+	char *content;
+	int content_len;
+
+	return php_varnish_invoke_command(sock, "panic.clear", 11, status, &content, &content_len, tmo TSRMLS_CC);
 }/*}}}*/
 
 /*

@@ -69,6 +69,8 @@ const zend_function_entry VarnishAdmin_methods[] = {
 	PHP_ME(VarnishAdmin, start, NULL, ZEND_ACC_PUBLIC)
 	PHP_ME(VarnishAdmin, banUrl, NULL, ZEND_ACC_PUBLIC)
 	PHP_ME(VarnishAdmin, isRunning, NULL, ZEND_ACC_PUBLIC)
+	PHP_ME(VarnishAdmin, getPanic, NULL, ZEND_ACC_PUBLIC)
+	PHP_ME(VarnishAdmin, clearPanic, NULL, ZEND_ACC_PUBLIC)
 #ifdef PHP_VARNISH_DEBUG
 	PHP_ME(VarnishAdmin, test, NULL, ZEND_ACC_PUBLIC)
 #endif

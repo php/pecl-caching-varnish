@@ -334,6 +334,7 @@ PHP_METHOD(VarnishAdmin, banUrl)
 
 	RETURN_LONG(zvao->status);
 }
+/* }}} */
 
 /*{{{ proto boolean VarnishAdmin::isRunning(void)
  Get the status of the current status instance*/
@@ -346,6 +347,36 @@ PHP_METHOD(VarnishAdmin, isRunning)
 	RETURN_BOOL(php_varnish_is_running(zvao->zvc.sock, &zvao->status, zvao->zvc.timeout TSRMLS_CC));
 }
 /*}}}*/
+
+/* {{{ proto string VarnishAdmin::getPanic()
+   Get the last panic message from the instance we are connected to */
+PHP_METHOD(VarnishAdmin, getPanic)
+{
+	struct ze_varnish_adm_obj *zvao;
+	char *content;
+	int content_len;
+
+	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+
+	php_varnish_get_panic(zvao->zvc.sock, &zvao->status, &content, &content_len, zvao->zvc.timeout TSRMLS_CC);
+
+	RETURN_STRINGL(content, content_len, 0);
+}
+/* }}} */
+
+/* {{{ proto integer VarnishAdmin::clearPanic()
+   Clear the last panic message on the instance we are connected to */
+PHP_METHOD(VarnishAdmin, clearPanic)
+{
+	struct ze_varnish_adm_obj *zvao;
+
+	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+
+	php_varnish_clear_panic(zvao->zvc.sock, &zvao->status, zvao->zvc.timeout TSRMLS_CC);	
+
+	RETURN_LONG(zvao->status);
+}
+/* }}} */
 
 #ifdef PHP_VARNISH_DEBUG
 /* {{{ proto boolean VarnishAdmin::auth()

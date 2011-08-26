@@ -633,7 +633,7 @@ php_varnish_ban(int sock, int *status, char *reg, int reg_len, int tmo, int type
 			break;
 
 		case PHP_VARNISH_BAN_URL_COMMAND:
-			int_len = 6;
+			int_len = 8;
 			snprintf(buf, 2047-int_len, "ban.url %s", reg);
 			break;
 			/* XXX do default check */

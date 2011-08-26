@@ -362,10 +362,13 @@ PHP_METHOD(VarnishAdmin, ban)
 PHP_METHOD(VarnishAdmin, isRunning)
 {
 	struct ze_varnish_adm_obj *zvao;
+	int ret;
 
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
 
-	RETURN_BOOL(php_varnish_is_running(zvao->zvc.sock, &zvao->status, zvao->zvc.timeout TSRMLS_CC));
+	ret = php_varnish_is_running(zvao->zvc.sock, &zvao->status, zvao->zvc.timeout TSRMLS_CC);
+
+	RETURN_BOOL(ret && PHP_VARNISH_STATUS_OK == zvao->status);
 }
 /*}}}*/
 

@@ -291,10 +291,7 @@ php_varnish_invoke_command(int sock, char *command, int command_len, int *status
 	}
 
 	/* forward all the leading whitespaces */
-	while (*(*answer)) {
-		if (!isspace(*(*answer))) {
-			break;
-		}
+	while (*(*answer) && !isalpha(*(*answer))) {
 		(*answer)++;
 		(*answer_len)--;
 	}

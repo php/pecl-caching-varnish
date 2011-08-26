@@ -316,7 +316,7 @@ PHP_METHOD(VarnishAdmin, start)
 /* }}} */
 
 /* {{{ proto int VarnishAdmin::banUrl(string regexp)
- Ban a url using the varnish regexp format */
+ Ban all the objects where the URL matches the regexp  */
 PHP_METHOD(VarnishAdmin, banUrl)
 {
 	char *regex;
@@ -330,7 +330,28 @@ PHP_METHOD(VarnishAdmin, banUrl)
 
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
 
-	php_varnish_ban_url(zvao->zvc.sock, &zvao->status, regex, regex_len, zvao->zvc.timeout TSRMLS_CC);	
+	php_varnish_ban(zvao->zvc.sock, &zvao->status, regex, regex_len, zvao->zvc.timeout, PHP_VARNISH_BAN_URL_COMMAND TSRMLS_CC);	
+
+	RETURN_LONG(zvao->status);
+}
+/* }}} */
+
+/* {{{ proto int VarnishAdmin::ban(string regexp)
+ Ban all objects where the conditions match */
+PHP_METHOD(VarnishAdmin, ban)
+{
+	char *regex;
+	long regex_len;
+	struct ze_varnish_adm_obj *zvao;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &regex, &regex_len) == FAILURE) {
+		RETURN_LONG(-1);
+		return;
+	}
+
+	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+
+	php_varnish_ban(zvao->zvc.sock, &zvao->status, regex, regex_len, zvao->zvc.timeout, PHP_VARNISH_BAN_COMMAND TSRMLS_CC);	
 
 	RETURN_LONG(zvao->status);
 }

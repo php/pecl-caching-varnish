@@ -59,7 +59,7 @@ int
 php_varnish_stop(int sock, int *status, int timeout TSRMLS_DC);
 
 int
-php_varnish_ban_url(int sock, int *status, char *reg, int reg_len, int timeout TSRMLS_DC);
+php_varnish_ban(int sock, int *status, char *reg, int reg_len, int timeout, int type TSRMLS_DC);
 
 int
 php_varnish_snap_stats(zval *storage, const char *ident TSRMLS_DC);
@@ -180,6 +180,10 @@ struct php_varnish_param {
 	int param_type;
 };
 
+enum {
+	PHP_VARNISH_BAN_COMMAND,
+	PHP_VARNISH_BAN_URL_COMMAND,
+};
 
 #endif	/* PHP_VARNISH_LIB_H */
 

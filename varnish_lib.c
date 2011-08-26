@@ -621,14 +621,26 @@ php_varnish_start(int sock, int *status, int tmo)
 }/*}}}*/
 
 int
-php_varnish_ban_url(int sock, int *status, char *reg, int reg_len, int tmo TSRMLS_DC)
+php_varnish_ban(int sock, int *status, char *reg, int reg_len, int tmo, int type TSRMLS_DC)
 {/*{{{*/
-	char *content, buf[1024];
-	int content_len;
+	char *content, buf[2048];
+	int content_len, int_len;
 
-	snprintf(buf, 1023, "ban.url \"%s\"", reg);
+	switch (type) {
+		case PHP_VARNISH_BAN_COMMAND:
+			int_len = 4;
+			snprintf(buf, 2047-int_len, "ban %s", reg);
+			break;
 
-	return php_varnish_invoke_command(sock, buf, reg_len+10, status, &content, &content_len, tmo TSRMLS_DC);
+		case PHP_VARNISH_BAN_URL_COMMAND:
+			int_len = 6;
+			snprintf(buf, 2047-int_len, "ban.url %s", reg);
+			break;
+			/* XXX do default check */
+	}
+	buf[reg_len+int_len] = '\0';
+
+	return php_varnish_invoke_command(sock, buf, reg_len+int_len, status, &content, &content_len, tmo TSRMLS_DC);
 }/*}}}*/
 
 static int

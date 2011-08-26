@@ -66,6 +66,7 @@ PHP_METHOD(VarnishAdmin, setParam);
 PHP_METHOD(VarnishAdmin, stop);
 PHP_METHOD(VarnishAdmin, start);
 PHP_METHOD(VarnishAdmin, banUrl);
+PHP_METHOD(VarnishAdmin, ban);
 PHP_METHOD(VarnishAdmin, isRunning);
 PHP_METHOD(VarnishAdmin, getPanic);
 PHP_METHOD(VarnishAdmin, clearPanic);

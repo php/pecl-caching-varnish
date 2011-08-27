@@ -33,6 +33,7 @@
 
 #include <varnishapi.h>
 #include <vcli.h>
+#include <vsl.h>
 
 /* get socket connection */
 int

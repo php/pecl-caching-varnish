@@ -33,6 +33,7 @@ if test "$PHP_VARNISH" != "no"; then
   PHP_ADD_INCLUDE($VARNISH_DIR)
   AC_CHECK_HEADER([$VARNISH_DIR/varnishapi.h], [], AC_MSG_ERROR('varnishapi.h' header not found))
   AC_CHECK_HEADER([$VARNISH_DIR/vcli.h], [], AC_MSG_ERROR('vcli.h' header not found))
+  AC_CHECK_HEADER([$VARNISH_DIR/vsl.h], [], AC_MSG_ERROR('vsl.h' header not found))
 
   LIBNAME=varnishapi
   LIBSYMBOL=VSM_New

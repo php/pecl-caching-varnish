@@ -208,9 +208,7 @@ php_varnish_consume_bytes(int sock, char *ptr, int len, int tmo)
 		i -= got_now;
 		p += got_now;
 	}
-#ifdef PHP_VARNISH_DEBUG
-php_printf("received ''%s''\n", ptr);
-#endif
+
 	return len;
 }/*}}}*/
 
@@ -228,9 +226,7 @@ php_varnish_send_bytes(int sock, char *ptr, int len)
 		i -= sent;
 		p += sent;
 	}
-#ifdef PHP_VARNISH_DEBUG
-php_printf("sent ''%s''\n", ptr);
-#endif
+
 	return len;
 }/*}}}*/
 

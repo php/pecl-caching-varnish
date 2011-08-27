@@ -402,27 +402,6 @@ PHP_METHOD(VarnishAdmin, clearPanic)
 }
 /* }}} */
 
-#ifdef PHP_VARNISH_DEBUG
-/* {{{ proto boolean VarnishAdmin::auth()
- Authenticate on a varnish instance */
-PHP_METHOD(VarnishAdmin, test)
-{
-	struct ze_varnish_adm_obj *zvao;
-	zval *storage;
-//	char buf[128];
-
-	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
-	
-/*	recv(zvao->zvc.sock, buf, 1, 0);
-	send(zvao->zvc.sock, "param.show\n", 11, 0);
-	recv(zvao->zvc.sock, buf, 128, 0);
-	php_printf("test received: '%s'\n", buf);*/
-
-	php_varnish_get_params(zvao->zvc.sock, &zvao->status, storage);
-}
-/* }}} */
-#endif
-
 /*
  * Local variables:
  * tab-width: 4

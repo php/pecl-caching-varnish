@@ -77,6 +77,9 @@ php_varnish_clear_panic(int sock, int *status, int tmo TSRMLS_DC);
 int
 php_varnish_get_log(const struct VSM_data *vd, zval *line TSRMLS_DC);
 
+void
+php_varnish_log_get_tag_name(int index, char **ret, int *ret_len TSRMLS_CC);
+
 /* First response line length including '\0' */
 #define PHP_VARNISH_LINE0_MAX_LEN CLI_LINE0_LEN
 

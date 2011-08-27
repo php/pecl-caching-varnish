@@ -124,7 +124,7 @@ PHP_METHOD(VarnishLog, __construct)
 
 	if (VSL_Open(zvlo->vd, 1)) {
 		/* XXX throw could not open */
-		return 0;
+		return;
 	}
 
 	if(zend_hash_find(Z_ARRVAL_P(opts), "format", sizeof("format"), (void**)&format) != FAILURE) {
@@ -146,6 +146,28 @@ PHP_METHOD(VarnishLog, get)
 
 	array_init(return_value);
 	(void)php_varnish_get_log(zvlo->vd, return_value TSRMLS_CC);
+}
+/* }}} */
+
+
+/* {{{ proto string VarnishLog::getTagName(int index)
+ Get tag name by its numerical index */
+PHP_METHOD(VarnishLog, getTagName)
+{
+	struct ze_varnish_log_obj *zvlo;
+	char *ret;
+	long ind, ret_len;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &ind) == FAILURE) {
+		RETURN_NULL();
+		return;
+	}
+
+	zvlo = (struct ze_varnish_log_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+
+	php_varnish_log_get_tag_name((int)ind, &ret, &ret_len TSRMLS_CC);
+
+	RETURN_STRINGL(ret, ret_len, 0);
 }
 /* }}} */
 

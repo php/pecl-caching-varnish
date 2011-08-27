@@ -690,7 +690,7 @@ php_varnish_snap_stats(zval *storage, const char *ident TSRMLS_DC)
 
 int
 php_varnish_get_log(const struct VSM_data *vd, zval *line TSRMLS_DC)
-{/*{{{*/
+{/*{{{*/ 
 	uint32_t *p;
 	int i;
 
@@ -745,7 +745,21 @@ php_varnish_clear_panic(int sock, int *status, int tmo TSRMLS_DC)
 	int content_len;
 
 	return php_varnish_invoke_command(sock, "panic.clear", 11, status, &content, &content_len, tmo TSRMLS_CC);
-}/*}}}*/
+} /*}}}*/
+
+void
+php_varnish_log_get_tag_name(int index, char **ret, int *ret_len TSRMLS_CC)
+{
+	int max = sizeof(VSL_tags)/sizeof(char*);
+
+	*ret = "";
+	*ret_len = 0;
+
+	if (index >= 0 && index < max) {
+		*ret = estrdup(VSL_tags[index]);
+		*ret_len = strlen(*ret);
+	}
+}
 
 /*
  * Local variables:

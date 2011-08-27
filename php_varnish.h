@@ -76,6 +76,7 @@ PHP_METHOD(VarnishStat, getSnapshot);
 
 PHP_METHOD(VarnishLog, __construct);
 PHP_METHOD(VarnishLog, get);
+PHP_METHOD(VarnishLog, getTagName);
 
 /*ZEND_BEGIN_MODULE_GLOBALS(varnish)
 ZEND_END_MODULE_GLOBALS(varnish)*/

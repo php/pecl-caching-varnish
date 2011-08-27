@@ -673,7 +673,7 @@ php_varnish_snap_stats(zval *storage, const char *ident TSRMLS_DC)
 
 	VSC_Arg(vd, 'n', ident);
 
-	if (VSC_Open(vd, 1)) {
+	if (VSC_Open(vd, 1)) { /* 0 on success */
 		zend_throw_exception_ex(
 			VarnishException_ce,
 			PHP_VARNISH_SHM_EXCEPTION TSRMLS_CC,
@@ -685,6 +685,28 @@ php_varnish_snap_stats(zval *storage, const char *ident TSRMLS_DC)
 	vcm = VSC_Main(vd);
 
 	return !VSC_Iter(vd, php_varnish_snap_stats_cb, storage);
+
+}/*}}}*/
+
+int
+php_varnish_get_log(const struct VSM_data *vd, zval *line TSRMLS_DC)
+{/*{{{*/
+	uint32_t *p;
+	int i;
+
+	i = VSL_NextLog(vd, &p, NULL);
+	if (i < 0) {
+		/* XXX throw error */
+		return 0;
+	}
+
+	if (i > 0) {
+		add_assoc_stringl(line, "data", VSL_DATA(p), VSL_LEN(p), 1);
+		add_assoc_long(line, "tag", VSL_TAG(p));
+		add_assoc_long(line, "id", VSL_ID(p));
+	}
+
+	return 1;
 
 }/*}}}*/
 

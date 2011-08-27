@@ -54,6 +54,10 @@ php_varnish_log_obj_destroy(void *obj TSRMLS_DC)
 		efree(zvlo->zvc.ident);
 	}
 
+	if (zvlo->vd) {
+		zvlo->vd = NULL;
+	}
+
 	if (zvlo->format_len > 0) {
 		efree(zvlo->format);
 	}
@@ -77,6 +81,7 @@ php_varnish_log_obj_init(zend_class_entry *ze TSRMLS_DC)
 
 		zvlo->zvc.ident	    = NULL;
 		zvlo->zvc.ident_len = 0;
+		zvlo->vd            = NULL;
 		zvlo->format	    = NULL;
 		zvlo->format_len    = 0;
 
@@ -108,10 +113,39 @@ PHP_METHOD(VarnishLog, __construct)
 		zvlo->zvc.ident_len = Z_STRLEN_PP(ident);
 	}
 
+	zvlo->vd = VSM_New();
+	VSL_Setup(zvlo->vd);
+
+
+	/* XXX throw an exception */
+	if (zvlo->zvc.ident_len > 0) {
+		VSL_Arg(zvlo->vd, 'n', zvlo->zvc.ident);
+	}
+
+	if (VSL_Open(zvlo->vd, 1)) {
+		/* XXX throw could not open */
+		return 0;
+	}
+
 	if(zend_hash_find(Z_ARRVAL_P(opts), "format", sizeof("format"), (void**)&format) != FAILURE) {
 		zvlo->format = estrdup(Z_STRVAL_PP(format));
 		zvlo->format_len = Z_STRLEN_PP(format);
 	}
+}
+/* }}} */
+
+/* {{{ proto array VarnishLog::get(void)
+ * Get the next log entry */
+PHP_METHOD(VarnishLog, get)
+{
+	struct ze_varnish_log_obj *zvlo;
+	char *line;
+	int line_len;
+
+	zvlo = (struct ze_varnish_log_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+
+	array_init(return_value);
+	(void)php_varnish_get_log(zvlo->vd, return_value TSRMLS_CC);
 }
 /* }}} */
 

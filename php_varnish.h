@@ -75,6 +75,7 @@ PHP_METHOD(VarnishStat, __construct);
 PHP_METHOD(VarnishStat, getSnapshot);
 
 PHP_METHOD(VarnishLog, __construct);
+PHP_METHOD(VarnishLog, get);
 
 /*ZEND_BEGIN_MODULE_GLOBALS(varnish)
 ZEND_END_MODULE_GLOBALS(varnish)*/
@@ -119,6 +120,7 @@ struct ze_varnish_stat_obj {
 struct ze_varnish_log_obj {
 	zend_object zo;
 	struct ze_varnish_conn zvc;
+	struct VSM_data *vd;
 	char *format;
 	long format_len;
 };

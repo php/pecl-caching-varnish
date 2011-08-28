@@ -164,6 +164,11 @@ PHP_MINIT_FUNCTION(varnish)
 	ce.create_object = php_varnish_log_obj_init;
 	VarnishLog_ce = zend_register_internal_class(&ce TSRMLS_CC);
 
+#define SLTM(foo) \
+zend_declare_class_constant_long(VarnishLog_ce, "TAG_"#foo, strlen("TAG_"#foo), SLT_##foo TSRMLS_CC);
+#include "vsl_tags.h"
+#undef SLTM
+
 	/* Init exceptions */
 	INIT_CLASS_ENTRY(ce, "VarnishException", NULL);
 	VarnishException_ce = zend_register_internal_class_ex(

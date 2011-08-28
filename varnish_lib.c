@@ -540,11 +540,11 @@ php_varnish_auth(int sock, char *secret, int secret_len, int *status, int tmo TS
 		if(-1 == php_varnish_send_bytes(sock, "\n", strlen("\n"))) {
 			php_varnish_throw_comm_exception(TSRMLS_C);
 		}
-		//efree(content);
+		/* XXX efree(content); */
 
 		/* forward to the end of the varnish out */
 		php_varnish_invoke_command(sock, NULL, 0, status, &content, &content_len, tmo TSRMLS_CC);
-		//efree(content);
+		/* XXX efree(content);*/
 	}
 
 	return 1;
@@ -579,7 +579,7 @@ php_varnish_get_params(int sock, int *status, zval *storage, int tmo TSRMLS_DC)
 		i += len + 1;
 	}
 
-	//efree(content);
+	/* efree(content); */
 	return 1;
 }/*}}}*/
 

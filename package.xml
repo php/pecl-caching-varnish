@@ -1,0 +1,140 @@
+<?xml version="1.0"?>
+<package xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://ww		w.w3.org/2001/XMLSchema-instance" packagerversion="1.7.2" version="2.0" xsi:schemaLocation="http://pear.php.net/dtd/tasks		-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+	<name>varnish</name>
+	<channel>pecl.php.net</channel>
+	<summary>Varnish Cache bindings</summary>
+	<description>Varnish Cache is an open source, state of the art web application accelerator. The extension makes it possible to interact with a running varnish instance through TCP socket or shared memory.</description>
+	<lead>
+		<name>Anatoliy Belsky</name>
+		<user>ab</user>
+		<email>ab@php.net</email>
+		<active>yes</active>
+	</lead>
+	<date>2011-08-28</date>
+	<version>
+		<release>0.6</release>
+		<api>1.0</api>
+	</version>
+	<stability>
+		<release>alpha</release>
+		<api>stable</api>
+	</stability>
+	<license uri="http://www.opensource.org/licenses/bsd-license.php">BSD</license>
+	<notes>
+		- VarnishAdmin
+			* VarnishAdmin:ban() bases on the vcl ban commando
+			* VarnishAdmin::banUrl() bases on the vcl ban.url commando
+			* Arguments are passed to the varnish as given, which is probably a better idea than parsing
+                	them on the php side one more time. The return status value can be used to check if the command
+			was successful.
+			* improved VarnishAdmin::isRunning()
+		- added VarnishLog class
+			* VarnishLog::getLine()
+			* VarnishLog::getTagName()
+			* Varnish log tag list
+			* Can now read log records from a running varnishd SHM. Not sure, whether more functionality would be sensible, as it requires to run as daemon.
+	</notes>
+	<contents>
+		<dir name="/">
+			<file role="src" name="exception.h"/>
+			<file role="src" name="php_varnish.h"/>
+			<file role="src" name="sha2.h"/>
+			<file role="src" name="varnish_lib.h"/>
+			<file role="src" name="adm.c"/>
+			<file role="src" name="log.c"/>
+			<file role="src" name="exception.c"/>
+			<file role="src" name="sha2.c"/>
+			<file role="src" name="stat.c"/>
+			<file role="src" name="varnish.c"/>
+			<file role="src" name="varnish_lib.c"/>
+			<file role="doc" name="EXPERIMENTAL"/>
+			<file role="doc" name="CREDITS"/>
+			<file role="src" name="config.w32"/>
+			<file role="src" name="config.m4"/>
+			<dir name="tests">
+				<file role="test" name="001.phpt"/>
+				<file role="test" name="002.phpt"/>
+				<file role="test" name="003.phpt"/>
+				<file role="test" name="004.phpt"/>
+				<file role="test" name="005.phpt"/>
+				<file role="test" name="006.phpt"/>
+				<file role="test" name="config.php-dist"/>
+			</dir>
+		</dir>
+	</contents>
+	<dependencies>
+		<required>
+			<php>
+				<min>5.3</min>
+			</php>
+			<pearinstaller>
+				<min>1.4.0</min>
+			</pearinstaller>
+			<os>linux</os>
+		</required>
+	</dependencies>
+	<providesextension>varnish</providesextension>
+	<extsrcrelease/>
+	<changelog>
+		<release>
+			<date>2011-08-26</date>
+			<version>
+				<release>0.4.1</release>
+				<api>1.0</api>
+			</version>
+			<stability>
+				<release>alpha</release>
+				<api>stable</api>
+			</stability>
+			<license uri="http://www.opensource.org/licenses/bsd-license.php">BSD</license>
+			<notes>
+				Fix for the package to build
+			</notes>
+		</release>
+		<release>
+			<version>
+				<release>0.4</release>
+				<api>1.0</api>
+			</version>
+			<stability>
+				<release>alpha</release>
+				<api>stable</api>
+			</stability>
+			<license uri="http://www.opensource.org/licenses/bsd-license.php">BSD</license>
+			<notes>
+		- Fixed sereval odd things:
+			* Missing exceptions
+			* Varnish param parsing
+			* Command out reading
+		- Added clear/get panic methods
+			</notes>
+		</release>
+		<release>
+			<date>2011-08-23</date>
+			<version>
+				<release>0.3</release>
+				<api>1.0</api>
+			</version>
+			<stability>
+				<release>alpha</release>
+				<api>stable</api>
+			</stability>
+			<license uri="http://www.opensource.org/licenses/bsd-license.php">BSD</license>
+			<notes>
+			Implemented VarnishAdmin and VarnishStat classes with an minimal set on functionality.
+			VarnishAdmin:
+			* connect on varnish administration interface
+			* authenticate on a varnish instance
+			* read/write varnish configuration
+			* ban urls
+			* start/stop varnish slave
+			* check varnish slave status
+			VarnishStat:
+			* connect to the shared memory
+			* snapshot the current varnish statistics
+			There is no documentation for this package yet, please take a look at the tests and sources.
+			The extension is being currently developed with varnish 3.0 and php 5.3.6, so if you have any issues with older versions, please file a bug.
+			</notes>
+		</release>
+ </changelog>
+</package>

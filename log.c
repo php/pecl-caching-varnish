@@ -134,9 +134,9 @@ PHP_METHOD(VarnishLog, __construct)
 }
 /* }}} */
 
-/* {{{ proto array VarnishLog::get(void)
+/* {{{ proto array VarnishLog::getLine(void)
  * Get the next log entry */
-PHP_METHOD(VarnishLog, get)
+PHP_METHOD(VarnishLog, getLine)
 {
 	struct ze_varnish_log_obj *zvlo;
 	char *line;

@@ -749,7 +749,7 @@ php_varnish_clear_panic(int sock, int *status, int tmo TSRMLS_DC)
 
 void
 php_varnish_log_get_tag_name(int index, char **ret, int *ret_len TSRMLS_CC)
-{
+{/*{{{*/
 	int max = sizeof(VSL_tags)/sizeof(char*);
 
 	*ret = "";
@@ -759,7 +759,7 @@ php_varnish_log_get_tag_name(int index, char **ret, int *ret_len TSRMLS_CC)
 		*ret = estrdup(VSL_tags[index]);
 		*ret_len = strlen(*ret);
 	}
-}
+}/*}}}*/
 
 /*
  * Local variables:

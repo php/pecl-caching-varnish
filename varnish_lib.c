@@ -181,7 +181,7 @@ php_varnish_parse_add_param(zval *arr, char *line)
 }/*}}}*/
 
 static int
-php_varnish_consume_bytes(int sock, char *ptr, int len, int tmo)
+php_varnish_consume_bytes(int sock, char *ptr, int len, int tmo TSRMLS_DC)
 {/*{{{*/
 	int got_now, i = len, j;
 	char *p = ptr;
@@ -231,12 +231,12 @@ php_varnish_send_bytes(int sock, char *ptr, int len)
 }/*}}}*/
 
 static int
-php_varnish_read_line0(int sock, int *status, int *content_len, int tmo)
+php_varnish_read_line0(int sock, int *status, int *content_len, int tmo TSRMLS_DC)
 {/*{{{*/
 	char line0[PHP_VARNISH_LINE0_MAX_LEN];
 	int numbytes, j;
 
-	if((numbytes = php_varnish_consume_bytes(sock, line0, PHP_VARNISH_LINE0_MAX_LEN, tmo)) != PHP_VARNISH_LINE0_MAX_LEN) {
+	if((numbytes = php_varnish_consume_bytes(sock, line0, PHP_VARNISH_LINE0_MAX_LEN, tmo TSRMLS_CC)) != PHP_VARNISH_LINE0_MAX_LEN) {
 		zend_throw_exception_ex(
 			VarnishException_ce,
 			PHP_VARNISH_HANDSHAKE_EXCEPTION TSRMLS_CC,
@@ -258,7 +258,7 @@ php_varnish_read_line0(int sock, int *status, int *content_len, int tmo)
 }/*}}}*/
 
 static int
-php_varnish_invoke_command(int sock, char *command, int command_len, int *status, char **answer, int *answer_len, int tmo)
+php_varnish_invoke_command(int sock, char *command, int command_len, int *status, char **answer, int *answer_len, int tmo TSRMLS_DC)
 {/*{{{*/
 	int numbytes;
 	char *cmd;
@@ -269,20 +269,20 @@ php_varnish_invoke_command(int sock, char *command, int command_len, int *status
 		snprintf(cmd, command_len+2, "%s\n", command);
 
 		if((numbytes = php_varnish_send_bytes(sock, cmd, command_len+1)) != command_len+1) {
-			php_varnish_throw_comm_exception();
+			php_varnish_throw_comm_exception(TSRMLS_C);
 			return -1;
 		}
 	}
 
-	if((numbytes = php_varnish_read_line0(sock, status, answer_len, tmo)) != PHP_VARNISH_LINE0_MAX_LEN) {
-		php_varnish_throw_comm_exception();
+	if((numbytes = php_varnish_read_line0(sock, status, answer_len, tmo TSRMLS_CC)) != PHP_VARNISH_LINE0_MAX_LEN) {
+		php_varnish_throw_comm_exception(TSRMLS_C);
 		return 0;
 	}
 	(*answer) = emalloc(*answer_len+1);
 	(*answer)[*answer_len+1] = '\0';
-	numbytes = php_varnish_consume_bytes(sock, *answer, *answer_len+1, tmo);
+	numbytes = php_varnish_consume_bytes(sock, *answer, *answer_len+1, tmo TSRMLS_CC);
 	if(numbytes < 0) {
-		php_varnish_throw_comm_exception();
+		php_varnish_throw_comm_exception(TSRMLS_C);
 		return 0;
 	}
 
@@ -347,7 +347,7 @@ php_varnish_sock_ident(const char *ident, char *addr, int *port, int tmo, int *s
 		*p = '\0';
 		j = sscanf(t_arg, "%s %d", tmp_addr, port);
 		/* XXX j == 2 */
-		sock = php_varnish_sock(tmp_addr, *port, tmo, status);
+		sock = php_varnish_sock(tmp_addr, *port, tmo, status TSRMLS_CC);
 		if (sock > -1) {
 			addr = estrdup(tmp_addr);	
 			break;
@@ -477,13 +477,13 @@ php_varnish_auth_ident(int sock, const char *ident, int tmo, int *status TSRMLS_
 			free(answer);
 			
 			if(-1 == php_varnish_send_bytes(sock, "auth ", strlen("auth "))) {
-				php_varnish_throw_comm_exception();
+				php_varnish_throw_comm_exception(TSRMLS_C);
 			}
 			if(-1 == php_varnish_send_bytes(sock, buf, CLI_AUTH_RESPONSE_LEN)) {
-				php_varnish_throw_comm_exception();
+				php_varnish_throw_comm_exception(TSRMLS_C);
 			}
 			if(-1 == php_varnish_send_bytes(sock, "\n", strlen("\n"))) {
-				php_varnish_throw_comm_exception();
+				php_varnish_throw_comm_exception(TSRMLS_C);
 			}
 
 			(void)VCLI_ReadResult(sock, status, &answer, tmo);
@@ -501,7 +501,7 @@ php_varnish_auth(int sock, char *secret, int secret_len, int *status, int tmo TS
 	int numbytes, content_len, auth_seq_len;
 	SHA256_CTX ctx256;
 
-	if((numbytes = php_varnish_read_line0(sock, status, &content_len, tmo)) != PHP_VARNISH_LINE0_MAX_LEN) {
+	if((numbytes = php_varnish_read_line0(sock, status, &content_len, tmo TSRMLS_CC)) != PHP_VARNISH_LINE0_MAX_LEN) {
 		zend_throw_exception_ex(
 			VarnishException_ce,
 			PHP_VARNISH_HANDSHAKE_EXCEPTION TSRMLS_CC,
@@ -513,9 +513,9 @@ php_varnish_auth(int sock, char *secret, int secret_len, int *status, int tmo TS
 	if (PHP_VARNISH_STATUS_AUTH == *status) {
 		content = emalloc(content_len+1);
 		content[content_len+1] = '\0';
-		numbytes = php_varnish_consume_bytes(sock, content, content_len, tmo);
+		numbytes = php_varnish_consume_bytes(sock, content, content_len, tmo TSRMLS_CC);
 		if(numbytes < 0) {
-			php_varnish_throw_comm_exception();
+			php_varnish_throw_comm_exception(TSRMLS_C);
 			return 0;
 		}
 		/* XXX use content directly if there is no logging requirement */
@@ -532,18 +532,18 @@ php_varnish_auth(int sock, char *secret, int secret_len, int *status, int tmo TS
 		SHA256_End(&ctx256, buf);
 
 		if(-1 == php_varnish_send_bytes(sock, "auth ", strlen("auth "))) {
-			php_varnish_throw_comm_exception();
+			php_varnish_throw_comm_exception(TSRMLS_C);
 		}
 		if(-1 == php_varnish_send_bytes(sock, buf, SHA256_DIGEST_STRING_LENGTH-1)) {
-			php_varnish_throw_comm_exception();
+			php_varnish_throw_comm_exception(TSRMLS_C);
 		}
 		if(-1 == php_varnish_send_bytes(sock, "\n", strlen("\n"))) {
-			php_varnish_throw_comm_exception();
+			php_varnish_throw_comm_exception(TSRMLS_C);
 		}
 		//efree(content);
 
 		/* forward to the end of the varnish out */
-		php_varnish_invoke_command(sock, NULL, 0, status, &content, &content_len, tmo);
+		php_varnish_invoke_command(sock, NULL, 0, status, &content, &content_len, tmo TSRMLS_CC);
 		//efree(content);
 	}
 
@@ -557,7 +557,7 @@ php_varnish_get_params(int sock, int *status, zval *storage, int tmo TSRMLS_DC)
 	char *content, *p0, *p1, buf[256];
 	char key[64], val[64];
 
-	php_varnish_invoke_command(sock, "param.show", 10, status, &content, &content_len, tmo);
+	php_varnish_invoke_command(sock, "param.show", 10, status, &content, &content_len, tmo TSRMLS_CC);
 	
 	array_init(storage);
 
@@ -591,26 +591,26 @@ php_varnish_set_param(int sock, int *status, char *key, int key_len, char *param
 
 	snprintf(buf, 128, "param.set %s \"%s\"", key, param);
 
-	return php_varnish_invoke_command(sock, buf, key_len + param_len + 13, status, &content, &content_len, tmo);
+	return php_varnish_invoke_command(sock, buf, key_len + param_len + 13, status, &content, &content_len, tmo TSRMLS_CC);
 }/*}}}*/
 
 int
-php_varnish_stop(int sock, int *status, int tmo)
+php_varnish_stop(int sock, int *status, int tmo TSRMLS_DC)
 {/*{{{*/
 	char *content;
 	int content_len;
 
-	return php_varnish_invoke_command(sock, "stop", 4, status, &content, &content_len, tmo TSRMLS_DC);
+	return php_varnish_invoke_command(sock, "stop", 4, status, &content, &content_len, tmo TSRMLS_CC);
 }/*}}}*/ 
 
 
 int
-php_varnish_start(int sock, int *status, int tmo)
+php_varnish_start(int sock, int *status, int tmo TSRMLS_DC)
 {/*{{{*/ 
 	char *content;
 	int content_len;
 
-	return php_varnish_invoke_command(sock, "start", 5, status, &content, &content_len, tmo TSRMLS_DC);
+	return php_varnish_invoke_command(sock, "start", 5, status, &content, &content_len, tmo TSRMLS_CC);
 }/*}}}*/
 
 int
@@ -633,7 +633,7 @@ php_varnish_ban(int sock, int *status, char *reg, int reg_len, int tmo, int type
 	}
 	buf[reg_len+int_len] = '\0';
 
-	return php_varnish_invoke_command(sock, buf, reg_len+int_len, status, &content, &content_len, tmo TSRMLS_DC);
+	return php_varnish_invoke_command(sock, buf, reg_len+int_len, status, &content, &content_len, tmo TSRMLS_CC);
 }/*}}}*/
 
 static int
@@ -748,7 +748,7 @@ php_varnish_clear_panic(int sock, int *status, int tmo TSRMLS_DC)
 } /*}}}*/
 
 void
-php_varnish_log_get_tag_name(int index, char **ret, int *ret_len TSRMLS_CC)
+php_varnish_log_get_tag_name(int index, char **ret, int *ret_len TSRMLS_DC)
 {/*{{{*/
 	int max = sizeof(VSL_tags)/sizeof(char*);
 

@@ -114,7 +114,7 @@ PHP_METHOD(VarnishStat, getSnapshot)
 	zvso = (struct ze_varnish_stat_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
 
 	array_init(return_value);
-	(void)php_varnish_snap_stats(return_value, zvso->zvc.ident);
+	(void)php_varnish_snap_stats(return_value, zvso->zvc.ident TSRMLS_CC);
 }
 /* }}} */
 

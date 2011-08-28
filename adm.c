@@ -229,7 +229,7 @@ PHP_METHOD(VarnishAdmin, getParams)
 
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
 
-	php_varnish_get_params(zvao->zvc.sock, &zvao->status, return_value, zvao->zvc.timeout);
+	php_varnish_get_params(zvao->zvc.sock, &zvao->status, return_value, zvao->zvc.timeout TSRMLS_CC);
 
 	/*RETURN_LONG(zvao->status);*/
 }
@@ -295,7 +295,7 @@ PHP_METHOD(VarnishAdmin, stop)
 
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
 
-	(void)php_varnish_stop(zvao->zvc.sock, &zvao->status, zvao->zvc.timeout);
+	(void)php_varnish_stop(zvao->zvc.sock, &zvao->status, zvao->zvc.timeout TSRMLS_CC);
 
 	RETURN_LONG(zvao->status);
 }
@@ -309,7 +309,7 @@ PHP_METHOD(VarnishAdmin, start)
 
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
 
-	(void)php_varnish_start(zvao->zvc.sock, &zvao->status, zvao->zvc.timeout);
+	(void)php_varnish_start(zvao->zvc.sock, &zvao->status, zvao->zvc.timeout TSRMLS_CC);
 
 	RETURN_LONG(zvao->status);
 }

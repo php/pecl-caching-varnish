@@ -49,7 +49,7 @@ enum {
 };
 
 void
-php_varnish_throw_comm_exception(void);
+php_varnish_throw_comm_exception(TSRMLS_D);
 
 
 #endif	/* PHP_VARNISH_EXCEPTION_H */

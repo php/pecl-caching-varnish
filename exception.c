@@ -40,7 +40,7 @@
 #include "exception.h"
 
 void
-php_varnish_throw_comm_exception(void)
+php_varnish_throw_comm_exception(TSRMLS_D)
 {
 	zend_throw_exception_ex(
 		VarnishException_ce,

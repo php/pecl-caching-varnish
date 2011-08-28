@@ -88,7 +88,7 @@ const zend_function_entry VarnishStat_methods[] = {
 const zend_function_entry VarnishLog_methods[] = {
 	PHP_ME(VarnishLog, __construct, NULL, ZEND_ACC_PUBLIC)
 	PHP_ME(VarnishLog, getLine, NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(VarnishLog, getTagName, NULL, ZEND_ACC_PUBLIC)
+	PHP_ME(VarnishLog, getTagName, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */

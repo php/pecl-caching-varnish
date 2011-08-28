@@ -154,22 +154,20 @@ PHP_METHOD(VarnishLog, getLine)
  Get tag name by its numerical index */
 PHP_METHOD(VarnishLog, getTagName)
 {
-	struct ze_varnish_log_obj *zvlo;
 	char *ret;
-	long ind, ret_len;
+	long ind;
+	int ret_len;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &ind) == FAILURE) {
 		RETURN_NULL();
 		return;
 	}
 
-	zvlo = (struct ze_varnish_log_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
-
 	php_varnish_log_get_tag_name((int)ind, &ret, &ret_len TSRMLS_CC);
 
 	RETURN_STRINGL(ret, ret_len, 0);
 }
-/* }}} */
+/* } }} */
 
 /*
  * Local variables:

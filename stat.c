@@ -107,6 +107,7 @@ PHP_METHOD(VarnishStat, __construct)
 			PHP_VARNISH_COMM_EXCEPTION TSRMLS_CC,
 			"the 'ident' array index must be provided"
 		);
+		return;
 	}
 
 }
@@ -120,6 +121,15 @@ PHP_METHOD(VarnishStat, getSnapshot)
 
 	zvso = (struct ze_varnish_stat_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
 
+	/* Ensure the ctor was called properly and we have an ident to connect to */
+	if (!zvso->zvc.ident) {
+		zend_throw_exception_ex(
+			VarnishException_ce,
+			PHP_VARNISH_COMM_EXCEPTION TSRMLS_CC,
+			"Missing ident to connect to"
+		);
+		return;
+	}
 	array_init(return_value);
 	(void)php_varnish_snap_stats(return_value, zvso->zvc.ident TSRMLS_CC);
 }

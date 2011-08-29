@@ -91,7 +91,6 @@ PHP_METHOD(VarnishStat, __construct)
 	zval *opts, **ident;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a", &opts) == FAILURE) {
-		RETURN_NULL();
 		return;
 	}
 
@@ -119,6 +118,10 @@ PHP_METHOD(VarnishStat, getSnapshot)
 {
 	struct ze_varnish_stat_obj *zvso;
 
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+
 	zvso = (struct ze_varnish_stat_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
 
 	/* Ensure the ctor was called properly and we have an ident to connect to */
@@ -130,6 +133,7 @@ PHP_METHOD(VarnishStat, getSnapshot)
 		);
 		return;
 	}
+
 	array_init(return_value);
 	(void)php_varnish_snap_stats(return_value, zvso->zvc.ident TSRMLS_CC);
 }

@@ -102,7 +102,6 @@ PHP_METHOD(VarnishLog, __construct)
 	zval *opts, **ident, **format;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a", &opts) == FAILURE) {
-		RETURN_NULL();
 		return;
 	}
 
@@ -142,6 +141,10 @@ PHP_METHOD(VarnishLog, getLine)
 	char *line;
 	int line_len;
 
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+
 	zvlo = (struct ze_varnish_log_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
 
 	array_init(return_value);
@@ -159,7 +162,6 @@ PHP_METHOD(VarnishLog, getTagName)
 	int ret_len;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &ind) == FAILURE) {
-		RETURN_NULL();
 		return;
 	}
 
@@ -167,7 +169,7 @@ PHP_METHOD(VarnishLog, getTagName)
 
 	RETURN_STRINGL(ret, ret_len, 0);
 }
-/* } }} */
+/* }}} */
 
 /*
  * Local variables:

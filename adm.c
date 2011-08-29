@@ -126,7 +126,6 @@ PHP_METHOD(VarnishAdmin, __construct)
 	struct ze_varnish_adm_obj *zvao;
 	zval *opts, **secret, **addr, **port, **timeout, **ident;
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a", &opts) == FAILURE) {
-		RETURN_NULL();
 		return;
 	}
 
@@ -164,6 +163,10 @@ PHP_METHOD(VarnishAdmin, connect)
 {
 	struct ze_varnish_adm_obj *zvao;
 
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
 	
 	/* XXX check status */
@@ -196,6 +199,10 @@ PHP_METHOD(VarnishAdmin, auth)
 {
 	struct ze_varnish_adm_obj *zvao;
 
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
 
 	zvao->status = PHP_VARNISH_STATUS_AUTH;
@@ -226,6 +233,10 @@ PHP_METHOD(VarnishAdmin, auth)
 PHP_METHOD(VarnishAdmin, getParams)
 {
 	struct ze_varnish_adm_obj *zvao;
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
 
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
 
@@ -293,6 +304,10 @@ PHP_METHOD(VarnishAdmin, stop)
 {
 	struct ze_varnish_adm_obj *zvao;
 
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
 
 	(void)php_varnish_stop(zvao->zvc.sock, &zvao->status, zvao->zvc.timeout TSRMLS_CC);
@@ -306,6 +321,10 @@ PHP_METHOD(VarnishAdmin, stop)
 PHP_METHOD(VarnishAdmin, start)
 {
 	struct ze_varnish_adm_obj *zvao;
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
 
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
 
@@ -364,6 +383,10 @@ PHP_METHOD(VarnishAdmin, isRunning)
 	struct ze_varnish_adm_obj *zvao;
 	int ret;
 
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
 
 	ret = php_varnish_is_running(zvao->zvc.sock, &zvao->status, zvao->zvc.timeout TSRMLS_CC);
@@ -380,6 +403,10 @@ PHP_METHOD(VarnishAdmin, getPanic)
 	char *content;
 	int content_len;
 
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
 
 	php_varnish_get_panic(zvao->zvc.sock, &zvao->status, &content, &content_len, zvao->zvc.timeout TSRMLS_CC);
@@ -393,6 +420,10 @@ PHP_METHOD(VarnishAdmin, getPanic)
 PHP_METHOD(VarnishAdmin, clearPanic)
 {
 	struct ze_varnish_adm_obj *zvao;
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
 
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
 

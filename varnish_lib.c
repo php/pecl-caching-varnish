@@ -756,8 +756,12 @@ php_varnish_log_get_tag_name(int index, char **ret, int *ret_len TSRMLS_DC)
 	*ret_len = 0;
 
 	if (index >= 0 && index < max) {
-		*ret = estrdup(VSL_tags[index]);
-		*ret_len = strlen(*ret);
+		const char *tmp;
+		tmp = VSL_tags[index];
+		if (tmp) {
+			*ret = estrdup(tmp);
+			*ret_len = strlen(*ret);
+		}
 	}
 }/*}}}*/
 

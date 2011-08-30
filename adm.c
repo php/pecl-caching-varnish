@@ -173,7 +173,7 @@ PHP_METHOD(VarnishAdmin, connect)
 
 	/* get the socket */
 	if (zvao->zvc.ident_len > 0) {
-		zvao->zvc.sock = php_varnish_sock_ident(zvao->zvc.ident, zvao->zvc.host, &zvao->zvc.port,
+		zvao->zvc.sock = php_varnish_sock_ident(zvao->zvc.ident, &zvao->zvc.host, &zvao->zvc.host_len, &zvao->zvc.port,
 										zvao->zvc.timeout, &zvao->status TSRMLS_CC);
 		if (zvao->zvc.sock < 0) {
 			RETURN_FALSE;
@@ -391,7 +391,7 @@ PHP_METHOD(VarnishAdmin, isRunning)
 
 	ret = php_varnish_is_running(zvao->zvc.sock, &zvao->status, zvao->zvc.timeout TSRMLS_CC);
 
-	RETURN_BOOL(ret && PHP_VARNISH_STATUS_OK == zvao->status);
+	RETURN_BOOL(ret > 0 && PHP_VARNISH_STATUS_OK == zvao->status);
 }
 /*}}}*/
 

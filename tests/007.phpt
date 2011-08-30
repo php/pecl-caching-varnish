@@ -1,5 +1,5 @@
 --TEST--
-Check for varnish status functionality
+Check for VarnishStat::getSnapshot functionality
 --SKIPIF--
 <?php if (!extension_loaded("varnish") || !file_exists('tests/config.php')) print "skip"; ?>
 --FILE--

@@ -261,42 +261,51 @@ static int
 php_varnish_invoke_command(int sock, char *command, int command_len, int *status, char **answer, int *answer_len, int tmo TSRMLS_DC)
 {/*{{{*/
 	int numbytes;
-	char *cmd;
+	char *cmd, *tmp, *tmp_start;
 	/* XXX check auth */
 	/* one can use this to just forward the in stream */
 	if (command_len) {
-		cmd = emalloc(command_len+2);
+		cmd = emalloc(command_len+3);
 		snprintf(cmd, command_len+2, "%s\n", command);
+		cmd[command_len+2] = '\0';
 
-		if((numbytes = php_varnish_send_bytes(sock, cmd, command_len+1)) != command_len+1) {
+		if((numbytes = php_varnish_send_bytes(sock, cmd, command_len+2)) != command_len+2) {
+			efree(cmd);
 			php_varnish_throw_comm_exception(TSRMLS_C);
 			return -1;
 		}
+
+		efree(cmd);
 	}
 
 	if((numbytes = php_varnish_read_line0(sock, status, answer_len, tmo TSRMLS_CC)) != PHP_VARNISH_LINE0_MAX_LEN) {
 		php_varnish_throw_comm_exception(TSRMLS_C);
 		return 0;
 	}
-	(*answer) = emalloc(*answer_len+1);
-	(*answer)[*answer_len+1] = '\0';
-	numbytes = php_varnish_consume_bytes(sock, *answer, *answer_len+1, tmo TSRMLS_CC);
+
+	tmp = tmp_start = emalloc(*answer_len+2);
+	tmp[*answer_len+1] = '\0';
+	numbytes = php_varnish_consume_bytes(sock, tmp, *answer_len+1, tmo TSRMLS_CC);
 	if(numbytes < 0) {
 		php_varnish_throw_comm_exception(TSRMLS_C);
 		return 0;
 	}
 
 	/* forward all the leading whitespaces */
-	while (*(*answer) && !isalpha(*(*answer))) {
-		(*answer)++;
+	while (*tmp && !isalpha(*tmp)) {
+		tmp++;
 		(*answer_len)--;
 	}
+
+	*answer = estrdup(tmp);
+
+	efree(tmp_start);
 
 	return 1;
 }/*}}}*/
 
 int
-php_varnish_sock_ident(const char *ident, char *addr, int *port, int tmo, int *status TSRMLS_DC)
+php_varnish_sock_ident(const char *ident, char **addr, int *addr_len, int *port, int tmo, int *status TSRMLS_DC)
 {/*{{{*/
 	int sock = -1, j;
 	struct VSM_data *vsd;
@@ -349,7 +358,8 @@ php_varnish_sock_ident(const char *ident, char *addr, int *port, int tmo, int *s
 		/* XXX j == 2 */
 		sock = php_varnish_sock(tmp_addr, *port, tmo, status TSRMLS_CC);
 		if (sock > -1) {
-			addr = estrdup(tmp_addr);	
+			*addr = estrdup(tmp_addr);	
+			*addr_len = strlen(*addr);
 			break;
 		}
 		t_arg = ++p;
@@ -404,7 +414,7 @@ php_varnish_sock(const char *addr, int port, int tmo, int *status TSRMLS_DC)
 					PHP_VARNISH_SOCK_EXCEPTION TSRMLS_CC,
 					"Host '%s' not found. %s",
 					addr,
-					gai_strerror(rc)
+					estrdup(gai_strerror(rc))
 				);
 			}
 			return sock;
@@ -511,7 +521,7 @@ php_varnish_auth(int sock, char *secret, int secret_len, int *status, int tmo TS
 	}
 
 	if (PHP_VARNISH_STATUS_AUTH == *status) {
-		content = emalloc(content_len+1);
+		content = emalloc(content_len+2);
 		content[content_len+1] = '\0';
 		numbytes = php_varnish_consume_bytes(sock, content, content_len, tmo TSRMLS_CC);
 		if(numbytes < 0) {
@@ -521,13 +531,14 @@ php_varnish_auth(int sock, char *secret, int secret_len, int *status, int tmo TS
 		/* XXX use content directly if there is no logging requirement */
 		memcpy(challenge, content, PHP_VARNISH_CHALLENGE_LEN);
 		challenge[PHP_VARNISH_CHALLENGE_LEN+1] = '\0';
+		efree(content);
 
 		SHA256_Init(&ctx256);
-		SHA256_Update(&ctx256, (unsigned char*)estrdup(challenge), PHP_VARNISH_CHALLENGE_LEN);
+		SHA256_Update(&ctx256, (unsigned char*)challenge, PHP_VARNISH_CHALLENGE_LEN);
 		SHA256_Update(&ctx256, (unsigned char*)"\n", 1);
-		SHA256_Update(&ctx256, (unsigned char*)estrdup(secret), secret_len);
+		SHA256_Update(&ctx256, (unsigned char*)secret, secret_len);
 		SHA256_Update(&ctx256, (unsigned char*)"\n", 1);
-		SHA256_Update(&ctx256, (unsigned char*)estrdup(challenge), PHP_VARNISH_CHALLENGE_LEN);
+		SHA256_Update(&ctx256, (unsigned char*)challenge, PHP_VARNISH_CHALLENGE_LEN);
 		SHA256_Update(&ctx256, (unsigned char*)"\n", 1);
 		SHA256_End(&ctx256, buf);
 
@@ -540,11 +551,10 @@ php_varnish_auth(int sock, char *secret, int secret_len, int *status, int tmo TS
 		if(-1 == php_varnish_send_bytes(sock, "\n", strlen("\n"))) {
 			php_varnish_throw_comm_exception(TSRMLS_C);
 		}
-		/* XXX efree(content); */
 
 		/* forward to the end of the varnish out */
 		php_varnish_invoke_command(sock, NULL, 0, status, &content, &content_len, tmo TSRMLS_CC);
-		/* XXX efree(content);*/
+		efree(content);
 	}
 
 	return 1;
@@ -555,7 +565,6 @@ php_varnish_get_params(int sock, int *status, zval *storage, int tmo TSRMLS_DC)
 {/*{{{*/
 	int i = 0, content_len, len;
 	char *content, *p0, *p1, buf[256];
-	char key[64], val[64];
 
 	php_varnish_invoke_command(sock, "param.show", 10, status, &content, &content_len, tmo TSRMLS_CC);
 	
@@ -563,44 +572,50 @@ php_varnish_get_params(int sock, int *status, zval *storage, int tmo TSRMLS_DC)
 
 	p0 = p1 = content;
 	while(i < content_len) {
-		while(*p1 != '\0' && *p1 != '\n') {
+		while(*p1 != '\0' && *p1 != '\n' && *p1 != '\r') {
 			p1++;
 		}
 
 		len = p1 - p0;
-		if (0 == len) {
-			continue;
-		}
 		memcpy(buf, p0, (len > 255 ? 255 : len));
 		buf[len] = '\0';
-		sscanf(buf, "%s %s", key, val); /* = 2 */
 		php_varnish_parse_add_param(storage, buf);
 		p0 = ++p1;
 		i += len + 1;
 	}
 
-	/* efree(content); */
+	efree(content);
+
 	return 1;
 }/*}}}*/
 
 int
 php_varnish_set_param(int sock, int *status, char *key, int key_len, char *param, int param_len, int tmo TSRMLS_DC)
 {/*{{{*/
-	char *content, buf[128];
-	int content_len;
+	char *content, buf[256];
+	int content_len, ret, cmd_len = key_len + param_len + 11;
 
-	snprintf(buf, 128, "param.set %s \"%s\"", key, param);
+	snprintf(buf, 255, "param.set %s %s", key, param);
+	buf[(cmd_len > 255 ? 255 : cmd_len)] = '\0';
 
-	return php_varnish_invoke_command(sock, buf, key_len + param_len + 13, status, &content, &content_len, tmo TSRMLS_CC);
+	ret = php_varnish_invoke_command(sock, buf, cmd_len, status, &content, &content_len, tmo TSRMLS_CC);
+
+	efree(content);
+
+	return ret;
 }/*}}}*/
 
 int
 php_varnish_stop(int sock, int *status, int tmo TSRMLS_DC)
 {/*{{{*/
 	char *content;
-	int content_len;
+	int content_len, ret;
 
-	return php_varnish_invoke_command(sock, "stop", 4, status, &content, &content_len, tmo TSRMLS_CC);
+	ret = php_varnish_invoke_command(sock, "stop", 4, status, &content, &content_len, tmo TSRMLS_CC);
+
+	efree(content);
+
+	return ret;
 }/*}}}*/ 
 
 
@@ -608,9 +623,13 @@ int
 php_varnish_start(int sock, int *status, int tmo TSRMLS_DC)
 {/*{{{*/ 
 	char *content;
-	int content_len;
+	int content_len, ret;
 
-	return php_varnish_invoke_command(sock, "start", 5, status, &content, &content_len, tmo TSRMLS_CC);
+	ret = php_varnish_invoke_command(sock, "start", 5, status, &content, &content_len, tmo TSRMLS_CC);
+
+	efree(content);
+
+	return ret;
 }/*}}}*/
 
 int
@@ -712,7 +731,7 @@ php_varnish_get_log(const struct VSM_data *vd, zval *line TSRMLS_DC)
 
 int
 php_varnish_is_running(int sock, int *status, int tmo TSRMLS_DC)
-{/*{{{*/
+{/*{{{*/ 
 	char *content, *msg;
 	int content_len, ret = 0, msg_len;
 
@@ -721,9 +740,11 @@ php_varnish_is_running(int sock, int *status, int tmo TSRMLS_DC)
 	msg_len = strlen(msg);
 
 	ret = php_varnish_invoke_command(sock, "status", 6, status, &content, &content_len, tmo TSRMLS_CC);
-	if (ret) {
+	if (ret > 0) {
 		ret = !memcmp(msg, content, msg_len);
 	}
+
+	efree(content);
 
 	return ret;
 }/*}}}*/

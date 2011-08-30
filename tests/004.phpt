@@ -18,15 +18,15 @@ foreach ($args_all as $args) {
 
  	$va->setParam("thread_pools", 20);
  	$vparams = $va->getParams();
-	echo $vparams['thread_pools'] . "\n";
+	echo (int)$vparams['thread_pools'] . "\n";
 
  	$va->setParam("thread_pools", 30);
  	$vparams = $va->getParams();
-	echo $vparams['thread_pools'] . "\n";
+	echo (int)$vparams['thread_pools'] . "\n";
 
  	$va->setParam("thread_pools", 40);
  	$vparams = $va->getParams();
-	echo $vparams['thread_pools'] . "\n";
+	echo (int)$vparams['thread_pools'] . "\n";
 }
 
 ?>

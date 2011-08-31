@@ -1,6 +1,7 @@
 <?php
 
 $args_all = array(
+	'args_empty' => array(),
 	'args_ident' => array(
 		"ident" => "/var/lib/varnish/silent",
 	),

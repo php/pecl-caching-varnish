@@ -33,3 +33,5 @@ foreach ($args_all as $args) {
 1
 0
 1
+0
+1

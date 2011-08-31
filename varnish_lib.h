@@ -41,6 +41,9 @@ php_varnish_sock(const char *addr, int port, int timeout, int *status TSRMLS_DC)
 int
 php_varnish_sock_ident(const char *ident, char **addr, int *addr_len, int *port, int timeout, int *status TSRMLS_DC);
 
+void
+php_varnish_default_ident(char **ident, int *ident_len);
+
 /* authenticate with the varnish instance running under the given socket */
 int
 php_varnish_auth(int sock, char *secret, int secret_len, int *status, int timeout TSRMLS_DC);

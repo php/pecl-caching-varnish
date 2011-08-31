@@ -81,7 +81,7 @@ php_varnish_adm_obj_init(zend_class_entry *ze TSRMLS_DC)
 
 	zvao->zvc.host_len	= 0;
 	zvao->zvc.host		= NULL;
-	zvao->zvc.port	   = 2000;
+	zvao->zvc.port	   = -1;
 	zvao->zvc.secret_len = 0;
 	zvao->zvc.secret	 = NULL;
 	zvao->zvc.timeout	= 0;
@@ -144,6 +144,19 @@ PHP_METHOD(VarnishAdmin, __construct)
 
 	if(zend_hash_find(Z_ARRVAL_P(opts), "port", sizeof("port"), (void**)&port) != FAILURE) {
 		zvao->zvc.port = (int)Z_LVAL_PP(port);
+	}
+
+	if (zvao->zvc.ident_len > 0 && (zvao->zvc.host_len > 0 || zvao->zvc.port > -1)) {
+		php_varnish_throw_ident_vs_host_exception(TSRMLS_C);
+		return;
+	}
+
+	if (0 == zvao->zvc.ident_len) {
+		if (zvao->zvc.host_len > 0 && zvao->zvc.port < 0) {
+			zvao->zvc.port = 2000;
+		} else if (0 == zvao->zvc.host_len || zvao->zvc.port < 0) {
+			php_varnish_default_ident(&zvao->zvc.ident, (int*)&zvao->zvc.ident_len);
+		}
 	}
 
 	if(zend_hash_find(Z_ARRVAL_P(opts), "timeout", sizeof("timeout"), (void**)&timeout) != FAILURE) {

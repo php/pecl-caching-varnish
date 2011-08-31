@@ -49,6 +49,16 @@ php_varnish_throw_comm_exception(TSRMLS_D)
 	);  
 }
 
+void
+php_varnish_throw_ident_vs_host_exception(TSRMLS_D)
+{
+	zend_throw_exception_ex(
+		VarnishException_ce,
+		PHP_VARNISH_PARAM_EXCEPTION TSRMLS_CC,
+		"Ident vs. host/port configuration are mutually exclusive"
+	);
+}
+
 /*
  * Local variables:
  * tab-width: 4

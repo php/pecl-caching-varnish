@@ -40,3 +40,6 @@ foreach ($args_all as $args) {
 20
 30
 40
+20
+30
+40

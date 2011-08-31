@@ -786,6 +786,19 @@ php_varnish_log_get_tag_name(int index, char **ret, int *ret_len TSRMLS_DC)
 	}
 }/*}}}*/
 
+void
+php_varnish_default_ident(char **ident, int *ident_len)
+{/*{{{*/
+	char buf[64];
+
+	gethostname(buf, 63);
+
+	*ident = emalloc(128);
+	snprintf(*ident, 127, "/var/lib/varnish/%s", buf);
+
+	*ident_len = strlen(*ident);
+}/*}}}*/
+
 /*
  * Local variables:
  * tab-width: 4

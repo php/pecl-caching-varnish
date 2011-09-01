@@ -90,7 +90,7 @@ PHP_METHOD(VarnishStat, __construct)
 	struct ze_varnish_stat_obj *zvso;
 	zval *opts, **ident;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a", &opts) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|", &opts) == FAILURE) {
 		return;
 	}
 
@@ -99,14 +99,8 @@ PHP_METHOD(VarnishStat, __construct)
 	if(zend_hash_find(Z_ARRVAL_P(opts), "ident", sizeof("ident"), (void**)&ident) != FAILURE) {
 		zvso->zvc.ident = estrdup(Z_STRVAL_PP(ident));
 		zvso->zvc.ident_len = Z_STRLEN_PP(ident);
-	}
-	else {
-		zend_throw_exception_ex(
-			VarnishException_ce,
-			PHP_VARNISH_COMM_EXCEPTION TSRMLS_CC,
-			"the 'ident' array index must be provided"
-		);
-		return;
+	} else {
+		php_varnish_default_ident(&zvso->zvc.ident, (int*)&zvso->zvc.ident_len);
 	}
 
 }

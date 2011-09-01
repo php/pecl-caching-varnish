@@ -7,16 +7,24 @@ Check for the basic VarnishLog::getLine() functionality
 
 include 'tests/config.php';
 
-$i = 3;
-$vs = new VarnishLog($args_all['args_ident']);
-while($i-- > 0) {
-        $line = $vs->getLine();
-        echo (int)is_array($line), "\n";
-        echo (int)!empty($line), "\n";
-};
+foreach (array_slice($args_all, 0, 2) as $args) {
+	$i = 3;
+	$vs = new VarnishLog($args);
+	while($i-- > 0) {
+			$line = $vs->getLine();
+			echo (int)is_array($line), "\n";
+			echo (int)!empty($line), "\n";
+	}
+}
 
 ?>
 --EXPECT--
+1
+1
+1
+1
+1
+1
 1
 1
 1

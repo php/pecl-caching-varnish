@@ -110,6 +110,8 @@ PHP_METHOD(VarnishLog, __construct)
 	if(zend_hash_find(Z_ARRVAL_P(opts), "ident", sizeof("ident"), (void**)&ident) != FAILURE) {
 		zvlo->zvc.ident = estrdup(Z_STRVAL_PP(ident));
 		zvlo->zvc.ident_len = Z_STRLEN_PP(ident);
+	} else {
+		php_varnish_default_ident(&zvlo->zvc.ident, (int*)&zvlo->zvc.ident_len);
 	}
 
 	zvlo->vd = VSM_New();

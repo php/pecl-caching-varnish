@@ -7,14 +7,18 @@ Check for VarnishStat::getSnapshot functionality
 
 include 'tests/config.php';
 
-$vs = new VarnishStat($args_all['args_ident']);
+foreach (array_slice($args_all, 0, 2) as $args) {
+	$vs = new VarnishStat($args);
 
-$stat = $vs->getSnapshot();
+	$stat = $vs->getSnapshot();
 
-echo (int)is_array($stat), "\n";
-echo (int)!empty($stat);
+	echo (int)is_array($stat), "\n";
+	echo (int)!empty($stat), "\n";
+}
 
 ?>
 --EXPECT--
+1
+1
 1
 1

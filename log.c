@@ -58,10 +58,6 @@ php_varnish_log_obj_destroy(void *obj TSRMLS_DC)
 		zvlo->vd = NULL;
 	}
 
-	if (zvlo->format_len > 0) {
-		efree(zvlo->format);
-	}
-
 	efree(zvlo);
 }/*}}}*/
 
@@ -82,8 +78,6 @@ php_varnish_log_obj_init(zend_class_entry *ze TSRMLS_DC)
 		zvlo->zvc.ident	    = NULL;
 		zvlo->zvc.ident_len = 0;
 		zvlo->vd            = NULL;
-		zvlo->format	    = NULL;
-		zvlo->format_len    = 0;
 
 		ret.handle = zend_objects_store_put(zvlo, NULL,
 											(zend_objects_free_object_storage_t) php_varnish_log_obj_destroy,
@@ -99,24 +93,27 @@ php_varnish_log_obj_init(zend_class_entry *ze TSRMLS_DC)
 PHP_METHOD(VarnishLog, __construct)
 {
 	struct ze_varnish_log_obj *zvlo;
-	zval *opts, **ident, **format;
+	zval *opts = NULL, **ident;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a", &opts) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|a", &opts) == FAILURE) {
 		return;
 	}
 
 	zvlo = (struct ze_varnish_log_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
 
-	if(zend_hash_find(Z_ARRVAL_P(opts), "ident", sizeof("ident"), (void**)&ident) != FAILURE) {
-		zvlo->zvc.ident = estrdup(Z_STRVAL_PP(ident));
-		zvlo->zvc.ident_len = Z_STRLEN_PP(ident);
-	} else {
+	if (NULL == opts) {
 		php_varnish_default_ident(&zvlo->zvc.ident, (int*)&zvlo->zvc.ident_len);
+	} else {
+		if(zend_hash_find(Z_ARRVAL_P(opts), "ident", sizeof("ident"), (void**)&ident) != FAILURE) {
+			zvlo->zvc.ident = estrdup(Z_STRVAL_PP(ident));
+			zvlo->zvc.ident_len = Z_STRLEN_PP(ident);
+		} else {
+			php_varnish_default_ident(&zvlo->zvc.ident, (int*)&zvlo->zvc.ident_len);
+		}
 	}
 
 	zvlo->vd = VSM_New();
 	VSL_Setup(zvlo->vd);
-
 
 	/* XXX throw an exception */
 	if (zvlo->zvc.ident_len > 0) {
@@ -126,11 +123,6 @@ PHP_METHOD(VarnishLog, __construct)
 	if (VSL_Open(zvlo->vd, 1)) {
 		/* XXX throw could not open */
 		return;
-	}
-
-	if(zend_hash_find(Z_ARRVAL_P(opts), "format", sizeof("format"), (void**)&format) != FAILURE) {
-		zvlo->format = estrdup(Z_STRVAL_PP(format));
-		zvlo->format_len = Z_STRLEN_PP(format);
 	}
 }
 /* }}} */

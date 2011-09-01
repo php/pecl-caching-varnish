@@ -122,8 +122,6 @@ struct ze_varnish_log_obj {
 	zend_object zo;
 	struct ze_varnish_conn zvc;
 	struct VSM_data *vd;
-	char *format;
-	long format_len;
 };
 
 #endif	/* PHP_VARNISH_H */

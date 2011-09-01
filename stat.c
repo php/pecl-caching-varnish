@@ -88,13 +88,18 @@ php_varnish_stat_obj_init(zend_class_entry *ze TSRMLS_DC)
 PHP_METHOD(VarnishStat, __construct)
 {
 	struct ze_varnish_stat_obj *zvso;
-	zval *opts, **ident;
+	zval *opts = NULL, **ident;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|", &opts) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|a", &opts) == FAILURE) {
 		return;
 	}
 
 	zvso = (struct ze_varnish_stat_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+
+	if (NULL == opts) {
+		php_varnish_default_ident(&zvso->zvc.ident, (int*)&zvso->zvc.ident_len);
+		return;
+	}
 
 	if(zend_hash_find(Z_ARRVAL_P(opts), "ident", sizeof("ident"), (void**)&ident) != FAILURE) {
 		zvso->zvc.ident = estrdup(Z_STRVAL_PP(ident));
@@ -102,7 +107,6 @@ PHP_METHOD(VarnishStat, __construct)
 	} else {
 		php_varnish_default_ident(&zvso->zvc.ident, (int*)&zvso->zvc.ident_len);
 	}
-
 }
 /* }}} */
 

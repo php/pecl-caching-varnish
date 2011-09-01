@@ -124,48 +124,53 @@ php_varnish_throw_diag_f_exception(void *priv /* fd to output, ignored here */, 
 PHP_METHOD(VarnishAdmin, __construct)
 {
 	struct ze_varnish_adm_obj *zvao;
-	zval *opts, **secret, **addr, **port, **timeout, **ident;
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a", &opts) == FAILURE) {
+	zval *opts = NULL, **secret, **addr, **port, **timeout, **ident;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|a", &opts) == FAILURE) {
 		return;
 	}
 
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
 
-	/* read config options */
-	if(zend_hash_find(Z_ARRVAL_P(opts), "host", sizeof("host"), (void**)&addr) != FAILURE) {
-		zvao->zvc.host = estrdup(Z_STRVAL_PP(addr));
-		zvao->zvc.host_len = Z_STRLEN_PP(addr);
-	}
-
-	if(zend_hash_find(Z_ARRVAL_P(opts), "ident", sizeof("ident"), (void**)&ident) != FAILURE) {
-		zvao->zvc.ident = estrdup(Z_STRVAL_PP(ident));
-		zvao->zvc.ident_len = Z_STRLEN_PP(ident);
-	}
-
-	if(zend_hash_find(Z_ARRVAL_P(opts), "port", sizeof("port"), (void**)&port) != FAILURE) {
-		zvao->zvc.port = (int)Z_LVAL_PP(port);
-	}
-
-	if (zvao->zvc.ident_len > 0 && (zvao->zvc.host_len > 0 || zvao->zvc.port > -1)) {
-		php_varnish_throw_ident_vs_host_exception(TSRMLS_C);
-		return;
-	}
-
-	if (0 == zvao->zvc.ident_len) {
-		if (zvao->zvc.host_len > 0 && zvao->zvc.port < 0) {
-			zvao->zvc.port = 2000;
-		} else if (0 == zvao->zvc.host_len || zvao->zvc.port < 0) {
-			php_varnish_default_ident(&zvao->zvc.ident, (int*)&zvao->zvc.ident_len);
+	if (NULL == opts) {
+		php_varnish_default_ident(&zvao->zvc.ident, (int*)&zvao->zvc.ident_len);
+	} else {
+		/* read config options */
+		if(zend_hash_find(Z_ARRVAL_P(opts), "host", sizeof("host"), (void**)&addr) != FAILURE) {
+			zvao->zvc.host = estrdup(Z_STRVAL_PP(addr));
+			zvao->zvc.host_len = Z_STRLEN_PP(addr);
 		}
-	}
 
-	if(zend_hash_find(Z_ARRVAL_P(opts), "timeout", sizeof("timeout"), (void**)&timeout) != FAILURE) {
-		zvao->zvc.timeout = (int)Z_LVAL_PP(timeout);
-	}
+		if(zend_hash_find(Z_ARRVAL_P(opts), "ident", sizeof("ident"), (void**)&ident) != FAILURE) {
+			zvao->zvc.ident = estrdup(Z_STRVAL_PP(ident));
+			zvao->zvc.ident_len = Z_STRLEN_PP(ident);
+		}
 
-	if(zend_hash_find(Z_ARRVAL_P(opts), "secret", sizeof("secret"), (void**)&secret) != FAILURE) {
-		zvao->zvc.secret = estrdup(Z_STRVAL_PP(secret));
-		zvao->zvc.secret_len = Z_STRLEN_PP(secret);
+		if(zend_hash_find(Z_ARRVAL_P(opts), "port", sizeof("port"), (void**)&port) != FAILURE) {
+			zvao->zvc.port = (int)Z_LVAL_PP(port);
+		}
+
+		if (zvao->zvc.ident_len > 0 && (zvao->zvc.host_len > 0 || zvao->zvc.port > -1)) {
+			php_varnish_throw_ident_vs_host_exception(TSRMLS_C);
+			return;
+		}
+
+		if (0 == zvao->zvc.ident_len) {
+			if (zvao->zvc.host_len > 0 && zvao->zvc.port < 0) {
+				zvao->zvc.port = 2000;
+			} else if (0 == zvao->zvc.host_len || zvao->zvc.port < 0) {
+				php_varnish_default_ident(&zvao->zvc.ident, (int*)&zvao->zvc.ident_len);
+			}
+		}
+
+		if(zend_hash_find(Z_ARRVAL_P(opts), "timeout", sizeof("timeout"), (void**)&timeout) != FAILURE) {
+			zvao->zvc.timeout = (int)Z_LVAL_PP(timeout);
+		}
+
+		if(zend_hash_find(Z_ARRVAL_P(opts), "secret", sizeof("secret"), (void**)&secret) != FAILURE) {
+			zvao->zvc.secret = estrdup(Z_STRVAL_PP(secret));
+			zvao->zvc.secret_len = Z_STRLEN_PP(secret);
+		}
 	}
 }
 /* }}} */
@@ -235,6 +240,8 @@ PHP_METHOD(VarnishAdmin, auth)
 				return;
 			}
 		}
+	} else {
+		/* XXX throw no connection */
 	}
 
 	RETURN_BOOL(PHP_VARNISH_STATUS_OK == zvao->status);
@@ -445,6 +452,29 @@ PHP_METHOD(VarnishAdmin, clearPanic)
 	RETURN_LONG(zvao->status);
 }
 /* }}} */
+
+/* proto void VarnishAdmin::setHost(string host)
+ Set the host configuration option */
+PHP_METHOD(VarnishAdmin, setHost)
+{
+	struct ze_varnish_adm_obj *zvao;
+	char *host;
+	long host_len;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &host, &host_len) == FAILURE) {
+		return;
+	}
+
+	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+
+	if (zvao->zvc.host_len > 0) {
+		efree(zvao->zvc.host);
+	}
+	zvao->zvc.host = estrdup(host);
+	zvao->zvc.host_len = host_len;
+}
+/* }}} */
+
 
 /*
  * Local variables:

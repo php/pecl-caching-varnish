@@ -262,7 +262,7 @@ php_varnish_invoke_command(int sock, char *command, int command_len, int *status
 {/*{{{*/
 	int numbytes;
 	char *cmd, *tmp, *tmp_start;
-	/* XXX check auth */
+
 	/* one can use this to just forward the in stream */
 	if (command_len) {
 		cmd = emalloc(command_len+3);
@@ -563,13 +563,11 @@ php_varnish_auth(int sock, char *secret, int secret_len, int *status, int tmo TS
 int
 php_varnish_get_params(int sock, int *status, zval *storage, int tmo TSRMLS_DC)
 {/*{{{*/
-	int i = 0, content_len, len;
+	int i = 0, content_len, len, ret;
 	char *content, *p0, *p1, buf[256];
 
-	php_varnish_invoke_command(sock, "param.show", 10, status, &content, &content_len, tmo TSRMLS_CC);
+	ret = php_varnish_invoke_command(sock, "param.show", 10, status, &content, &content_len, tmo TSRMLS_CC);
 	
-	array_init(storage);
-
 	p0 = p1 = content;
 	while(i < content_len) {
 		while(*p1 != '\0' && *p1 != '\n' && *p1 != '\r') {
@@ -798,6 +796,22 @@ php_varnish_default_ident(char **ident, int *ident_len)
 
 	*ident_len = strlen(*ident);
 }/*}}}*/
+
+int
+php_varnish_adm_can_go(struct ze_varnish_adm_obj *zvao TSRMLS_DC)
+{
+	if (zvao->zvc.sock < 0) {
+		php_varnish_throw_conn_exception(TSRMLS_C);
+		return 0;
+	}
+
+	if (!zvao->zvc.authok) {
+		php_varnish_throw_auth_exception(TSRMLS_C);
+		return 0;
+	}
+
+	return 1;
+}
 
 /*
  * Local variables:

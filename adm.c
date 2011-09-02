@@ -79,15 +79,16 @@ php_varnish_adm_obj_init(zend_class_entry *ze TSRMLS_DC)
 	zend_hash_copy(zvao->zo.properties, &ze->default_properties, (copy_ctor_func_t) zval_add_ref,
 					(void *) &tmp, sizeof(zval *));
 
-	zvao->zvc.host_len	= 0;
-	zvao->zvc.host		= NULL;
-	zvao->zvc.port	   = -1;
+	zvao->zvc.host_len	 = 0;
+	zvao->zvc.host		 = NULL;
+	zvao->zvc.port	     = -1;
 	zvao->zvc.secret_len = 0;
 	zvao->zvc.secret	 = NULL;
-	zvao->zvc.timeout	= 0;
-	zvao->zvc.sock	   = -1;
+	zvao->zvc.timeout	 = 0;
+	zvao->zvc.sock	     = -1;
 	zvao->zvc.ident_len  = 0;
-	zvao->zvc.ident	  = NULL;
+	zvao->zvc.ident	     = NULL;
+	zvao->zvc.authok     = 0;
 	zvao->status		 = PHP_VARNISH_STATUS_CLOSE;
 
 	ret.handle = zend_objects_store_put(zvao, NULL,
@@ -244,7 +245,9 @@ PHP_METHOD(VarnishAdmin, auth)
 		/* XXX throw no connection */
 	}
 
-	RETURN_BOOL(PHP_VARNISH_STATUS_OK == zvao->status);
+	zvao->zvc.authok = PHP_VARNISH_STATUS_OK == zvao->status;
+
+	RETURN_BOOL(zvao->zvc.authok);
 }
 /* }}} */
 
@@ -260,9 +263,12 @@ PHP_METHOD(VarnishAdmin, getParams)
 
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
 
-	php_varnish_get_params(zvao->zvc.sock, &zvao->status, return_value, zvao->zvc.timeout TSRMLS_CC);
+	if (!php_varnish_adm_can_go(zvao TSRMLS_CC)) {
+		return;
+	}
 
-	/*RETURN_LONG(zvao->status);*/
+	array_init(return_value);
+	php_varnish_get_params(zvao->zvc.sock, &zvao->status, return_value, zvao->zvc.timeout TSRMLS_CC);
 }
 /* }}} */
 
@@ -281,6 +287,10 @@ PHP_METHOD(VarnishAdmin, setParam)
 	}
 
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+
+	if (!php_varnish_adm_can_go(zvao TSRMLS_CC)) {
+		return;
+	}
 
 	switch (Z_TYPE_P(val)) {
 		case IS_BOOL:
@@ -330,6 +340,10 @@ PHP_METHOD(VarnishAdmin, stop)
 
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
 
+	if (!php_varnish_adm_can_go(zvao TSRMLS_CC)) {
+		return;
+	}
+
 	(void)php_varnish_stop(zvao->zvc.sock, &zvao->status, zvao->zvc.timeout TSRMLS_CC);
 
 	RETURN_LONG(zvao->status);
@@ -347,6 +361,10 @@ PHP_METHOD(VarnishAdmin, start)
 	}
 
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+
+	if (!php_varnish_adm_can_go(zvao TSRMLS_CC)) {
+		return;
+	}
 
 	(void)php_varnish_start(zvao->zvc.sock, &zvao->status, zvao->zvc.timeout TSRMLS_CC);
 
@@ -369,6 +387,10 @@ PHP_METHOD(VarnishAdmin, banUrl)
 
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
 
+	if (!php_varnish_adm_can_go(zvao TSRMLS_CC)) {
+		return;
+	}
+
 	php_varnish_ban(zvao->zvc.sock, &zvao->status, regex, regex_len, zvao->zvc.timeout, PHP_VARNISH_BAN_URL_COMMAND TSRMLS_CC);	
 
 	RETURN_LONG(zvao->status);
@@ -390,6 +412,10 @@ PHP_METHOD(VarnishAdmin, ban)
 
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
 
+	if (!php_varnish_adm_can_go(zvao TSRMLS_CC)) {
+		return;
+	}
+
 	php_varnish_ban(zvao->zvc.sock, &zvao->status, regex, regex_len, zvao->zvc.timeout, PHP_VARNISH_BAN_COMMAND TSRMLS_CC);	
 
 	RETURN_LONG(zvao->status);
@@ -408,6 +434,10 @@ PHP_METHOD(VarnishAdmin, isRunning)
 	}
 
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+
+	if (!php_varnish_adm_can_go(zvao TSRMLS_CC)) {
+		return;
+	}
 
 	ret = php_varnish_is_running(zvao->zvc.sock, &zvao->status, zvao->zvc.timeout TSRMLS_CC);
 
@@ -429,6 +459,10 @@ PHP_METHOD(VarnishAdmin, getPanic)
 
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
 
+	if (!php_varnish_adm_can_go(zvao TSRMLS_CC)) {
+		return;
+	}
+
 	php_varnish_get_panic(zvao->zvc.sock, &zvao->status, &content, &content_len, zvao->zvc.timeout TSRMLS_CC);
 
 	RETURN_STRINGL(content, content_len, 0);
@@ -447,13 +481,17 @@ PHP_METHOD(VarnishAdmin, clearPanic)
 
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
 
+	if (!php_varnish_adm_can_go(zvao TSRMLS_CC)) {
+		return;
+	}
+
 	php_varnish_clear_panic(zvao->zvc.sock, &zvao->status, zvao->zvc.timeout TSRMLS_CC);	
 
 	RETURN_LONG(zvao->status);
 }
 /* }}} */
 
-/* proto void VarnishAdmin::setHost(string host)
+/* {{{ proto void VarnishAdmin::setHost(string host)
  Set the host configuration option */
 PHP_METHOD(VarnishAdmin, setHost)
 {
@@ -470,11 +508,34 @@ PHP_METHOD(VarnishAdmin, setHost)
 	if (zvao->zvc.host_len > 0) {
 		efree(zvao->zvc.host);
 	}
-	zvao->zvc.host = estrdup(host);
+	zvao->zvc.host     = estrdup(host);
 	zvao->zvc.host_len = host_len;
+	zvao->zvc.authok   = 0;
 }
 /* }}} */
 
+/* {{{ proto void VarnishAdmin::setIdent(string host)
+ Set the ident configuration option */
+PHP_METHOD(VarnishAdmin, setIdent)
+{
+	struct ze_varnish_adm_obj *zvao;
+	char *ident;
+	long ident_len;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &ident, &ident_len) == FAILURE) {
+		return;
+	}
+
+	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+
+	if (zvao->zvc.ident_len > 0) {
+		efree(zvao->zvc.ident);
+	}
+	zvao->zvc.ident     = estrdup(ident);
+	zvao->zvc.ident_len = ident_len;
+	zvao->zvc.authok    = 0;
+}
+/* }}} */
 
 /*
  * Local variables:

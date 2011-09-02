@@ -73,6 +73,7 @@ const zend_function_entry VarnishAdmin_methods[] = {
 	PHP_ME(VarnishAdmin, getPanic, NULL, ZEND_ACC_PUBLIC)
 	PHP_ME(VarnishAdmin, clearPanic, NULL, ZEND_ACC_PUBLIC)
 	PHP_ME(VarnishAdmin, setHost, NULL, ZEND_ACC_PUBLIC)
+	PHP_ME(VarnishAdmin, setIdent, NULL, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */

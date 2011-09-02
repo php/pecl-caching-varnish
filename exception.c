@@ -55,8 +55,28 @@ php_varnish_throw_ident_vs_host_exception(TSRMLS_D)
 	zend_throw_exception_ex(
 		VarnishException_ce,
 		PHP_VARNISH_PARAM_EXCEPTION TSRMLS_CC,
-		"Ident vs. host/port configuration are mutually exclusive"
+		"Ident vs host/port configuration are mutually exclusive"
 	);
+}
+
+void
+php_varnish_throw_auth_exception(TSRMLS_D)
+{
+	zend_throw_exception_ex(
+		VarnishException_ce,
+		PHP_VARNISH_AUTH_EXCEPTION TSRMLS_CC,
+		"Not authenticated"
+	);
+}
+
+void
+php_varnish_throw_conn_exception(TSRMLS_D)
+{
+	zend_throw_exception_ex(
+		VarnishException_ce,
+		PHP_VARNISH_CONN_EXCEPTION TSRMLS_CC,
+		"Not connected to any varnish instance"
+	);  
 }
 
 /*

@@ -71,6 +71,7 @@ PHP_METHOD(VarnishAdmin, isRunning);
 PHP_METHOD(VarnishAdmin, getPanic);
 PHP_METHOD(VarnishAdmin, clearPanic);
 PHP_METHOD(VarnishAdmin, setHost);
+PHP_METHOD(VarnishAdmin, setIdent);
 
 PHP_METHOD(VarnishStat, __construct);
 PHP_METHOD(VarnishStat, getSnapshot);
@@ -106,6 +107,7 @@ struct ze_varnish_conn {
 	int sock;
 	char *ident;
 	long ident_len;
+	int authok;
 };
 
 struct ze_varnish_adm_obj {

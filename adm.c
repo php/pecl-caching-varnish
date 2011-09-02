@@ -242,10 +242,12 @@ PHP_METHOD(VarnishAdmin, auth)
 			}
 		}
 	} else {
-		/* XXX throw no connection */
+		php_varnish_throw_conn_exception(TSRMLS_C);
+		zvao->zvc.authok = 0;
+		return;
 	}
 
-	zvao->zvc.authok = PHP_VARNISH_STATUS_OK == zvao->status;
+	zvao->zvc.authok = (PHP_VARNISH_STATUS_OK == zvao->status);
 
 	RETURN_BOOL(zvao->zvc.authok);
 }
@@ -533,6 +535,62 @@ PHP_METHOD(VarnishAdmin, setIdent)
 	}
 	zvao->zvc.ident     = estrdup(ident);
 	zvao->zvc.ident_len = ident_len;
+	zvao->zvc.authok    = 0;
+}
+/* }}} */
+
+/* {{{ proto void VarnishAdmin::setSecret(string secret)
+ Set the secret configuration option */
+PHP_METHOD(VarnishAdmin, setSecret)
+{
+	struct ze_varnish_adm_obj *zvao;
+	char *secret;
+	long secret_len;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &secret, &secret_len) == FAILURE) {
+		return;
+	}
+
+	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+
+	if (zvao->zvc.secret_len > 0) {
+		efree(zvao->zvc.secret);
+	}
+	zvao->zvc.secret     = estrdup(secret);
+	zvao->zvc.secret_len = secret_len;
+	zvao->zvc.authok     = 0;
+}
+/* }}} */
+
+/* {{{ proto void VarnishAdmin::setTimeout(int tmo)
+ Set the timeout configuration option */
+PHP_METHOD(VarnishAdmin, setTimeout)
+{
+	struct ze_varnish_adm_obj *zvao;
+	long tmo;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &tmo) == FAILURE) {
+		return;
+	}
+
+	zvao->zvc.timeout = tmo;
+}
+/* }}} */
+
+/* {{{ proto void VarnishAdmin::setPort(int port)
+ Set the port configuration option */
+PHP_METHOD(VarnishAdmin, setPort)
+{
+	struct ze_varnish_adm_obj *zvao;
+	long port;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &port) == FAILURE) {
+		return;
+	}
+
+	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+
+	zvao->zvc.port      = (int)port;
 	zvao->zvc.authok    = 0;
 }
 /* }}} */

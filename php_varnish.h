@@ -72,6 +72,9 @@ PHP_METHOD(VarnishAdmin, getPanic);
 PHP_METHOD(VarnishAdmin, clearPanic);
 PHP_METHOD(VarnishAdmin, setHost);
 PHP_METHOD(VarnishAdmin, setIdent);
+PHP_METHOD(VarnishAdmin, setPort);
+PHP_METHOD(VarnishAdmin, setTimeout);
+PHP_METHOD(VarnishAdmin, setSecret);
 
 PHP_METHOD(VarnishStat, __construct);
 PHP_METHOD(VarnishStat, getSnapshot);

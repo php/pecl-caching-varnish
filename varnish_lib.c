@@ -443,6 +443,8 @@ php_varnish_sock(const char *addr, int port, int tmo, int *status TSRMLS_DC)
 
 	} while (0);
 
+	*status = PHP_VARNISH_STATUS_OK;
+
 	return sock;
 }/*}}}*/
 
@@ -528,7 +530,7 @@ php_varnish_auth(int sock, char *secret, int secret_len, int *status, int tmo TS
 			php_varnish_throw_comm_exception(TSRMLS_C);
 			return 0;
 		}
-		/* XXX use content directly if there is no logging requirement */
+
 		memcpy(challenge, content, PHP_VARNISH_CHALLENGE_LEN);
 		challenge[PHP_VARNISH_CHALLENGE_LEN+1] = '\0';
 		efree(content);
@@ -646,7 +648,14 @@ php_varnish_ban(int sock, int *status, char *reg, int reg_len, int tmo, int type
 			int_len = 8;
 			snprintf(buf, 2047-int_len, "ban.url %s", reg);
 			break;
-			/* XXX do default check */
+
+		default:
+			zend_throw_exception_ex(
+				VarnishException_ce,
+				PHP_VARNISH_UNKNOWN_EXCEPTION TSRMLS_CC,
+				"Unknown ban command type"
+			);  
+			break;
 	}
 	buf[reg_len+int_len] = '\0';
 
@@ -713,7 +722,11 @@ php_varnish_get_log(const struct VSM_data *vd, zval *line TSRMLS_DC)
 
 	i = VSL_NextLog(vd, &p, NULL);
 	if (i < 0) {
-		/* XXX throw error */
+		zend_throw_exception_ex(
+			VarnishException_ce,
+			PHP_VARNISH_CANT_EXCEPTION TSRMLS_CC,
+			"Can't get next log line"
+		);  
 		return 0;
 	}
 

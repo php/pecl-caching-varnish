@@ -188,8 +188,6 @@ PHP_METHOD(VarnishAdmin, connect)
 
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
 	
-	/* XXX check status */
-
 	/* get the socket */
 	if (zvao->zvc.ident_len > 0) {
 		zvao->zvc.sock = php_varnish_sock_ident(zvao->zvc.ident, &zvao->zvc.host, (int*)&zvao->zvc.host_len, &zvao->zvc.port,
@@ -207,7 +205,7 @@ PHP_METHOD(VarnishAdmin, connect)
 		}
 	}
 
-	RETURN_BOOL(zvao->zvc.sock > -1);
+	RETURN_BOOL((zvao->zvc.sock > -1) && (PHP_VARNISH_STATUS_OK == zvao->status));
 }
 
 /* }}} */

@@ -110,7 +110,7 @@ PHP_METHOD(VarnishStat, __construct)
 }
 /* }}} */
 
-/* {{{ proto void VarnishStat::getSnapshot(void)
+/* {{{ proto array VarnishStat::getSnapshot(void)
   Get a statistics snapshot */
 PHP_METHOD(VarnishStat, getSnapshot)
 {

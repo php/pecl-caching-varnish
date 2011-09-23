@@ -115,13 +115,23 @@ PHP_METHOD(VarnishLog, __construct)
 	zvlo->vd = VSM_New();
 	VSL_Setup(zvlo->vd);
 
-	/* XXX throw an exception */
 	if (zvlo->zvc.ident_len > 0) {
-		VSL_Arg(zvlo->vd, 'n', zvlo->zvc.ident);
+		if (-1 == VSL_Arg(zvlo->vd, 'n', zvlo->zvc.ident)) {
+			zend_throw_exception_ex(
+				VarnishException_ce,
+				PHP_VARNISH_UNKNOWN_EXCEPTION TSRMLS_CC,
+				"Failed to handle the ident"
+			);
+		}
 	}
 
 	if (VSL_Open(zvlo->vd, 1)) {
-		/* XXX throw could not open */
+		zend_throw_exception_ex(
+			VarnishException_ce,
+			PHP_VARNISH_CANT_EXCEPTION TSRMLS_CC,
+			"Could not open shared log"
+		);
+
 		return;
 	}
 }

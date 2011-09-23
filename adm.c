@@ -148,6 +148,7 @@ PHP_METHOD(VarnishAdmin, __construct)
 		}
 
 		if(zend_hash_find(Z_ARRVAL_P(opts), "port", sizeof("port"), (void**)&port) != FAILURE) {
+			convert_to_long(*port);
 			zvao->zvc.port = (int)Z_LVAL_PP(port);
 		}
 

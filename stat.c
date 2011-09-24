@@ -102,6 +102,7 @@ PHP_METHOD(VarnishStat, __construct)
 	}
 
 	if(zend_hash_find(Z_ARRVAL_P(opts), "ident", sizeof("ident"), (void**)&ident) != FAILURE) {
+		convert_to_string(*ident);
 		zvso->zvc.ident = estrdup(Z_STRVAL_PP(ident));
 		zvso->zvc.ident_len = Z_STRLEN_PP(ident);
 	} else {

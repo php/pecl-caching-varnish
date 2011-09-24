@@ -138,11 +138,13 @@ PHP_METHOD(VarnishAdmin, __construct)
 	} else {
 		/* read config options */
 		if(zend_hash_find(Z_ARRVAL_P(opts), "host", sizeof("host"), (void**)&addr) != FAILURE) {
+			convert_to_string(*addr);
 			zvao->zvc.host = estrdup(Z_STRVAL_PP(addr));
 			zvao->zvc.host_len = Z_STRLEN_PP(addr);
 		}
 
 		if(zend_hash_find(Z_ARRVAL_P(opts), "ident", sizeof("ident"), (void**)&ident) != FAILURE) {
+			convert_to_string(*ident);
 			zvao->zvc.ident = estrdup(Z_STRVAL_PP(ident));
 			zvao->zvc.ident_len = Z_STRLEN_PP(ident);
 		}
@@ -171,6 +173,7 @@ PHP_METHOD(VarnishAdmin, __construct)
 		}
 
 		if(zend_hash_find(Z_ARRVAL_P(opts), "secret", sizeof("secret"), (void**)&secret) != FAILURE) {
+			convert_to_string(*secret);
 			zvao->zvc.secret = estrdup(Z_STRVAL_PP(secret));
 			zvao->zvc.secret_len = Z_STRLEN_PP(secret);
 		}

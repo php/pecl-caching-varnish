@@ -75,6 +75,7 @@ PHP_METHOD(VarnishAdmin, setIdent);
 PHP_METHOD(VarnishAdmin, setPort);
 PHP_METHOD(VarnishAdmin, setTimeout);
 PHP_METHOD(VarnishAdmin, setSecret);
+PHP_METHOD(VarnishAdmin, setCompat);
 
 PHP_METHOD(VarnishStat, __construct);
 PHP_METHOD(VarnishStat, getSnapshot);
@@ -117,6 +118,7 @@ struct ze_varnish_adm_obj {
 	zend_object zo;
 	struct ze_varnish_conn zvc;
 	int status;
+	int compat;
 };
 
 struct ze_varnish_stat_obj {

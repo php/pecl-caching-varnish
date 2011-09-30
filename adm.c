@@ -90,6 +90,7 @@ php_varnish_adm_obj_init(zend_class_entry *ze TSRMLS_DC)
 	zvao->zvc.ident	     = NULL;
 	zvao->zvc.authok     = 0;
 	zvao->status		 = PHP_VARNISH_STATUS_CLOSE;
+	zvao->compat		 = PHP_VARNISH_COMPAT_3;
 
 	ret.handle = zend_objects_store_put(zvao, NULL,
 										(zend_objects_free_object_storage_t) php_varnish_adm_obj_destroy,
@@ -125,7 +126,7 @@ php_varnish_throw_diag_f_exception(void *priv /* fd to output, ignored here */, 
 PHP_METHOD(VarnishAdmin, __construct)
 {
 	struct ze_varnish_adm_obj *zvao;
-	zval *opts = NULL, **secret, **addr, **port, **timeout, **ident;
+	zval *opts = NULL, **secret, **addr, **port, **timeout, **ident, **compat;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|a", &opts) == FAILURE) {
 		return;
@@ -170,6 +171,14 @@ PHP_METHOD(VarnishAdmin, __construct)
 		if(zend_hash_find(Z_ARRVAL_P(opts), "timeout", sizeof("timeout"), (void**)&timeout) != FAILURE) {
 			convert_to_long(*timeout);
 			zvao->zvc.timeout = (int)Z_LVAL_PP(timeout);
+		}
+
+		if(zend_hash_find(Z_ARRVAL_P(opts), "compat", sizeof("compat"), (void**)&compat) != FAILURE) {
+			convert_to_long(*compat);
+			zvao->compat = (int)Z_LVAL_PP(compat);
+		}
+		if (!php_varnish_check_compat(zvao->compat TSRMLS_CC)) {
+			return;
 		}
 
 		if(zend_hash_find(Z_ARRVAL_P(opts), "secret", sizeof("secret"), (void**)&secret) != FAILURE) {
@@ -599,6 +608,27 @@ PHP_METHOD(VarnishAdmin, setPort)
 	zvao->zvc.authok    = 0;
 }
 /* }}} */
+
+/* {{{ proto void VarnishAdmin::setCompat(int compat)
+ Set the varnish compatibility */
+PHP_METHOD(VarnishAdmin, setCompat)
+{
+	struct ze_varnish_adm_obj *zvao;
+	zval *compat;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &compat) == FAILURE) {
+		return;
+	}
+
+	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+
+	convert_to_long(compat);
+	zvao->compat = (int)Z_LVAL_P(compat);
+
+	php_varnish_check_compat(zvao->compat TSRMLS_CC);
+}
+/* }}} */
+
 
 /*
  * Local variables:

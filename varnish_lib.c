@@ -812,7 +812,7 @@ php_varnish_default_ident(char **ident, int *ident_len)
 
 int
 php_varnish_adm_can_go(struct ze_varnish_adm_obj *zvao TSRMLS_DC)
-{
+{/*{{{*/
 	if (zvao->zvc.sock < 0) {
 		php_varnish_throw_conn_exception(TSRMLS_C);
 		return 0;
@@ -824,7 +824,24 @@ php_varnish_adm_can_go(struct ze_varnish_adm_obj *zvao TSRMLS_DC)
 	}
 
 	return 1;
-}
+}/*}}}*/
+
+int
+php_varnish_check_compat(int compat TSRMLS_DC)
+{/*{{{*/
+	if (PHP_VARNISH_COMPAT_2 != compat && PHP_VARNISH_COMPAT_3 != compat) {
+		zend_throw_exception_ex(
+			VarnishException_ce,
+			PHP_VARNISH_COMPAT_EXCEPTION TSRMLS_CC,
+			"Unsupported compatibility option '%d'",
+			compat
+		);
+		return 0;
+	}
+
+	return 1;
+}/*}}}*/
+
 
 /*
  * Local variables:

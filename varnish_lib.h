@@ -86,6 +86,9 @@ php_varnish_log_get_tag_name(int index, char **ret, int *ret_len TSRMLS_DC);
 int
 php_varnish_adm_can_go(struct ze_varnish_adm_obj *zvao TSRMLS_DC);
 
+int
+php_varnish_check_compat(int version TSRMLS_DC);
+
 /* First response line length including '\0' */
 #define PHP_VARNISH_LINE0_MAX_LEN CLI_LINE0_LEN
 
@@ -199,8 +202,8 @@ enum {
 };
 
 enum {
-	PHP_VARNISH_COMPAT_2,
-	PHP_VARNISH_COMPAT_3,
+	PHP_VARNISH_COMPAT_2 = 2,
+	PHP_VARNISH_COMPAT_3 = 3,
 };
 
 #endif	/* PHP_VARNISH_LIB_H */

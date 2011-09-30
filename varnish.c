@@ -77,6 +77,7 @@ const zend_function_entry VarnishAdmin_methods[] = {
 	PHP_ME(VarnishAdmin, setTimeout, NULL, ZEND_ACC_PUBLIC)
 	PHP_ME(VarnishAdmin, setPort, NULL, ZEND_ACC_PUBLIC)
 	PHP_ME(VarnishAdmin, setSecret, NULL, ZEND_ACC_PUBLIC)
+	PHP_ME(VarnishAdmin, setCompat, NULL, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */

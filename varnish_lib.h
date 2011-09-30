@@ -198,6 +198,11 @@ enum {
 	PHP_VARNISH_BAN_URL_COMMAND,
 };
 
+enum {
+	PHP_VARNISH_COMPAT_2,
+	PHP_VARNISH_COMPAT_3,
+};
+
 #endif	/* PHP_VARNISH_LIB_H */
 
 /*

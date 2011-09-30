@@ -63,7 +63,7 @@ int
 php_varnish_stop(int sock, int *status, int timeout TSRMLS_DC);
 
 int
-php_varnish_ban(int sock, int *status, char *reg, int reg_len, int timeout, int type TSRMLS_DC);
+php_varnish_ban(int sock, int *status, char *reg, int reg_len, int timeout, int type, int compat TSRMLS_DC);
 
 int
 php_varnish_snap_stats(zval *storage, const char *ident TSRMLS_DC);

@@ -405,7 +405,7 @@ PHP_METHOD(VarnishAdmin, banUrl)
 		return;
 	}
 
-	php_varnish_ban(zvao->zvc.sock, &zvao->status, regex, regex_len, zvao->zvc.timeout, PHP_VARNISH_BAN_URL_COMMAND TSRMLS_CC);	
+	php_varnish_ban(zvao->zvc.sock, &zvao->status, regex, regex_len, zvao->zvc.timeout, PHP_VARNISH_BAN_URL_COMMAND, zvao->compat TSRMLS_CC);	
 
 	RETURN_LONG(zvao->status);
 }
@@ -430,7 +430,7 @@ PHP_METHOD(VarnishAdmin, ban)
 		return;
 	}
 
-	php_varnish_ban(zvao->zvc.sock, &zvao->status, regex, regex_len, zvao->zvc.timeout, PHP_VARNISH_BAN_COMMAND TSRMLS_CC);	
+	php_varnish_ban(zvao->zvc.sock, &zvao->status, regex, regex_len, zvao->zvc.timeout, PHP_VARNISH_BAN_COMMAND, zvao->compat TSRMLS_CC);	
 
 	RETURN_LONG(zvao->status);
 }

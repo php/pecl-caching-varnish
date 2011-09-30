@@ -633,20 +633,35 @@ php_varnish_start(int sock, int *status, int tmo TSRMLS_DC)
 }/*}}}*/
 
 int
-php_varnish_ban(int sock, int *status, char *reg, int reg_len, int tmo, int type TSRMLS_DC)
+php_varnish_ban(int sock, int *status, char *reg, int reg_len, int tmo, int type, int compat TSRMLS_DC)
 {/*{{{*/
 	char *content, buf[2048];
-	int content_len, int_len;
+	int content_len, int_len, ban_flag;
+
+	/* for now there is only varnish 2 vs 3 issue, so kiss */
+	ban_flag = (PHP_VARNISH_COMPAT_2 == compat);
 
 	switch (type) {
 		case PHP_VARNISH_BAN_COMMAND:
-			int_len = 4;
-			snprintf(buf, 2047-int_len, "ban %s", reg);
+			int_len = ban_flag ? 6 : 4;
+			snprintf(
+				buf,
+				2047-int_len,
+				"%s %s",
+				(ban_flag ? "purge" : "ban"),
+				reg
+			);
 			break;
 
 		case PHP_VARNISH_BAN_URL_COMMAND:
-			int_len = 8;
-			snprintf(buf, 2047-int_len, "ban.url %s", reg);
+			int_len = ban_flag ? 10 : 8;
+			snprintf(
+				buf,
+				2047-int_len,
+				"%s %s",
+				(ban_flag ? "purge.url" : "ban.url"),
+				reg
+			);
 			break;
 
 		default:

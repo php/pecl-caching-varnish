@@ -629,6 +629,22 @@ PHP_METHOD(VarnishAdmin, setCompat)
 }
 /* }}} */
 
+/*{{{ proto array VarnishAdmin::getVclList(void)
+ Get VCLs loaded into the varnish instance */
+PHP_METHOD(VarnishAdmin, getVclList)
+{
+	struct ze_varnish_adm_obj *zvao;
+
+	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+
+	if (!php_varnish_adm_can_go(zvao TSRMLS_CC)) {
+		return;
+	}
+
+	array_init(return_value);
+	php_varnish_get_vcl_list(zvao->zvc.sock, &zvao->status, zvao->zvc.timeout, return_value TSRMLS_CC);
+}
+/*}}}*/
 
 /*
  * Local variables:

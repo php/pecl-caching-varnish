@@ -76,6 +76,7 @@ PHP_METHOD(VarnishAdmin, setPort);
 PHP_METHOD(VarnishAdmin, setTimeout);
 PHP_METHOD(VarnishAdmin, setSecret);
 PHP_METHOD(VarnishAdmin, setCompat);
+PHP_METHOD(VarnishAdmin, getVclList);
 
 PHP_METHOD(VarnishStat, __construct);
 PHP_METHOD(VarnishStat, getSnapshot);

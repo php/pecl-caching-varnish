@@ -89,6 +89,9 @@ php_varnish_adm_can_go(struct ze_varnish_adm_obj *zvao TSRMLS_DC);
 int
 php_varnish_check_compat(int version TSRMLS_DC);
 
+int
+php_varnish_get_vcl_list(int sock, int *status, int tmo, zval *ret TSRMLS_DC);
+
 /* First response line length including '\0' */
 #define PHP_VARNISH_LINE0_MAX_LEN CLI_LINE0_LEN
 

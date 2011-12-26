@@ -291,12 +291,6 @@ php_varnish_invoke_command(int sock, char *command, int command_len, int *status
 		return 0;
 	}
 
-	/* forward all the leading whitespaces */
-	while (*tmp && !isalpha(*tmp)) {
-		tmp++;
-		(*answer_len)--;
-	}
-
 	*answer = estrdup(tmp);
 
 	efree(tmp_start);
@@ -758,7 +752,7 @@ php_varnish_get_log(const struct VSM_data *vd, zval *line TSRMLS_DC)
 int
 php_varnish_is_running(int sock, int *status, int tmo TSRMLS_DC)
 {/*{{{*/ 
-	char *content, *msg;
+	char *content, *msg, *p;
 	int content_len, ret = 0, msg_len;
 
 	/* must parse the content message here, as the status would be always 200 in varnish 3.0 at least */
@@ -766,8 +760,14 @@ php_varnish_is_running(int sock, int *status, int tmo TSRMLS_DC)
 	msg_len = strlen(msg);
 
 	ret = php_varnish_invoke_command(sock, "status", 6, status, &content, &content_len, tmo TSRMLS_CC);
+
+	p = content;
+	while (!isalpha(*p)) {
+		p++;
+	}
+	
 	if (ret > 0) {
-		ret = !memcmp(msg, content, msg_len);
+		ret = !memcmp(msg, p, msg_len);
 	}
 
 	efree(content);
@@ -862,39 +862,37 @@ php_varnish_get_vcl_list(int sock, int *status, int tmo, zval *retval TSRMLS_DC)
 {/*{{{*/
 	int i = 0, content_len, len, ret;
 	char *content, *p0, *p1, buf[256];
+		zval *tmp;
+		MAKE_STD_ZVAL(tmp);
+		array_init(tmp);
+
 
 	ret = php_varnish_invoke_command(sock, "vcl.list", 8, status, &content, &content_len, tmo TSRMLS_CC);
 	
 	p0 = p1 = content;
 	while (i < content_len) {
-		zval *tmp;
 		char st[32], name[208];
 		/*assume locks as string is 16 digits long*/
 		long locks;
-		int j;
 
-		MAKE_STD_ZVAL(tmp);
-		array_init(tmp);
-
-		while(*p1 != '\0' && *p1 != '\n' && *p1 != '\r') {
+		while (*p1 != '\0' && *p1 != '\n' && *p1 != '\r') {
 			p1++;
 		}
 
 		len = p1 - p0;
 		memcpy(buf, p0, (len > 255 ? 255 : len));
 		buf[len] = '\0';
-		p0 = ++p1;
-		i += len + 1;
 
-		if (3 != sscanf(buf, "%32s %16ld %208s", st, &locks, name)) {
-			continue;
+		if (3 == sscanf(buf, "%32s %16ld %208s", st, &locks, name)) {
+			add_assoc_stringl(tmp, "status", st, strlen(st), 1);
+			add_assoc_stringl(tmp, "name", name, strlen(name), 1);
+			add_assoc_long(tmp, "locks", locks);
+
+			add_next_index_zval(retval, tmp);
 		}
 
-		add_assoc_stringl(tmp, "status", st, strlen(st), 1);
-		add_assoc_stringl(tmp, "name", name, strlen(name), 1);
-		add_assoc_long(tmp, "locks", locks);
-
-		add_next_index_zval(retval, tmp);
+		p0 = ++p1;
+		i += len + 1;
 	}
 
 	efree(content);

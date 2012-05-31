@@ -134,7 +134,6 @@ php_varnish_parse_add_param(zval *arr, char *line)
 	int i, j, k, ival;
 	double dval;
 	char key[96], sval[160], *p;
-	zval dbl;
 
 	p = strchr(line, ' ');
 	k = (p - line < sizeof key) ? p - line : sizeof(key) - 1; 
@@ -284,8 +283,8 @@ php_varnish_invoke_command(int sock, char *command, int command_len, int *status
 	}
 
 	tmp = tmp_start = emalloc(*answer_len+2);
-	tmp[*answer_len+1] = '\0';
 	numbytes = php_varnish_consume_bytes(sock, tmp, *answer_len+1, tmo TSRMLS_CC);
+	tmp[*answer_len+1] = '\0';
 	if(numbytes < 0) {
 		php_varnish_throw_comm_exception(TSRMLS_C);
 		return 0;

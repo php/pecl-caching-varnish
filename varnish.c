@@ -158,6 +158,11 @@ PHP_MINIT_FUNCTION(varnish)
 	/* REGISTER_INI_ENTRIES();*/
 	/*ZEND_INIT_MODULE_GLOBALS(varnish, php_varnish_globals_ctor, php_varnish_globals_dtor);*/
 
+#if PHP_VERSION_ID >= 50399
+	memcpy(&default_varnish_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+	default_varnish_handlers.clone_obj = NULL;
+#endif
+
 	/* Init internal classes */
 	INIT_CLASS_ENTRY(ce, "VarnishAdmin", VarnishAdmin_methods);
 	ce.create_object = php_varnish_adm_obj_init;

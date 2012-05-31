@@ -133,6 +133,10 @@ struct ze_varnish_log_obj {
 	struct VSM_data *vd;
 };
 
+#if PHP_VERSION_ID >= 50399
+static zend_object_handlers default_varnish_handlers;
+#endif
+
 #endif	/* PHP_VARNISH_H */
 
 /*

@@ -35,6 +35,7 @@
 #include "php.h"
 #include "php_ini.h"
 #include "ext/standard/info.h"
+#include "zend_exceptions.h"
 #include "php_varnish.h"
 
 #include <sys/types.h>
@@ -76,8 +77,12 @@ php_varnish_adm_obj_init(zend_class_entry *ze TSRMLS_DC)
 	memset(&zvao->zo, 0, sizeof(zend_object));
 
 	zend_object_std_init(&zvao->zo, ze TSRMLS_CC);
+#if PHP_VERSION_ID < 50399
 	zend_hash_copy(zvao->zo.properties, &ze->default_properties, (copy_ctor_func_t) zval_add_ref,
 					(void *) &tmp, sizeof(zval *));
+#else
+	object_properties_init(&zvao->zo, ze);
+#endif
 
 	zvao->zvc.host_len	 = 0;
 	zvao->zvc.host		 = NULL;
@@ -95,8 +100,12 @@ php_varnish_adm_obj_init(zend_class_entry *ze TSRMLS_DC)
 	ret.handle = zend_objects_store_put(zvao, NULL,
 										(zend_objects_free_object_storage_t) php_varnish_adm_obj_destroy,
 										NULL TSRMLS_CC);
+#if PHP_VERSION_ID < 50399
 	ret.handlers = zend_get_std_object_handlers();
 	ret.handlers->clone_obj = NULL;
+#else
+	ret.handlers = &default_varnish_handlers;
+#endif
 
 	return ret;
 }/*}}}*/
@@ -584,6 +593,8 @@ PHP_METHOD(VarnishAdmin, setTimeout)
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &tmo) == FAILURE) {
 		return;
 	}
+
+	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
 
 	convert_to_long(tmo);
 	zvao->zvc.timeout = (int)Z_LVAL_P(tmo);

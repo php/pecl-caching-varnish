@@ -35,6 +35,7 @@
 #include "php.h"
 #include "php_ini.h"
 #include "ext/standard/info.h"
+#include "zend_exceptions.h"
 #include "php_varnish.h"
 
 #include <varnishapi.h>
@@ -60,27 +61,35 @@ php_varnish_stat_obj_destroy(void *obj TSRMLS_DC)
 zend_object_value
 php_varnish_stat_obj_init(zend_class_entry *ze TSRMLS_DC)
 {   /*{{{*/
-		zend_object_value ret;
-		struct ze_varnish_stat_obj *zvso;
-		zval *tmp;
+	zend_object_value ret;
+	struct ze_varnish_stat_obj *zvso;
+	zval *tmp;
 
-		zvso = (struct ze_varnish_stat_obj*)emalloc(sizeof(struct ze_varnish_stat_obj));
-		memset(&zvso->zo, 0, sizeof(zend_object));
+	zvso = (struct ze_varnish_stat_obj*)emalloc(sizeof(struct ze_varnish_stat_obj));
+	memset(&zvso->zo, 0, sizeof(zend_object));
 
-		zend_object_std_init(&zvso->zo, ze TSRMLS_CC);
-		zend_hash_copy(zvso->zo.properties, &ze->default_properties, (copy_ctor_func_t) zval_add_ref,
-						(void *) &tmp, sizeof(zval *));
+	zend_object_std_init(&zvso->zo, ze TSRMLS_CC);
+#if PHP_VERSION_ID < 50399
+	zend_hash_copy(zvso->zo.properties, &ze->default_properties, (copy_ctor_func_t) zval_add_ref,
+					(void *) &tmp, sizeof(zval *));
+#else
+	object_properties_init(&zvso->zo, ze);
+#endif
 
-		zvso->zvc.ident	 = NULL;
-		zvso->zvc.ident_len = 0;
+	zvso->zvc.ident	 = NULL;
+	zvso->zvc.ident_len = 0;
 
-		ret.handle = zend_objects_store_put(zvso, NULL,
-											(zend_objects_free_object_storage_t) php_varnish_stat_obj_destroy,
-											NULL TSRMLS_CC);
-		ret.handlers = zend_get_std_object_handlers();
-		ret.handlers->clone_obj = NULL;
+	ret.handle = zend_objects_store_put(zvso, NULL,
+										(zend_objects_free_object_storage_t) php_varnish_stat_obj_destroy,
+										NULL TSRMLS_CC);
+#if PHP_VERSION_ID < 50399
+	ret.handlers = zend_get_std_object_handlers();
+	ret.handlers->clone_obj = NULL;
+#else
+	ret.handlers = &default_varnish_handlers;
+#endif
 
-		return ret;
+	return ret;
 }/*}}}*/
 
 /* {{{ proto void VarnishStat::__construct(array options)

@@ -35,6 +35,7 @@
 #include "php.h"
 #include "php_ini.h"
 #include "ext/standard/info.h"
+#include "zend_exceptions.h"
 #include "php_varnish.h"
 
 #include <sys/types.h>
@@ -860,7 +861,7 @@ int
 php_varnish_get_vcl_list(int sock, int *status, int tmo, zval *retval TSRMLS_DC)
 {/*{{{*/
 	int i = 0, content_len, len, ret;
-	char *content, *p0, *p1, buf[256];
+	char *content, *p0, *p1;
 		zval *tmp;
 		MAKE_STD_ZVAL(tmp);
 		array_init(tmp);
@@ -868,33 +869,35 @@ php_varnish_get_vcl_list(int sock, int *status, int tmo, zval *retval TSRMLS_DC)
 
 	ret = php_varnish_invoke_command(sock, "vcl.list", 8, status, &content, &content_len, tmo TSRMLS_CC);
 	
-	p0 = p1 = content;
-	while (i < content_len) {
-		char st[32], name[208];
-		/*assume locks as string is 16 digits long*/
-		long locks;
+	if (ret) {
+		p0 = p1 = content;
+		while (i < content_len) {
+			char st[32], name[208], buf[256];
+			/*assume locks as string is 16 digits long*/
+			long locks;
 
-		while (*p1 != '\0' && *p1 != '\n' && *p1 != '\r') {
-			p1++;
+			while (*p1 != '\0' && *p1 != '\n' && *p1 != '\r') {
+				p1++;
+			}
+
+			len = p1 - p0;
+			len = len > 255 ? 255 : len;
+			memcpy(buf, p0, len);
+			buf[len] = '\0';
+
+			if (3 == sscanf(buf, "%32s %16ld %208s", st, &locks, name)) {
+				add_assoc_stringl(tmp, "status", st, strlen(st), 1);
+				add_assoc_stringl(tmp, "name", name, strlen(name), 1);
+				add_assoc_long(tmp, "locks", locks);
+
+				add_next_index_zval(retval, tmp);
+			}
+
+			p0 = ++p1;
+			i += len + 1;
 		}
-
-		len = p1 - p0;
-		memcpy(buf, p0, (len > 255 ? 255 : len));
-		buf[len] = '\0';
-
-		if (3 == sscanf(buf, "%32s %16ld %208s", st, &locks, name)) {
-			add_assoc_stringl(tmp, "status", st, strlen(st), 1);
-			add_assoc_stringl(tmp, "name", name, strlen(name), 1);
-			add_assoc_long(tmp, "locks", locks);
-
-			add_next_index_zval(retval, tmp);
-		}
-
-		p0 = ++p1;
-		i += len + 1;
+		efree(content);
 	}
-
-	efree(content);
 
 	return ret;
 }/*}}}*/

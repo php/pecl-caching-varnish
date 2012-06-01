@@ -92,6 +92,9 @@ php_varnish_check_compat(int version TSRMLS_DC);
 int
 php_varnish_get_vcl_list(int sock, int *status, int tmo, zval *ret TSRMLS_DC);
 
+int
+php_varnish_vcl_use(int sock, int *status, int tmo, char *vcl_name, int vcl_name_len TSRMLS_DC);
+
 /* First response line length including '\0' */
 #define PHP_VARNISH_LINE0_MAX_LEN CLI_LINE0_LEN
 

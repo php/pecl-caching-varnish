@@ -250,6 +250,7 @@ php_varnish_read_line0(int sock, int *status, int *content_len, int tmo TSRMLS_D
 		j = sscanf(line0, "%d ", status);
 		/* XXX j == 1 */
 	} else {
+		*content_len = 0;
 		j = sscanf(line0, "%d %d\n", status, content_len);
 		/* XXX j == 2 */
 	}
@@ -261,7 +262,7 @@ static int
 php_varnish_invoke_command(int sock, char *command, int command_len, int *status, char **answer, int *answer_len, int tmo TSRMLS_DC)
 {/*{{{*/
 	int numbytes;
-	char *cmd, *tmp, *tmp_start;
+	char *cmd, *tmp;
 
 	/* one can use this to just forward the in stream */
 	if (command_len) {
@@ -283,17 +284,18 @@ php_varnish_invoke_command(int sock, char *command, int command_len, int *status
 		return 0;
 	}
 
-	tmp = tmp_start = emalloc(*answer_len+2);
+	tmp = emalloc(*answer_len+2);
 	numbytes = php_varnish_consume_bytes(sock, tmp, *answer_len+1, tmo TSRMLS_CC);
 	tmp[*answer_len+1] = '\0';
 	if(numbytes < 0) {
+		efree(tmp);
 		php_varnish_throw_comm_exception(TSRMLS_C);
 		return 0;
 	}
 
 	*answer = estrdup(tmp);
 
-	efree(tmp_start);
+	efree(tmp);
 
 	return 1;
 }/*}}}*/
@@ -862,14 +864,10 @@ php_varnish_get_vcl_list(int sock, int *status, int tmo, zval *retval TSRMLS_DC)
 {/*{{{*/
 	int i = 0, content_len, len, ret;
 	char *content, *p0, *p1;
-		zval *tmp;
-		MAKE_STD_ZVAL(tmp);
-		array_init(tmp);
-
 
 	ret = php_varnish_invoke_command(sock, "vcl.list", 8, status, &content, &content_len, tmo TSRMLS_CC);
 	
-	if (ret) {
+	if (ret > 0) {
 		p0 = p1 = content;
 		while (i < content_len) {
 			char st[32], name[208], buf[256];
@@ -886,6 +884,9 @@ php_varnish_get_vcl_list(int sock, int *status, int tmo, zval *retval TSRMLS_DC)
 			buf[len] = '\0';
 
 			if (3 == sscanf(buf, "%32s %16ld %208s", st, &locks, name)) {
+				zval *tmp;
+				MAKE_STD_ZVAL(tmp);
+				array_init(tmp);
 				add_assoc_stringl(tmp, "status", st, strlen(st), 1);
 				add_assoc_stringl(tmp, "name", name, strlen(name), 1);
 				add_assoc_long(tmp, "locks", locks);
@@ -896,6 +897,24 @@ php_varnish_get_vcl_list(int sock, int *status, int tmo, zval *retval TSRMLS_DC)
 			p0 = ++p1;
 			i += len + 1;
 		}
+		efree(content);
+	}
+
+	return ret;
+}/*}}}*/
+
+int
+php_varnish_vcl_use(int sock, int *status, int tmo, char *vcl_name, int vcl_name_len TSRMLS_DC)
+{/*{{{*/
+	char *content, buf[256];
+	int content_len, ret, cmd_len = vcl_name_len + 8;
+
+	snprintf(buf, 255, "vcl.use %s", vcl_name);
+	buf[(cmd_len > 255 ? 255 : cmd_len)] = '\0';
+
+	ret = php_varnish_invoke_command(sock, buf, cmd_len, status, &content, &content_len, tmo TSRMLS_CC);
+
+	if (ret > 0) {
 		efree(content);
 	}
 

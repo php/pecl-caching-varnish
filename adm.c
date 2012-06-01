@@ -657,6 +657,28 @@ PHP_METHOD(VarnishAdmin, getVclList)
 }
 /*}}}*/
 
+/*{{{ proto boolean VarnishAdmin::vclUse(string config_name)
+ Activate the given config */
+PHP_METHOD(VarnishAdmin, vclUse)
+{
+	struct ze_varnish_adm_obj *zvao;
+	char *conf_name;
+	long conf_name_len;
+	int ret;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &conf_name, &conf_name_len) == FAILURE) {
+		return;
+	}
+
+	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+
+	/*ret = php_varnish_vcl_use(zvao->zvc.sock, &zvao->status, zvao->zvc.timeout, conf_name, conf_name_len TSRMLS_CC);*/
+	ret = php_varnish_vcl_use(zvao->zvc.sock, &zvao->status, zvao->zvc.timeout, conf_name, conf_name_len TSRMLS_CC);
+
+	RETURN_BOOL(ret > 0 && PHP_VARNISH_STATUS_OK == zvao->status);
+}
+/*}}}*/
+
 /*
  * Local variables:
  * tab-width: 4

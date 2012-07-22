@@ -81,6 +81,7 @@ const zend_function_entry VarnishAdmin_methods[] = {
 	PHP_ME(VarnishAdmin, setCompat, NULL, ZEND_ACC_PUBLIC)
 	PHP_ME(VarnishAdmin, getVclList, NULL, ZEND_ACC_PUBLIC)
 	PHP_ME(VarnishAdmin, vclUse, NULL, ZEND_ACC_PUBLIC)
+	PHP_ME(VarnishAdmin, disconnect, NULL, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */

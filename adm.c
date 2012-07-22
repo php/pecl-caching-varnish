@@ -63,6 +63,9 @@ php_varnish_adm_obj_destroy(void *obj TSRMLS_DC)
 	if (zvao->zvc.secret_len > 0) {
 		efree(zvao->zvc.secret);
 	}
+	if (zvao->zvc.sock >= 0) {
+		close(zvao->zvc.sock);
+	}
 	efree(zvao);
 }/*}}}*/
 
@@ -676,6 +679,22 @@ PHP_METHOD(VarnishAdmin, vclUse)
 	ret = php_varnish_vcl_use(zvao->zvc.sock, &zvao->status, zvao->zvc.timeout, conf_name, conf_name_len TSRMLS_CC);
 
 	RETURN_BOOL(ret > 0 && PHP_VARNISH_STATUS_OK == zvao->status);
+}
+/*}}}*/
+
+/*{{{ proto boolean VarnishAdmin::disconnect(void)
+ Close connection to a varnish instance */
+PHP_METHOD(VarnishAdmin, disconnect)
+{
+	struct ze_varnish_adm_obj *zvao;
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+
+	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+
+	RETURN_BOOL(zvao->zvc.sock < 0 ? 0 : (close(zvao->zvc.sock) == 0));
 }
 /*}}}*/
 

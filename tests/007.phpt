@@ -1,11 +1,11 @@
 --TEST--
 Check for VarnishStat::getSnapshot functionality
 --SKIPIF--
-<?php if (!extension_loaded("varnish") || !file_exists('tests/config.php')) print "skip"; ?>
+<?php if (!extension_loaded("varnish") || !file_exists(dirname(__FILE__) . '/config.php')) print "skip"; ?>
 --FILE--
 <?php 
 
-include 'tests/config.php';
+include dirname(__FILE__) . '/config.php';
 
 foreach (array_slice($args_all, 0, 2) as $args) {
 	$vs = new VarnishStat($args);

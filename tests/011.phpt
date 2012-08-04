@@ -1,11 +1,11 @@
 --TEST--
 Check for varnish connection close
 --SKIPIF--
-<?php if (!extension_loaded("varnish") || !file_exists('tests/config.php')) print "skip"; ?>
+<?php if (!extension_loaded("varnish") || !file_exists(dirname(__FILE__) . '/config.php')) print "skip"; ?>
 --FILE--
 <?php 
 
-include 'tests/config.php';
+include dirname(__FILE__) . '/config.php';
 
 foreach ($args_all as $args) {
 	$r = true;

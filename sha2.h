@@ -45,9 +45,7 @@ extern "C" {
  * may need to change this, or define these things yourself in this
  * file.
  */
-#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
-#endif
 
 #ifdef PHP_WIN32
 #include <win32/php_stdint.h>

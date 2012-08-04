@@ -31,15 +31,19 @@
 #ifndef PHP_VARNISH_LIB_H
 #define PHP_VARNISH_LIB_H
 
+#ifndef PHP_WIN32
 #include <varnishapi.h>
 #include <vcli.h>
 #include <vsl.h>
+#endif
 
 /* get socket connection */
 int
 php_varnish_sock(const char *addr, int port, int timeout, int *status TSRMLS_DC);
+#ifndef PHP_WIN32
 int
 php_varnish_sock_ident(const char *ident, char **addr, int *addr_len, int *port, int timeout, int *status TSRMLS_DC);
+#endif
 
 void
 php_varnish_default_ident(char **ident, int *ident_len);
@@ -47,8 +51,10 @@ php_varnish_default_ident(char **ident, int *ident_len);
 /* authenticate with the varnish instance running under the given socket */
 int
 php_varnish_auth(int sock, char *secret, int secret_len, int *status, int timeout TSRMLS_DC);
+#ifndef PHP_WIN32
 int
 php_varnish_auth_ident(int sock, const char *ident, int timeout, int *status TSRMLS_DC);
+#endif
 
 int
 php_varnish_get_params(int sock, int *status, zval *storage, int timeout TSRMLS_DC);
@@ -65,8 +71,10 @@ php_varnish_stop(int sock, int *status, int timeout TSRMLS_DC);
 int
 php_varnish_ban(int sock, int *status, char *reg, int reg_len, int timeout, int type, int compat TSRMLS_DC);
 
+#ifndef PHP_WIN32
 int
 php_varnish_snap_stats(zval *storage, const char *ident TSRMLS_DC);
+#endif
 
 int
 php_varnish_is_running(int sock, int *status, int timeout TSRMLS_DC);
@@ -77,11 +85,13 @@ php_varnish_get_panic(int sock, int *status, char **msg, int *msg_len, int tmo T
 int
 php_varnish_clear_panic(int sock, int *status, int tmo TSRMLS_DC);
 
+#ifndef PHP_WIN32
 int
 php_varnish_get_log(const struct VSM_data *vd, zval *line TSRMLS_DC);
 
 void
 php_varnish_log_get_tag_name(int index, char **ret, int *ret_len TSRMLS_DC);
+#endif
 
 int
 php_varnish_adm_can_go(struct ze_varnish_adm_obj *zvao TSRMLS_DC);
@@ -96,24 +106,42 @@ int
 php_varnish_vcl_use(int sock, int *status, int tmo, char *vcl_name, int vcl_name_len TSRMLS_DC);
 
 /* First response line length including '\0' */
+#ifdef PHP_WIN32
+#define PHP_VARNISH_LINE0_MAX_LEN 13
+#else
 #define PHP_VARNISH_LINE0_MAX_LEN CLI_LINE0_LEN
+#endif
 
 /* Challenge string length */
 #define PHP_VARNISH_CHALLENGE_LEN 32
 
 /* {{{ Status/return codes in the varnish CLI protocol
  */
+#ifndef PHP_WIN32
 #define PHP_VARNISH_STATUS_SYNTAX  CLIS_SYNTAX
 #define PHP_VARNISH_STATUS_UNKNOWN CLIS_UNKNOWN 
 #define PHP_VARNISH_STATUS_UNIMPL  CLIS_UNIMPL
 #define PHP_VARNISH_STATUS_TOOFEW  CLIS_TOOFEW
 #define PHP_VARNISH_STATUS_TOOMANY CLIS_TOOMANY
 #define PHP_VARNISH_STATUS_PARAM   CLIS_PARAM
-#define PHP_VARNISH_STATUS_AUTH	CLIS_AUTH
-#define PHP_VARNISH_STATUS_OK	  CLIS_OK
-#define PHP_VARNISH_STATUS_CANT	CLIS_CANT
+#define PHP_VARNISH_STATUS_AUTH	   CLIS_AUTH
+#define PHP_VARNISH_STATUS_OK	   CLIS_OK
+#define PHP_VARNISH_STATUS_CANT	   CLIS_CANT
 #define PHP_VARNISH_STATUS_COMMS   CLIS_COMMS
-#define PHP_VARNISH_STATUS_CLOSE   CLIS_CLOSE/*}}}*/
+#define PHP_VARNISH_STATUS_CLOSE   CLIS_CLOSE
+#else
+#define PHP_VARNISH_STATUS_SYNTAX  100
+#define PHP_VARNISH_STATUS_UNKNOWN 101
+#define PHP_VARNISH_STATUS_UNIMPL  102
+#define PHP_VARNISH_STATUS_TOOFEW  104
+#define PHP_VARNISH_STATUS_TOOMANY 105
+#define PHP_VARNISH_STATUS_PARAM   106
+#define PHP_VARNISH_STATUS_AUTH	   107
+#define PHP_VARNISH_STATUS_OK	   200
+#define PHP_VARNISH_STATUS_CANT	   300
+#define PHP_VARNISH_STATUS_COMMS   400
+#define PHP_VARNISH_STATUS_CLOSE   500 /*}}}*/
+#endif
 
 /*{{{ varnish param names */
 #define PHP_VARNISH_PARAM_ACCEPTOR_SLEEP_DECAY "acceptor_sleep_decay"

@@ -38,7 +38,9 @@
 #include "zend_exceptions.h"
 #include "php_varnish.h"
 
+#ifndef PHP_WIN32
 #include <varnishapi.h>
+#endif
 
 #include "varnish_lib.h"
 #include "exception.h"
@@ -96,6 +98,7 @@ php_varnish_stat_obj_init(zend_class_entry *ze TSRMLS_DC)
  *  Varnish admin constructor */
 PHP_METHOD(VarnishStat, __construct)
 {
+#ifndef PHP_WIN32
 	struct ze_varnish_stat_obj *zvso;
 	zval *opts = NULL, **ident;
 
@@ -117,9 +120,13 @@ PHP_METHOD(VarnishStat, __construct)
 	} else {
 		php_varnish_default_ident(&zvso->zvc.ident, (int*)&zvso->zvc.ident_len);
 	}
+#else 
+	/* throw exception */
+#endif
 }
 /* }}} */
 
+#ifndef PHP_WIN32
 /* {{{ proto array VarnishStat::getSnapshot(void)
   Get a statistics snapshot */
 PHP_METHOD(VarnishStat, getSnapshot)
@@ -146,6 +153,7 @@ PHP_METHOD(VarnishStat, getSnapshot)
 	(void)php_varnish_snap_stats(return_value, zvso->zvc.ident TSRMLS_CC);
 }
 /* }}} */
+#endif
 
 /*
  * Local variables:

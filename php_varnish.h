@@ -46,11 +46,13 @@ extern zend_module_entry varnish_module_entry;
 #include "TSRM.h"
 #endif
 
+#ifndef PHP_WIN32
 #include "varnishapi.h"
+#endif
 
 /*#define PHP_VARNISH_DEBUG*/
 
-#define PHP_VARNISH_EXT_VERSION "0.9.3"
+#define PHP_VARNISH_EXT_VERSION "1.0.0"
 
 PHP_MINIT_FUNCTION(varnish);
 PHP_MSHUTDOWN_FUNCTION(varnish);
@@ -81,11 +83,15 @@ PHP_METHOD(VarnishAdmin, vclUse);
 PHP_METHOD(VarnishAdmin, disconnect);
 
 PHP_METHOD(VarnishStat, __construct);
+#ifndef PHP_WIN32
 PHP_METHOD(VarnishStat, getSnapshot);
+#endif
 
 PHP_METHOD(VarnishLog, __construct);
+#ifndef PHP_WIN32
 PHP_METHOD(VarnishLog, getLine);
 PHP_METHOD(VarnishLog, getTagName);
+#endif
 
 /*ZEND_BEGIN_MODULE_GLOBALS(varnish)
 ZEND_END_MODULE_GLOBALS(varnish)*/

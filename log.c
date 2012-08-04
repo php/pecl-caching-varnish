@@ -38,7 +38,9 @@
 #include "zend_exceptions.h"
 #include "php_varnish.h"
 
+#ifndef PHP_WIN32
 #include <varnishapi.h>
+#endif
 
 #include "varnish_lib.h"
 #include "exception.h"
@@ -101,6 +103,7 @@ php_varnish_log_obj_init(zend_class_entry *ze TSRMLS_DC)
  *  Varnish admin constructor */
 PHP_METHOD(VarnishLog, __construct)
 {
+#ifndef PHP_WIN32
 	struct ze_varnish_log_obj *zvlo;
 	zval *opts = NULL, **ident;
 
@@ -144,9 +147,13 @@ PHP_METHOD(VarnishLog, __construct)
 
 		return;
 	}
+#else
+	/* throw exception */
+#endif
 }
 /* }}} */
 
+#ifndef PHP_WIN32
 /* {{{ proto array VarnishLog::getLine(void)
  * Get the next log entry */
 PHP_METHOD(VarnishLog, getLine)
@@ -184,6 +191,7 @@ PHP_METHOD(VarnishLog, getTagName)
 	RETURN_STRINGL(ret, ret_len, 0);
 }
 /* }}} */
+#endif
 
 /*
  * Local variables:

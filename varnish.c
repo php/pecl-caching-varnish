@@ -89,7 +89,9 @@ const zend_function_entry VarnishAdmin_methods[] = {
 /* {{{ VarnishStat_methods{} */
 const zend_function_entry VarnishStat_methods[] = {
 	PHP_ME(VarnishStat, __construct, NULL, ZEND_ACC_PUBLIC)
+#ifndef PHP_WIN32
 	PHP_ME(VarnishStat, getSnapshot, NULL, ZEND_ACC_PUBLIC)
+#endif
 	{NULL, NULL, NULL}
 };
 /* }}} */
@@ -97,8 +99,10 @@ const zend_function_entry VarnishStat_methods[] = {
 /* {{{ VarnishLog_methods{} */
 const zend_function_entry VarnishLog_methods[] = {
 	PHP_ME(VarnishLog, __construct, NULL, ZEND_ACC_PUBLIC)
+#ifndef PHP_WIN32
 	PHP_ME(VarnishLog, getLine, NULL, ZEND_ACC_PUBLIC)
 	PHP_ME(VarnishLog, getTagName, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+#endif
 	{NULL, NULL, NULL}
 };
 /* }}} */
@@ -179,11 +183,13 @@ PHP_MINIT_FUNCTION(varnish)
 	ce.create_object = php_varnish_log_obj_init;
 	VarnishLog_ce = zend_register_internal_class(&ce TSRMLS_CC);
 
+/* log is not working on windows at the time*/
+#ifndef PHP_WIN32
 #define SLTM(foo) \
 zend_declare_class_constant_long(VarnishLog_ce, "TAG_"#foo, strlen("TAG_"#foo), SLT_##foo TSRMLS_CC);
 #include "vsl_tags.h"
 #undef SLTM
-
+#endif
 	/* Init exceptions */
 	INIT_CLASS_ENTRY(ce, "VarnishException", NULL);
 	VarnishException_ce = zend_register_internal_class_ex(

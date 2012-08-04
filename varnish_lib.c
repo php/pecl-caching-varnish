@@ -38,14 +38,30 @@
 #include "zend_exceptions.h"
 #include "php_varnish.h"
 
+#ifdef PHP_WIN32
+#undef UNICODE
+#include "win32/inet.h"
+#include <winsock2.h>
+#include <windows.h>
+#include <Ws2tcpip.h>
+#include "win32/sockets.h"
+
+#else
+
+#if HAVE_SYS_TYPES_H
 #include <sys/types.h>
+#endif
 #include <sys/socket.h>
 #include <netinet/in.h>
+#if HAVE_ARPA_INET_H
 #include <arpa/inet.h>
+#endif
 #include <netdb.h>
-#include <poll.h>
 
 #include <fcntl.h>
+#endif
+
+#include <poll.h>
 
 #include "sha2.h"
 #include "varnish_lib.h"
@@ -300,6 +316,7 @@ php_varnish_invoke_command(int sock, char *command, int command_len, int *status
 	return 1;
 }/*}}}*/
 
+#ifndef PHP_WIN32
 int
 php_varnish_sock_ident(const char *ident, char **addr, int *addr_len, int *port, int tmo, int *status TSRMLS_DC)
 {/*{{{*/
@@ -365,6 +382,7 @@ php_varnish_sock_ident(const char *ident, char **addr, int *addr_len, int *port,
 
 	return sock;
 }/*}}}*/
+#endif
 
 int
 php_varnish_sock(const char *addr, int port, int tmo, int *status TSRMLS_DC)
@@ -397,6 +415,7 @@ php_varnish_sock(const char *addr, int port, int tmo, int *status TSRMLS_DC)
 		snprintf(port_buf, 7, "%d", port);
 		rc = getaddrinfo(addr, port_buf, &hints, &res);
 		if (0 != rc) {
+#ifndef PHP_WIN32
 			if (rc == EAI_SYSTEM) {
 				zend_throw_exception_ex(
 					VarnishException_ce,
@@ -405,6 +424,7 @@ php_varnish_sock(const char *addr, int port, int tmo, int *status TSRMLS_DC)
 					addr
 				);
 			} else {
+#endif
 				zend_throw_exception_ex(
 					VarnishException_ce,
 					PHP_VARNISH_SOCK_EXCEPTION TSRMLS_CC,
@@ -412,7 +432,9 @@ php_varnish_sock(const char *addr, int port, int tmo, int *status TSRMLS_DC)
 					addr,
 					estrdup(gai_strerror(rc))
 				);
+#ifndef PHP_WIN32
 			}
+#endif
 			return sock;
 		}
 
@@ -444,6 +466,7 @@ php_varnish_sock(const char *addr, int port, int tmo, int *status TSRMLS_DC)
 	return sock;
 }/*}}}*/
 
+#ifndef PHP_WIN32
 int
 php_varnish_auth_ident(int sock, const char *ident, int tmo, int *status TSRMLS_DC)
 {/*{{{*/
@@ -501,6 +524,7 @@ php_varnish_auth_ident(int sock, const char *ident, int tmo, int *status TSRMLS_
 
 	return 1;
 }/*}}}*/
+#endif
 
 int
 php_varnish_auth(int sock, char *secret, int secret_len, int *status, int tmo TSRMLS_DC)
@@ -673,6 +697,7 @@ php_varnish_ban(int sock, int *status, char *reg, int reg_len, int tmo, int type
 	return php_varnish_invoke_command(sock, buf, reg_len+int_len, status, &content, &content_len, tmo TSRMLS_CC);
 }/*}}}*/
 
+#ifndef PHP_WIN32
 static int
 php_varnish_snap_stats_cb(void *priv, const struct VSC_point const *pt)
 {/*{{{*/
@@ -750,6 +775,7 @@ php_varnish_get_log(const struct VSM_data *vd, zval *line TSRMLS_DC)
 	return 1;
 
 }/*}}}*/ 
+#endif
 
 int
 php_varnish_is_running(int sock, int *status, int tmo TSRMLS_DC)
@@ -796,6 +822,7 @@ php_varnish_clear_panic(int sock, int *status, int tmo TSRMLS_DC)
 	return php_varnish_invoke_command(sock, "panic.clear", 11, status, &content, &content_len, tmo TSRMLS_CC);
 } /*}}}*/
 
+#ifndef PHP_WIN32
 void
 php_varnish_log_get_tag_name(int index, char **ret, int *ret_len TSRMLS_DC)
 {/*{{{*/
@@ -813,6 +840,7 @@ php_varnish_log_get_tag_name(int index, char **ret, int *ret_len TSRMLS_DC)
 		}
 	}
 }/*}}}*/
+#endif
 
 void
 php_varnish_default_ident(char **ident, int *ident_len)

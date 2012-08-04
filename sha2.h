@@ -45,12 +45,18 @@ extern "C" {
  * may need to change this, or define these things yourself in this
  * file.
  */
+#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
+#endif
 
+#ifdef PHP_WIN32
+#include <win32/php_stdint.h>
+#define u_int64_t uint64_t
+#define u_int8_t uint8_t
+#else
 #ifdef SHA2_USE_INTTYPES_H
-
 #include <inttypes.h>
-
+#endif
 #endif /* SHA2_USE_INTTYPES_H */
 
 

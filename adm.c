@@ -38,11 +38,25 @@
 #include "zend_exceptions.h"
 #include "php_varnish.h"
 
-#include <sys/types.h>
+#ifdef PHP_WIN32
+#include <winsock2.h>
+#else 
+#ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
-#include <netinet/in.h>
+#endif
 
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
+
+#ifdef HAVE_NET_INET_H
+#include <netinet/in.h>
+#endif
+
+#ifndef PHP_WIN32
 #include <varnishapi.h>
+#endif
+#endif
 
 #include "varnish_lib.h"
 #include "exception.h"
@@ -216,12 +230,17 @@ PHP_METHOD(VarnishAdmin, connect)
 	
 	/* get the socket */
 	if (zvao->zvc.ident_len > 0) {
+#ifndef PHP_WIN32
 		zvao->zvc.sock = php_varnish_sock_ident(zvao->zvc.ident, &zvao->zvc.host, (int*)&zvao->zvc.host_len, &zvao->zvc.port,
 										zvao->zvc.timeout, &zvao->status TSRMLS_CC);
 		if (zvao->zvc.sock < 0) {
 			RETURN_FALSE;
 			return;
 		}
+#else
+	 php_varnish_throw_win_unimpl_exception("Connection using identity is not supported on windows" TSRMLS_CC);
+	 return;
+#endif
 	} else if (zvao->zvc.host_len > 0) {
 		zvao->zvc.sock = php_varnish_sock(zvao->zvc.host, zvao->zvc.port,
 										zvao->zvc.timeout, &zvao->status TSRMLS_CC);
@@ -253,11 +272,16 @@ PHP_METHOD(VarnishAdmin, auth)
 	/* authenticate */
 	if (zvao->zvc.sock > -1) {
 		if (zvao->zvc.ident_len > 0) {
+#ifndef PHP_WIN32
 			if(!php_varnish_auth_ident(zvao->zvc.sock, zvao->zvc.ident,
 						zvao->zvc.timeout, &zvao->status TSRMLS_CC)) {
 				RETURN_FALSE;
 				return;
 			}
+#else
+			php_varnish_throw_win_unimpl_exception("Authentication using identity is not supported on windows" TSRMLS_CC);
+			return;
+#endif
 		} else if (zvao->zvc.secret_len > 0) {
 			if(!php_varnish_auth(zvao->zvc.sock, zvao->zvc.secret,
 				(int)zvao->zvc.secret_len, &zvao->status, zvao->zvc.timeout TSRMLS_CC)) {

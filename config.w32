@@ -4,6 +4,24 @@
 ARG_ENABLE("varnish", "enable varnish support", "no");
 
 if (PHP_VARNISH != "no") {
-	EXTENSION("varnish", "varnish.c varnish_lib.c adm.c exception.c log.c sha2.c stat.c");
+	if (CHECK_HEADER_ADD_INCLUDE('Ws2tcpip.h', 'CFLAGS_VARNISH') &&
+		CHECK_HEADER_ADD_INCLUDE("poll.h", "CFLAGS_VARNISH", PHP_VARNISH + ";" + configure_module_dirname + "\\win32") &&
+		CHECK_HEADER_ADD_INCLUDE("php_varnish.h", "CFLAGS_VARNISH", PHP_VARNISH + ";" + configure_module_dirname) &&
+		CHECK_HEADER_ADD_INCLUDE("exception.h", "CFLAGS_VARNISH", PHP_VARNISH + ";" + configure_module_dirname) &&
+		CHECK_HEADER_ADD_INCLUDE("sha2.h", "CFLAGS_VARNISH", PHP_VARNISH + ";" + configure_module_dirname) &&
+		CHECK_HEADER_ADD_INCLUDE("varnish_lib.h", "CFLAGS_VARNISH", PHP_VARNISH + ";" + configure_module_dirname) &&
+		CHECK_LIB('Ws2_32.lib', 'varnish')) {
+
+		EXTENSION("varnish", "varnish.c varnish_lib.c adm.c exception.c log.c sha2.c stat.c");
+
+		ADD_SOURCES(configure_module_dirname + "\\win32", "poll.c", "varnish");
+
+		AC_DEFINE('HAVE_VARNISH', 1, 'Have varnish library');
+
+		ADD_FLAG("CFLAGS_VARNISH", ' /I "win32" ');
+		ADD_FLAG("LDFLAGS_VARNISH", ' /libpath:"win32" ');
+	} else {
+		WARNING('varnish not enabled, headers missing');
+	}
 }
 

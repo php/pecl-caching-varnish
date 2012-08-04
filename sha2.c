@@ -85,8 +85,13 @@
  * <machine/endian.h> where the appropriate definitions are actually
  * made).
  */
+#ifdef PHP_WIN32
+#define LITTLE_ENDIAN 1234
+#define BYTE_ORDER LITTLE_ENDIAN 
+#else
 #if !defined(BYTE_ORDER) || (BYTE_ORDER != LITTLE_ENDIAN && BYTE_ORDER != BIG_ENDIAN)
 #error Define BYTE_ORDER to be equal to either LITTLE_ENDIAN or BIG_ENDIAN
+#endif
 #endif
 
 /*

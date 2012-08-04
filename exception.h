@@ -62,6 +62,9 @@ php_varnish_throw_auth_exception(TSRMLS_D);
 void
 php_varnish_throw_conn_exception(TSRMLS_D);
 
+void
+php_varnish_throw_win_unimpl_exception(char *msg TSRMLS_DC);
+
 #endif	/* PHP_VARNISH_EXCEPTION_H */
 
 

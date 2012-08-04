@@ -36,6 +36,7 @@
 #include "php_ini.h"
 #include "ext/standard/info.h"
 #include "php_varnish.h"
+#include "zend_exceptions.h"
 
 #include "exception.h"
 
@@ -76,6 +77,16 @@ php_varnish_throw_conn_exception(TSRMLS_D)
 		VarnishException_ce,
 		PHP_VARNISH_CONN_EXCEPTION TSRMLS_CC,
 		"Not connected to any varnish instance"
+	);  
+}
+
+void
+php_varnish_throw_win_unimpl_exception(char *msg TSRMLS_DC)
+{
+	zend_throw_exception_ex(
+		VarnishException_ce,
+		PHP_VARNISH_UNIMPL_EXCEPTION TSRMLS_CC,
+		(NULL != msg) ? msg : "The functionality you're trying to use is not available on windows"
 	);  
 }
 

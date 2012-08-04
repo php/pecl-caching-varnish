@@ -1,13 +1,9 @@
 // $Id$
 // vim:ft=javascript
 
-// If your extension references something external, use ARG_WITH
-// ARG_WITH("varnish", "for varnish support", "no");
-
-// Otherwise, use ARG_ENABLE
-// ARG_ENABLE("varnish", "enable varnish support", "no");
+ARG_ENABLE("varnish", "enable varnish support", "no");
 
 if (PHP_VARNISH != "no") {
-	EXTENSION("varnish", "varnish.c");
+	EXTENSION("varnish", "varnish.c varnish_lib.c adm.c exception.c log.c sha2.c stat.c");
 }
 

@@ -605,7 +605,7 @@ php_varnish_get_params(int sock, int *status, zval *storage, int tmo TSRMLS_DC)
 	char *content, *p0, *p1, buf[256];
 
 	ret = php_varnish_invoke_command(sock, "param.show", 10, status, &content, &content_len, tmo TSRMLS_CC);
-	
+
 	p0 = p1 = content;
 	while(i < content_len) {
 		while(*p1 != '\0' && *p1 != '\n' && *p1 != '\r') {
@@ -613,9 +613,11 @@ php_varnish_get_params(int sock, int *status, zval *storage, int tmo TSRMLS_DC)
 		}
 
 		len = p1 - p0;
-		memcpy(buf, p0, (len > 255 ? 255 : len));
-		buf[len] = '\0';
-		php_varnish_parse_add_param(storage, buf);
+		if (0 != len) {
+			memcpy(buf, p0, (len > 255 ? 255 : len));
+			buf[len] = '\0';
+			php_varnish_parse_add_param(storage, buf);
+		}
 		p0 = ++p1;
 		i += len + 1;
 	}

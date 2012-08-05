@@ -78,7 +78,11 @@ php_varnish_adm_obj_destroy(void *obj TSRMLS_DC)
 		efree(zvao->zvc.secret);
 	}
 	if (zvao->zvc.sock >= 0) {
+#ifdef PHP_WIN32
+		closesocket(zvao->zvc.sock);
+#else
 		close(zvao->zvc.sock);
+#endif
 	}
 	efree(zvao);
 }/*}}}*/
@@ -717,8 +721,11 @@ PHP_METHOD(VarnishAdmin, disconnect)
 	}
 
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
-
+#ifdef PHP_WIN32
+	RETURN_BOOL(zvao->zvc.sock < 0 ? 0 : (closesocket(zvao->zvc.sock) == 0));
+#else
 	RETURN_BOOL(zvao->zvc.sock < 0 ? 0 : (close(zvao->zvc.sock) == 0));
+#endif
 }
 /*}}}*/
 

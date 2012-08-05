@@ -148,7 +148,8 @@ PHP_METHOD(VarnishLog, __construct)
 		return;
 	}
 #else
-	/* throw exception */
+	 php_varnish_throw_win_unimpl_exception("VarnishLog functionality isn't available on windows" TSRMLS_CC);
+	 return;
 #endif
 }
 /* }}} */

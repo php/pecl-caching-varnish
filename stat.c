@@ -121,7 +121,8 @@ PHP_METHOD(VarnishStat, __construct)
 		php_varnish_default_ident(&zvso->zvc.ident, (int*)&zvso->zvc.ident_len);
 	}
 #else 
-	/* throw exception */
+	 php_varnish_throw_win_unimpl_exception("VarnishStat functionality isn't available on windows" TSRMLS_CC);
+	 return;
 #endif
 }
 /* }}} */

@@ -5,7 +5,6 @@ ARG_ENABLE("varnish", "enable varnish support", "no");
 
 if (PHP_VARNISH != "no") {
 	if (CHECK_HEADER_ADD_INCLUDE('Ws2tcpip.h', 'CFLAGS_VARNISH') &&
-		CHECK_HEADER_ADD_INCLUDE("poll.h", "CFLAGS_VARNISH", PHP_VARNISH + ";" + configure_module_dirname + "\\win32") &&
 		CHECK_HEADER_ADD_INCLUDE("php_varnish.h", "CFLAGS_VARNISH", PHP_VARNISH + ";" + configure_module_dirname) &&
 		CHECK_HEADER_ADD_INCLUDE("exception.h", "CFLAGS_VARNISH", PHP_VARNISH + ";" + configure_module_dirname) &&
 		CHECK_HEADER_ADD_INCLUDE("sha2.h", "CFLAGS_VARNISH", PHP_VARNISH + ";" + configure_module_dirname) &&

@@ -59,9 +59,9 @@
 #include <netdb.h>
 
 #include <fcntl.h>
-#endif
 
 #include <poll.h>
+#endif
 
 #include "sha2.h"
 #include "varnish_lib.h"
@@ -201,13 +201,29 @@ php_varnish_consume_bytes(int sock, char *ptr, int len, int tmo TSRMLS_DC)
 {/*{{{*/
 	int got_now, i = len, j;
 	char *p = ptr;
+#ifndef PHP_WIN32
 	struct pollfd pfd;
 
 	pfd.fd = sock;
 	pfd.events = POLLIN;
 
 	j = poll(&pfd, 1, tmo);
+
 	if (j == 0) {
+#else
+	struct fd_set readfds;
+	struct timeval ttmo;
+
+	FD_ZERO(&readfds);
+	FD_SET(sock, &readfds);
+
+	ttmo.tv_sec = 0;
+	ttmo.tv_usec = tmo*1000;
+
+	j = select(0, &readfds, NULL, NULL, &ttmo);
+
+	if (j <= 0) {
+#endif
 		zend_throw_exception_ex(
 			VarnishException_ce,
 			PHP_VARNISH_TMO_EXCEPTION TSRMLS_CC,
@@ -552,7 +568,7 @@ php_varnish_auth(int sock, char *secret, int secret_len, int *status, int tmo TS
 		}
 
 		memcpy(challenge, content, PHP_VARNISH_CHALLENGE_LEN);
-		challenge[PHP_VARNISH_CHALLENGE_LEN+1] = '\0';
+		challenge[PHP_VARNISH_CHALLENGE_LEN] = '\0';
 		efree(content);
 
 		SHA256_Init(&ctx256);

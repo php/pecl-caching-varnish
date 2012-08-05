@@ -14,12 +14,7 @@ if (PHP_VARNISH != "no") {
 
 		EXTENSION("varnish", "varnish.c varnish_lib.c adm.c exception.c log.c sha2.c stat.c");
 
-		ADD_SOURCES(configure_module_dirname + "\\win32", "poll.c", "varnish");
-
 		AC_DEFINE('HAVE_VARNISH', 1, 'Have varnish library');
-
-		ADD_FLAG("CFLAGS_VARNISH", ' /I "win32" ');
-		ADD_FLAG("LDFLAGS_VARNISH", ' /libpath:"win32" ');
 	} else {
 		WARNING('varnish not enabled, headers missing');
 	}

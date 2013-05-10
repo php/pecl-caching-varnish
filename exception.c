@@ -1,8 +1,8 @@
 /*-
- * Copyright (c) 2011 Anatoliy Belsky
+ * Copyright (c) 2011-2013 Anatol Belski
  * All rights reserved.
  *
- * Author: Anatoliy Belsky <ab@php.net>
+ * Author: Anatol Belski <ab@php.net>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions

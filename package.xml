@@ -5,7 +5,7 @@
 	<summary>Varnish Cache bindings</summary>
 	<description>Varnish Cache is an open source, state of the art web application accelerator. The extension makes it possible to interact with a running varnish instance through TCP socket or shared memory.</description>
 	<lead>
-		<name>Anatoliy Belsky</name>
+		<name>Anatol Belski</name>
 		<user>ab</user>
 		<email>ab@php.net</email>
 		<active>yes</active>

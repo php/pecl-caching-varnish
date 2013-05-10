@@ -1,8 +1,8 @@
 /*-
- * Copyright (c) 2011 Anatoliy Belsky
+ * Copyright (c) 2011-2013 Anatol Belski
  * All rights reserved.
  *
- * Author: Anatoliy Belsky <ab@php.net>
+ * Author: Anatol Belski <ab@php.net>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -141,9 +141,7 @@ struct ze_varnish_log_obj {
 	struct VSM_data *vd;
 };
 
-#if PHP_VERSION_ID >= 50399
 zend_object_handlers default_varnish_handlers;
-#endif
 
 #endif	/* PHP_VARNISH_H */
 

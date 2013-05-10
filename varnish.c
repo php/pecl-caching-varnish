@@ -1,8 +1,8 @@
 /*-
- * Copyright (c) 2011 Anatoliy Belsky
+ * Copyright (c) 2011-2013 Anatol Belski
  * All rights reserved.
  *
- * Author: Anatoliy Belsky <ab@php.net>
+ * Author: Anatol Belski <ab@php.net>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -165,10 +165,8 @@ PHP_MINIT_FUNCTION(varnish)
 	/* REGISTER_INI_ENTRIES();*/
 	/*ZEND_INIT_MODULE_GLOBALS(varnish, php_varnish_globals_ctor, php_varnish_globals_dtor);*/
 
-#if PHP_VERSION_ID >= 50399
 	memcpy(&default_varnish_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	default_varnish_handlers.clone_obj = NULL;
-#endif
 
 	/* Init internal classes */
 	INIT_CLASS_ENTRY(ce, "VarnishAdmin", VarnishAdmin_methods);

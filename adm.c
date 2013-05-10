@@ -1,8 +1,8 @@
 /*-
- * Copyright (c) 2011 Anatoliy Belsky
+ * Copyright (c) 2011-2013 Anatol Belski
  * All rights reserved.
  *
- * Author: Anatoliy Belsky <ab@php.net>
+ * Author: Anatol Belski <ab@php.net>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -121,12 +121,8 @@ php_varnish_adm_obj_init(zend_class_entry *ze TSRMLS_DC)
 	ret.handle = zend_objects_store_put(zvao, NULL,
 										(zend_objects_free_object_storage_t) php_varnish_adm_obj_destroy,
 										NULL TSRMLS_CC);
-#if PHP_VERSION_ID < 50399
-	ret.handlers = zend_get_std_object_handlers();
-	ret.handlers->clone_obj = NULL;
-#else
+
 	ret.handlers = &default_varnish_handlers;
-#endif
 
 	return ret;
 }/*}}}*/

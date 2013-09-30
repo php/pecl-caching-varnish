@@ -19,3 +19,4 @@ echo (int)!empty($stat), "\n";
 ?>
 --EXPECT--
 1
+1

@@ -9,7 +9,7 @@ Check for VarnishStat::getSnapshot functionality
 
 include dirname(__FILE__) . '/config.php';
 
-$vs = new VarnishStat($args);
+$vs = new VarnishStat;
 
 $stat = $vs->getSnapshot();
 
@@ -18,4 +18,5 @@ echo (int)!empty($stat), "\n";
 
 ?>
 --EXPECT--
+1
 1

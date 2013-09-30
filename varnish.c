@@ -42,8 +42,9 @@
 
 /*ZEND_DECLARE_MODULE_GLOBALS(varnish)*/
 
-/* True global resources - no need for thread safety here */
+/* True global resources - no need for thread safety here
 static int le_varnish;
+*/
 
 /* Class entry definition */
 zend_class_entry *VarnishAdmin_ce;

@@ -92,8 +92,10 @@ php_varnish_adm_obj_init(zend_class_entry *ze TSRMLS_DC)
 {/*{{{*/
 	zend_object_value ret;
 	struct ze_varnish_adm_obj *zvao;
+#if PHP_VERSION_ID < 50399
 	zval *tmp;
-	
+#endif
+
 	zvao = (struct ze_varnish_adm_obj*)emalloc(sizeof(struct ze_varnish_adm_obj));
 	memset(&zvao->zo, 0, sizeof(zend_object));
 

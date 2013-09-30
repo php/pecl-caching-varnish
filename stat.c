@@ -65,7 +65,9 @@ php_varnish_stat_obj_init(zend_class_entry *ze TSRMLS_DC)
 {   /*{{{*/
 	zend_object_value ret;
 	struct ze_varnish_stat_obj *zvso;
+#if PHP_VERSION_ID < 50399
 	zval *tmp;
+#endif
 
 	zvso = (struct ze_varnish_stat_obj*)emalloc(sizeof(struct ze_varnish_stat_obj));
 	memset(&zvso->zo, 0, sizeof(zend_object));

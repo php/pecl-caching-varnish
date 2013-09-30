@@ -11,7 +11,9 @@ if (PHP_VARNISH != "no") {
 		CHECK_HEADER_ADD_INCLUDE("varnish_lib.h", "CFLAGS_VARNISH", PHP_VARNISH + ";" + configure_module_dirname) &&
 		CHECK_LIB('Ws2_32.lib', 'varnish')) {
 
-		EXTENSION("varnish", "varnish.c varnish_lib.c adm.c exception.c log.c sha2.c stat.c");
+		ADD_EXTENSION_DEP("varnish", "hash", false);
+
+		EXTENSION("varnish", "varnish.c varnish_lib.c adm.c exception.c log.c stat.c");
 
 		AC_DEFINE('HAVE_VARNISH', 1, 'Have varnish library');
 	} else {

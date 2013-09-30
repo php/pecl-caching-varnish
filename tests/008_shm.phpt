@@ -2,29 +2,22 @@
 Check for the basic VarnishLog::getLine() functionality
 --SKIPIF--
 <?php if (!extension_loaded("varnish") || !file_exists(dirname(__FILE__) . '/config.php')) print "skip"; ?>
+<?php if (!getenv("VARNISH_TEST_SHM")) print "skip VARNISH_TEST_SHM not set"; ?>
 --FILE--
 <?php 
 
 include dirname(__FILE__) . '/config.php';
 
-foreach (array_slice($args_all, 0, 2) as $args) {
-	$i = 3;
-	$vs = new VarnishLog($args);
-	while($i-- > 0) {
-			$line = $vs->getLine();
-			echo (int)is_array($line), "\n";
-			echo (int)!empty($line), "\n";
-	}
+$i = 3;
+$vs = new VarnishLog;
+while($i-- > 0) {
+		$line = $vs->getLine();
+		echo (int)is_array($line), "\n";
+		echo (int)!empty($line), "\n";
 }
 
 ?>
 --EXPECT--
-1
-1
-1
-1
-1
-1
 1
 1
 1

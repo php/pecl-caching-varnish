@@ -27,6 +27,7 @@
 	</notes>
 	<contents>
 		<dir name="/">
+			<file role="doc" name="LICENSE"/>
 			<file role="src" name="exception.h"/>
 			<file role="src" name="php_varnish.h"/>
 			<file role="src" name="sha2.h"/>

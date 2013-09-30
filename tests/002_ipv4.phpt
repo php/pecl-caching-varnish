@@ -1,7 +1,7 @@
 --TEST--
 Check for varnish connection
 --SKIPIF--
-<?php if (!extension_loaded("varnish") || !file_exists(dirname(__FILE__) . '/config.php') print "skip"; ?>
+<?php if (!extension_loaded("varnish") || !file_exists(dirname(__FILE__) . '/config.php')) print "skip"; ?>
 <?php if (!getenv("VARNISH_TEST_IPV4")) print "skip VARNISH_TEST_IPV4 not set"; ?>
 --FILE--
 <?php 

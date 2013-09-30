@@ -11,41 +11,42 @@ if test "$PHP_VARNISH" != "no"; then
   AC_CHECK_HEADER(netdb.h)
 
   dnl # --with-varnish -> check with-path
-  SEARCH_PATH="/usr/local/include /usr/local/include/varnish /usr/include /usr/include/varnish"
+  SEARCH_PATH="$PHP_VARNISH /usr/local /usr"
   SEARCH_FOR="varnishapi.h"
-  if test -r $PHP_VARNISH/$SEARCH_FOR; then
-    VARNISH_DIR=$PHP_VARNISH
-  else # search default path list
-    AC_MSG_CHECKING([for varnish files in default path])
-    for i in $SEARCH_PATH ; do
-      if test -r $i/$SEARCH_FOR; then
-        VARNISH_DIR=$i
-        AC_MSG_RESULT(found in $i)
-      fi
-    done
-  fi
+  AC_MSG_CHECKING([for varnish files in default path])
+  for i in $SEARCH_PATH ; do
+    if test -r $i/include/varnish/$SEARCH_FOR; then
+      VARNISH_INCDIR=$i/include/varnish
+      VARNISH_LIBDIR=$i/$PHP_LIBDIR
+    elif test -r $i/include/$SEARCH_FOR; then
+      VARNISH_INCDIR=$i/include
+      VARNISH_LIBDIR=$i/$PHP_LIBDIR
+    fi
+  done
   
-  if test -z "$VARNISH_DIR"; then
+  if test -z "$VARNISH_INCDIR"; then
     AC_MSG_RESULT([not found])
     AC_MSG_ERROR([Please reinstall the varnish distribution])
+  else
+    AC_MSG_RESULT(headers found in $VARNISH_INCDIR)
   fi
 
-  PHP_ADD_INCLUDE($VARNISH_DIR)
-  AC_CHECK_HEADER([$VARNISH_DIR/varnishapi.h], [], AC_MSG_ERROR('varnishapi.h' header not found))
-  AC_CHECK_HEADER([$VARNISH_DIR/vcli.h], [], AC_MSG_ERROR('vcli.h' header not found))
-  AC_CHECK_HEADER([$VARNISH_DIR/vsl.h], [], AC_MSG_ERROR('vsl.h' header not found))
+  PHP_ADD_INCLUDE($VARNISH_INCDIR)
+  AC_CHECK_HEADER([$VARNISH_INCDIR/varnishapi.h], [], AC_MSG_ERROR('varnishapi.h' header not found))
+  AC_CHECK_HEADER([$VARNISH_INCDIR/vcli.h], [], AC_MSG_ERROR('vcli.h' header not found))
+  AC_CHECK_HEADER([$VARNISH_INCDIR/vsl.h], [], AC_MSG_ERROR('vsl.h' header not found))
 
   LIBNAME=varnishapi
   LIBSYMBOL=VSM_New
 
   PHP_CHECK_LIBRARY($LIBNAME,$LIBSYMBOL,
   [
-   PHP_ADD_LIBRARY_WITH_PATH($LIBNAME, $VARNISH_DIR/$PHP_LIBDIR, VARNISH_SHARED_LIBADD)
+   PHP_ADD_LIBRARY_WITH_PATH($LIBNAME, $VARNISH_LIBDIR, VARNISH_SHARED_LIBADD)
    AC_DEFINE(HAVE_VARNISHAPILIB,1,[ ])
   ],[
     AC_MSG_ERROR([wrong varnishapi lib version or lib not found])
   ],[
-    -L$VARNISH_DIR/lib -lm
+    -L$VARNISH_LIBDIR -lm
   ])
  
   PHP_SUBST(VARNISH_SHARED_LIBADD)

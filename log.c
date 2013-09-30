@@ -69,7 +69,9 @@ php_varnish_log_obj_init(zend_class_entry *ze TSRMLS_DC)
 {   /*{{{*/
 	zend_object_value ret;
 	struct ze_varnish_log_obj *zvlo;
+#if PHP_VERSION_ID < 50399
 	zval *tmp;
+#endif
 
 	zvlo = (struct ze_varnish_log_obj*)emalloc(sizeof(struct ze_varnish_log_obj));
 	memset(&zvlo->zo, 0, sizeof(zend_object));
@@ -156,8 +158,6 @@ PHP_METHOD(VarnishLog, __construct)
 PHP_METHOD(VarnishLog, getLine)
 {
 	struct ze_varnish_log_obj *zvlo;
-	char *line;
-	int line_len;
 
 	if (zend_parse_parameters_none() == FAILURE) {
 		return;

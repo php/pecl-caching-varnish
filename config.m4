@@ -51,5 +51,7 @@ if test "$PHP_VARNISH" != "no"; then
  
   PHP_SUBST(VARNISH_SHARED_LIBADD)
 
-  PHP_NEW_EXTENSION(varnish, varnish.c adm.c varnish_lib.c sha2.c exception.c stat.c log.c, $ext_shared)
+  PHP_NEW_EXTENSION(varnish, varnish.c adm.c varnish_lib.c exception.c stat.c log.c, $ext_shared)
+  PHP_ADD_EXTENSION_DEP(varnish, hash, true)
+
 fi

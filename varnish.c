@@ -108,12 +108,18 @@ const zend_function_entry VarnishLog_methods[] = {
 };
 /* }}} */
 
+/* {{{ varnish_deps */
+static const zend_module_dep varnish_deps[] = {/*{{{*/
+	ZEND_MOD_REQUIRED("hash")
+	{NULL, NULL, NULL}
+};/*}}}*/
+
 /* {{{ varnish_module_entry
  */
 zend_module_entry varnish_module_entry = {
-#if ZEND_MODULE_API_NO >= 20010901
-	STANDARD_MODULE_HEADER,
-#endif
+	STANDARD_MODULE_HEADER_EX,
+	NULL,
+	varnish_deps,
 	"varnish",
 	varnish_functions,
 	PHP_MINIT(varnish),

@@ -63,7 +63,8 @@
 #include <poll.h>
 #endif
 
-#include "sha2.h"
+#include "ext/hash/php_hash.h"
+#include "ext/hash/php_hash_sha.h"
 #include "varnish_lib.h"
 #include "exception.h"
 
@@ -545,9 +546,10 @@ php_varnish_auth_ident(int sock, const char *ident, int tmo, int *status TSRMLS_
 int
 php_varnish_auth(int sock, char *secret, int secret_len, int *status, int tmo TSRMLS_DC)
 {/*{{{*/
-	char challenge[PHP_VARNISH_CHALLENGE_LEN+1], buf[SHA256_DIGEST_STRING_LENGTH], *content, *auth_seq;
+	char challenge[PHP_VARNISH_CHALLENGE_LEN+1], buf[64], *content, *auth_seq;
+	unsigned char binbuf[32];
 	int numbytes, content_len, auth_seq_len;
-	SHA256_CTX ctx256;
+	PHP_SHA256_CTX ctx256;
 
 	if((numbytes = php_varnish_read_line0(sock, status, &content_len, tmo TSRMLS_CC)) != PHP_VARNISH_LINE0_MAX_LEN) {
 		zend_throw_exception_ex(
@@ -571,19 +573,20 @@ php_varnish_auth(int sock, char *secret, int secret_len, int *status, int tmo TS
 		challenge[PHP_VARNISH_CHALLENGE_LEN] = '\0';
 		efree(content);
 
-		SHA256_Init(&ctx256);
-		SHA256_Update(&ctx256, (unsigned char*)challenge, PHP_VARNISH_CHALLENGE_LEN);
-		SHA256_Update(&ctx256, (unsigned char*)"\n", 1);
-		SHA256_Update(&ctx256, (unsigned char*)secret, secret_len);
-		SHA256_Update(&ctx256, (unsigned char*)"\n", 1);
-		SHA256_Update(&ctx256, (unsigned char*)challenge, PHP_VARNISH_CHALLENGE_LEN);
-		SHA256_Update(&ctx256, (unsigned char*)"\n", 1);
-		SHA256_End(&ctx256, buf);
+		PHP_SHA256Init(&ctx256);
+		PHP_SHA256Update(&ctx256, (unsigned char*)challenge, PHP_VARNISH_CHALLENGE_LEN);
+		PHP_SHA256Update(&ctx256, (unsigned char*)"\n", 1);
+		PHP_SHA256Update(&ctx256, (unsigned char*)secret, secret_len);
+		PHP_SHA256Update(&ctx256, (unsigned char*)"\n", 1);
+		PHP_SHA256Update(&ctx256, (unsigned char*)challenge, PHP_VARNISH_CHALLENGE_LEN);
+		PHP_SHA256Update(&ctx256, (unsigned char*)"\n", 1);
+		PHP_SHA256Final(binbuf, &ctx256);
+		php_hash_bin2hex(buf, binbuf, 32);
 
 		if(-1 == php_varnish_send_bytes(sock, "auth ", strlen("auth "))) {
 			php_varnish_throw_comm_exception(TSRMLS_C);
 		}
-		if(-1 == php_varnish_send_bytes(sock, buf, SHA256_DIGEST_STRING_LENGTH-1)) {
+		if(-1 == php_varnish_send_bytes(sock, buf, 64)) {
 			php_varnish_throw_comm_exception(TSRMLS_C);
 		}
 		if(-1 == php_varnish_send_bytes(sock, "\n", strlen("\n"))) {

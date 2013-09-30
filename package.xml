@@ -30,12 +30,10 @@
 			<file role="doc" name="LICENSE"/>
 			<file role="src" name="exception.h"/>
 			<file role="src" name="php_varnish.h"/>
-			<file role="src" name="sha2.h"/>
 			<file role="src" name="varnish_lib.h"/>
 			<file role="src" name="adm.c"/>
 			<file role="src" name="log.c"/>
 			<file role="src" name="exception.c"/>
-			<file role="src" name="sha2.c"/>
 			<file role="src" name="stat.c"/>
 			<file role="src" name="varnish.c"/>
 			<file role="src" name="varnish_lib.c"/>

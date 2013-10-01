@@ -109,7 +109,7 @@ const zend_function_entry VarnishLog_methods[] = {
 /* }}} */
 
 /* {{{ varnish_deps */
-static const zend_module_dep varnish_deps[] = {/*{{{*/
+static const zend_module_dep varnish_deps[] = {
 	ZEND_MOD_REQUIRED("hash")
 	{NULL, NULL, NULL}
 };/*}}}*/

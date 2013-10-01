@@ -96,7 +96,6 @@
 				<min>1.4.0</min>
 			</pearinstaller>
 			<extension><name>hash</name></extension>
-			<os>linux</os>
 		</required>
 	</dependencies>
 	<providesextension>varnish</providesextension>

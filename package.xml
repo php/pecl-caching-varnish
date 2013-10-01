@@ -44,43 +44,43 @@
 			<file role="src" name="config.m4"/>
 			<dir name="tests">
 <!-- /* {{{ */ -->
-				<file role="test" name="001.phpt" />"
-				<file role="test" name="002_ipv4.phpt" />"
-				<file role="test" name="002_ipv6.phpt" />"
-				<file role="test" name="002_secret.phpt" />"
-				<file role="test" name="002_shm.phpt" />"
-				<file role="test" name="003_ipv4.phpt" />"
-				<file role="test" name="003_ipv6.phpt" />"
-				<file role="test" name="003_secret.phpt" />"
-				<file role="test" name="003_shm.phpt" />"
-				<file role="test" name="004_ipv4.phpt" />"
-				<file role="test" name="004_ipv6.phpt" />"
-				<file role="test" name="004_secret.phpt" />"
-				<file role="test" name="004_shm.phpt" />"
-				<file role="test" name="005_ipv4.phpt" />"
-				<file role="test" name="005_ipv6.phpt" />"
-				<file role="test" name="005_secret.phpt" />"
-				<file role="test" name="005_shm.phpt" />"
-				<file role="test" name="006_ipv4.phpt" />"
-				<file role="test" name="006_ipv6.phpt" />"
-				<file role="test" name="006_secret.phpt" />"
-				<file role="test" name="006_shm.phpt" />"
-				<file role="test" name="007_secret.phpt" />"
-				<file role="test" name="007_shm.phpt" />"
-				<file role="test" name="008_secret.phpt" />"
-				<file role="test" name="008_shm.phpt" />"
-				<file role="test" name="009_ipv4.phpt" />"
-				<file role="test" name="009_ipv6.phpt" />"
-				<file role="test" name="009_secret.phpt" />"
-				<file role="test" name="009_shm.phpt" />"
-				<file role="test" name="010_ipv4.phpt" />"
-				<file role="test" name="010_ipv6.phpt" />"
-				<file role="test" name="010_secret.phpt" />"
-				<file role="test" name="010_shm.phpt" />"
-				<file role="test" name="011_ipv4.phpt" />"
-				<file role="test" name="011_ipv6.phpt" />"
-				<file role="test" name="011_secret.phpt" />"
-				<file role="test" name="011_shm.phpt" />"
+				<file role="test" name="001.phpt" />
+				<file role="test" name="002_ipv4.phpt" />
+				<file role="test" name="002_ipv6.phpt" />
+				<file role="test" name="002_secret.phpt" />
+				<file role="test" name="002_shm.phpt" />
+				<file role="test" name="003_ipv4.phpt" />
+				<file role="test" name="003_ipv6.phpt" />
+				<file role="test" name="003_secret.phpt" />
+				<file role="test" name="003_shm.phpt" />
+				<file role="test" name="004_ipv4.phpt" />
+				<file role="test" name="004_ipv6.phpt" />
+				<file role="test" name="004_secret.phpt" />
+				<file role="test" name="004_shm.phpt" />
+				<file role="test" name="005_ipv4.phpt" />
+				<file role="test" name="005_ipv6.phpt" />
+				<file role="test" name="005_secret.phpt" />
+				<file role="test" name="005_shm.phpt" />
+				<file role="test" name="006_ipv4.phpt" />
+				<file role="test" name="006_ipv6.phpt" />
+				<file role="test" name="006_secret.phpt" />
+				<file role="test" name="006_shm.phpt" />
+				<file role="test" name="007_secret.phpt" />
+				<file role="test" name="007_shm.phpt" />
+				<file role="test" name="008_secret.phpt" />
+				<file role="test" name="008_shm.phpt" />
+				<file role="test" name="009_ipv4.phpt" />
+				<file role="test" name="009_ipv6.phpt" />
+				<file role="test" name="009_secret.phpt" />
+				<file role="test" name="009_shm.phpt" />
+				<file role="test" name="010_ipv4.phpt" />
+				<file role="test" name="010_ipv6.phpt" />
+				<file role="test" name="010_secret.phpt" />
+				<file role="test" name="010_shm.phpt" />
+				<file role="test" name="011_ipv4.phpt" />
+				<file role="test" name="011_ipv6.phpt" />
+				<file role="test" name="011_secret.phpt" />
+				<file role="test" name="011_shm.phpt" />
 				<file role="test" name="config.php-dist" />
 				<file role="test" name="README" />
 <!-- /* }}} */ -->
@@ -95,8 +95,8 @@
 			<pearinstaller>
 				<min>1.4.0</min>
 			</pearinstaller>
-			<os>linux</os>
 			<extension><name>hash</name></extension>
+			<os>linux</os>
 		</required>
 	</dependencies>
 	<providesextension>varnish</providesextension>

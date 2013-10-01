@@ -10,10 +10,10 @@
 		<email>ab@php.net</email>
 		<active>yes</active>
 	</lead>
-	<date>2012-08-05</date>
+	<date>2013-10-01</date>
 	<version>
-		<release>1.0.0</release>
-		<api>1.0.0</api>
+		<release>1.1.0</release>
+		<api>1.1.0</api>
 	</version>
 	<stability>
 		<release>stable</release>
@@ -21,9 +21,11 @@
 	</stability>
 	<license uri="http://www.opensource.org/licenses/bsd-license.php">BSD</license>
 	<notes>
-		- added windows compatibility, though VarnishLog, VarnishStat and auth with ident isn't available there
-		- fixed socket closing for VarnishAdmin
-		* added VarnishAdmin::disconnect()
+		- fixed object handlers initialization
+		- improved m4 script (Remi Collet)
+		- dropped the bundled SHA256 implementation, the hash extension is dependency now instead (Remi Collet)
+		- RPMs are now available from Remi's repository
+		- improved the test suite
 	</notes>
 	<contents>
 		<dir name="/">
@@ -41,6 +43,7 @@
 			<file role="src" name="config.w32"/>
 			<file role="src" name="config.m4"/>
 			<dir name="tests">
+<!-- /* {{{ */ -->
 				<file role="test" name="001.phpt" />"
 				<file role="test" name="002_ipv4.phpt" />"
 				<file role="test" name="002_ipv6.phpt" />"
@@ -79,6 +82,7 @@
 				<file role="test" name="011_secret.phpt" />"
 				<file role="test" name="011_shm.phpt" />"
 				<file role="test" name="config.php-dist"/>
+<!-- /* }}} */ -->
 			</dir>
 		</dir>
 	</contents>
@@ -91,11 +95,29 @@
 				<min>1.4.0</min>
 			</pearinstaller>
 			<os>linux</os>
+			<extension><name>hash</name></extension>
 		</required>
 	</dependencies>
 	<providesextension>varnish</providesextension>
 	<extsrcrelease/>
 	<changelog>
+		<release>
+			<date>2012-08-05</date>
+			<version>
+				<release>1.0.0</release>
+				<api>1.0.0</api>
+			</version>
+			<stability>
+				<release>stable</release>
+				<api>stable</api>
+			</stability>
+			<license uri="http://www.opensource.org/licenses/bsd-license.php">BSD</license>
+			<notes>
+				- added windows compatibility, though VarnishLog, VarnishStat and auth with ident isn't available there
+				- fixed socket closing for VarnishAdmin
+				* added VarnishAdmin::disconnect()
+			</notes>
+		</release>
 		<release>
 			<date>2012-06-01</date>
 			<version>
@@ -312,3 +334,13 @@
 		</release>
  </changelog>
 </package>
+<!--
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ * vim600: noet sw=4 ts=4 fdm=marker
+ * vim<600: noet sw=4 ts=4
+ */
+ -->

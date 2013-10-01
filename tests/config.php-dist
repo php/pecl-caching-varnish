@@ -2,6 +2,7 @@
 
 $args_ident = array(
 	"ident" => "/var/lib/varnish/silent",
+	"timeout" => 1000,
 );
 
 $args_ipv4 = array(

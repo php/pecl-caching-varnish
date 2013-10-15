@@ -128,7 +128,7 @@ zend_module_entry varnish_module_entry = {
 	NULL,
 	PHP_MINFO(varnish),
 #if ZEND_MODULE_API_NO >= 20010901
-	PHP_VARNISH_EXT_VERSION,
+	PHP_VARNISH_VERSION,
 #endif
 	STANDARD_MODULE_PROPERTIES
 };
@@ -244,7 +244,7 @@ PHP_MINFO_FUNCTION(varnish)
 {
 	php_info_print_table_start();
 	php_info_print_table_header(2, "varnish support", "enabled");
-	php_info_print_table_row(2, "Version", PHP_VARNISH_EXT_VERSION);
+	php_info_print_table_row(2, "Version", PHP_VARNISH_VERSION);
 	php_info_print_table_row(2, "Revision", "$Id$");
 	php_info_print_table_end();
 

@@ -52,6 +52,8 @@ zend_class_entry *VarnishStat_ce;
 zend_class_entry *VarnishLog_ce;
 zend_class_entry *VarnishException_ce;
 
+zend_object_handlers default_varnish_handlers;
+
 /* {{{ varnish_functions[]
  */
 const zend_function_entry varnish_functions[] = {

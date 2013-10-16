@@ -45,6 +45,7 @@
 #include "varnish_lib.h"
 #include "exception.h"
 
+extern zend_object_handlers default_varnish_handlers;
 
 void
 php_varnish_stat_obj_destroy(void *obj TSRMLS_DC)

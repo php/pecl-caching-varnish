@@ -141,8 +141,6 @@ struct ze_varnish_log_obj {
 	struct VSM_data *vd;
 };
 
-zend_object_handlers default_varnish_handlers;
-
 #endif	/* PHP_VARNISH_H */
 
 /*

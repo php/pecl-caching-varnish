@@ -52,7 +52,7 @@ extern zend_module_entry varnish_module_entry;
 
 /*#define PHP_VARNISH_DEBUG*/
 
-#define PHP_VARNISH_VERSION "1.1.0"
+#define PHP_VARNISH_VERSION "1.1.1"
 
 PHP_MINIT_FUNCTION(varnish);
 PHP_MSHUTDOWN_FUNCTION(varnish);

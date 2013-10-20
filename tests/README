@@ -1,0 +1,39 @@
+	Quick HOWTO run test from an unprivileged account under Linux
+
+	Generate a configuration file
+
+$ sed -e 's:/var/lib/varnish/silent:/tmp/vtest:' \
+      tests/config.php-dist | tee tests/config.php
+
+	Retrieve secret from configuration file
+
+$ sed -n '/secret/{s/.* "//;s/".*$//;p}' \
+      tests/config.php | tail -n 1 | tee /tmp/secret
+
+	Run a varnish server under current account
+
+$ /usr/sbin/varnishd \
+  -b 127.0.0.1:80 \
+  -P /tmp/varnish.pid \
+  -S /tmp/secret \
+  -s file,/tmp,1G \
+  -n /tmp/vtest \
+  -a :6081 \
+  -T :6082
+
+	Select the test types you want to run
+
+$ export VARNISH_TEST_IPV4=1
+$ export VARNISH_TEST_IPV6=1
+$ export VARNISH_TEST_SECRET=1
+$ export VARNISH_TEST_SHM=0
+$ export NO_INTERACTION=1
+
+	Run the test suite
+
+$ make test
+
+	Stop the server
+
+$ kill $(cat /tmp/varnish.pid)
+

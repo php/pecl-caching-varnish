@@ -38,10 +38,6 @@
 #include "zend_exceptions.h"
 #include "php_varnish.h"
 
-#ifndef PHP_WIN32
-#include <varnishapi.h>
-#endif
-
 #include "varnish_lib.h"
 #include "exception.h"
 

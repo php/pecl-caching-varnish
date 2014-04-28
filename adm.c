@@ -52,10 +52,6 @@
 #ifdef HAVE_NET_INET_H
 #include <netinet/in.h>
 #endif
-
-#ifndef PHP_WIN32
-#include <varnishapi.h>
-#endif
 #endif
 
 #include "varnish_lib.h"

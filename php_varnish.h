@@ -46,10 +46,6 @@ extern zend_module_entry varnish_module_entry;
 #include "TSRM.h"
 #endif
 
-#ifndef PHP_WIN32
-#include "varnishapi.h"
-#endif
-
 /*#define PHP_VARNISH_DEBUG*/
 
 #define PHP_VARNISH_VERSION "1.2.0"

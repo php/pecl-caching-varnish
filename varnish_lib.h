@@ -31,10 +31,19 @@
 #ifndef PHP_VARNISH_LIB_H
 #define PHP_VARNISH_LIB_H
 
+#if HAVE_STDINT_H
+#include <stdint.h>
+#endif
+
 #ifndef PHP_WIN32
+#if HAVE_VARNISHAPILIB >= 4
+#include <vcli.h>
+#include <vapi/vsl.h>
+#else
 #include <varnishapi.h>
 #include <vcli.h>
 #include <vsl.h>
+#endif
 #endif
 
 /* get socket connection */
@@ -238,6 +247,7 @@ enum {
 enum {
 	PHP_VARNISH_COMPAT_2 = 2,
 	PHP_VARNISH_COMPAT_3 = 3,
+	PHP_VARNISH_COMPAT_4 = 4,
 };
 
 #endif	/* PHP_VARNISH_LIB_H */

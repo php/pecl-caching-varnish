@@ -192,9 +192,15 @@ PHP_MINIT_FUNCTION(varnish)
 
 /* log is not working on windows at the time*/
 #ifndef PHP_WIN32
+#if HAVE_VARNISHAPILIB >= 4
+#define SLTM(name, flags, shortdesc, longdesc) \
+zend_declare_class_constant_long(VarnishLog_ce, "TAG_"#name, strlen("TAG_"#name), SLT_##name TSRMLS_CC);
+#include "tbl/vsl_tags.h"
+#else
 #define SLTM(foo) \
 zend_declare_class_constant_long(VarnishLog_ce, "TAG_"#foo, strlen("TAG_"#foo), SLT_##foo TSRMLS_CC);
 #include "vsl_tags.h"
+#endif
 #undef SLTM
 #endif
 	/* Init exceptions */

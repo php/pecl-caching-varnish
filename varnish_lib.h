@@ -39,6 +39,7 @@
 #if HAVE_VARNISHAPILIB >= 4
 #include <vcli.h>
 #include <vapi/vsl.h>
+#include <vapi/vsc.h>
 #else
 #include <varnishapi.h>
 #include <vcli.h>

@@ -340,10 +340,19 @@ php_varnish_sock_ident(const char *ident, char **addr, int *addr_len, int *port,
 	int sock = -1, j;
 	struct VSM_data *vsd;
 	char *t_arg, *t_start, *p, tmp_addr[41];
+#if HAVE_VARNISHAPILIB >= 4
+	struct VSM_fantom vt;
+#else
+	char *p;
+#endif
 
 	vsd = VSM_New();
 	if (VSM_n_Arg(vsd, ident)) {
+#if HAVE_VARNISHAPILIB >= 4
+		if (VSM_Open(vsd)) {
+#else
 		if (VSM_Open(vsd, 1)) {
+#endif
 			zend_throw_exception_ex(
 				VarnishException_ce,
 				PHP_VARNISH_SHM_EXCEPTION TSRMLS_CC,
@@ -352,16 +361,25 @@ php_varnish_sock_ident(const char *ident, char **addr, int *addr_len, int *port,
 			return sock;
 		}
 
+#if HAVE_VARNISHAPILIB >= 4
+		if (!VSM_Get(vsd, &vt, "Arg", "-T", "")) {
+#else
 		p = VSM_Find_Chunk(vsd, "Arg", "-T", "", NULL);
 		if (NULL == p) {
+#endif
 			zend_throw_exception_ex(
 				VarnishException_ce,
 				PHP_VARNISH_SHM_EXCEPTION TSRMLS_CC,
 				"No address and port found in the shared memory"
 			);
+			VSM_Delete(vsd);
 			return sock;
 		}
+#if HAVE_VARNISHAPILIB >= 4
+		t_start = t_arg = estrdup(vt.b);
+#else
 		t_start = t_arg = estrdup(p);
+#endif
 
 
 	} else {
@@ -372,6 +390,10 @@ php_varnish_sock_ident(const char *ident, char **addr, int *addr_len, int *port,
 		);
 		return sock;
 	}
+
+#if HAVE_VARNISHAPILIB >= 4
+	VSM_Delete(vsd);
+#endif
 
 	while(*t_arg) {
 		p = strchr(t_arg, '\n');
@@ -488,15 +510,24 @@ int
 php_varnish_auth_ident(int sock, const char *ident, int tmo, int *status TSRMLS_DC)
 {/*{{{*/
 	struct VSM_data *vsd;
-	char *p, *s_arg, *answer = NULL;
+	char *s_arg, *answer = NULL;
 	int fd;
 	char buf[CLI_AUTH_RESPONSE_LEN + 1];
+#if HAVE_VARNISHAPILIB >= 4
+	struct VSM_fantom vt;
+#else
+	char *p;
+#endif
 
 	(void)VCLI_ReadResult(sock, status, &answer, tmo);
 	if (PHP_VARNISH_STATUS_AUTH == *status) {
 		vsd = VSM_New();
 		if (VSM_n_Arg(vsd, ident)) {
+#if HAVE_VARNISHAPILIB >= 4
+			if (VSM_Open(vsd)) {
+#else
 			if (VSM_Open(vsd, 1)) {
+#endif
 				zend_throw_exception_ex(
 					VarnishException_ce,
 					PHP_VARNISH_SHM_EXCEPTION TSRMLS_CC,
@@ -505,9 +536,14 @@ php_varnish_auth_ident(int sock, const char *ident, int tmo, int *status TSRMLS_
 				return sock;
 			}
 
+#if HAVE_VARNISHAPILIB >= 4
+			if (VSM_Get(vsd, &vt, "Arg", "-S", "")) {
+				s_arg = estrdup(vt.b);
+#else
 			p = VSM_Find_Chunk(vsd, "Arg", "-S", "", NULL);
 			if (p != NULL) {
 				s_arg = estrdup(p);
+#endif
 				fd = open(s_arg, O_RDONLY);
 				if (fd < 0) {
 					zend_throw_exception_ex(
@@ -519,6 +555,11 @@ php_varnish_auth_ident(int sock, const char *ident, int tmo, int *status TSRMLS_
 					return 0;
 				}
 				efree(s_arg);
+#if HAVE_VARNISHAPILIB >= 4
+			} else {
+				VSM_Delete(vsd);
+				return 0;
+#endif
 			}
 			VCLI_AuthResponse(fd, answer, buf);
 			close(fd);
@@ -726,19 +767,28 @@ php_varnish_snap_stats_cb(void *priv, const struct VSC_point const *pt)
 	int f0, f1;
 	zval *storage, *current;
 	char buf0[128];
+#if HAVE_VARNISHAPILIB >= 4
+	const char *type  = pt->section->type;
+	const char *ident = pt->section->ident;
+	const char *name  = pt->desc->name;
+#else
+	char *type  = pt->class;
+	char *ident = pt->ident;
+	char *name  = pt->name;
+#endif
 
 	storage = priv;
 
 	val = *(const volatile uint64_t*)pt->ptr;
 
-	f0 = strcmp(pt->class, "");
-	f1 = strcmp(pt->ident, "");
+	f0 = strcmp(type, "");
+	f1 = strcmp(ident, "");
 	snprintf(buf0, 128, "%s%s%s%s%s",
-			(f0 ? pt->class: ""),
+			(f0 ? type : ""),
 			(f0 ? "." : ""),
-			(f1 ? pt->ident : ""),
+			(f1 ? ident : ""),
 			(f1 ? "." : ""),
-			pt->name);
+			name);
 
 	add_assoc_long(storage, buf0, val);
 
@@ -765,10 +815,16 @@ php_varnish_snap_stats(zval *storage, const char *ident TSRMLS_DC)
 		return 0;
 	}
 
+#if HAVE_VARNISHAPILIB >= 4
+	/* XXX use VSM_fantom */
+	vcm = VSC_Main(vd, NULL);
+
+	return !VSC_Iter(vd, NULL, php_varnish_snap_stats_cb, storage);
+#else
 	vcm = VSC_Main(vd);
 
 	return !VSC_Iter(vd, php_varnish_snap_stats_cb, storage);
-
+#endif
 }/*}}}*/
 
 int

@@ -12,8 +12,8 @@
 	</lead>
 	<date>2013-10-01</date>
 	<version>
-		<release>1.1.1</release>
-		<api>1.1.1</api>
+		<release>1.2.0</release>
+		<api>1.2.0</api>
 	</version>
 	<stability>
 		<release>stable</release>
@@ -21,7 +21,7 @@
 	</stability>
 	<license uri="http://www.opensource.org/licenses/bsd-license.php">BSD</license>
 	<notes>
-		- Fixed bug #65916 (Compilation broken on Mac OS X)
+		- m4 updated for Varnish 4.x compliance (Remi Collet)
 	</notes>
 	<contents>
 		<dir name="/">
@@ -97,6 +97,21 @@
 	<providesextension>varnish</providesextension>
 	<extsrcrelease/>
 	<changelog>
+		<release>
+			<date>2013-10-01</date>
+			<version>
+				<release>1.1.1</release>
+				<api>1.1.1</api>
+			</version>
+			<stability>
+				<release>stable</release>
+				<api>stable</api>
+			</stability>
+			<license uri="http://www.opensource.org/licenses/bsd-license.php">BSD</license>
+			<notes>
+				- Fixed bug #65916 (Compilation broken on Mac OS X)
+			</notes>
+		</release>
 		<release>
 			<date>2013-10-01</date>
 			<version>

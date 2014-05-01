@@ -587,9 +587,9 @@ php_varnish_auth_ident(int sock, const char *ident, int tmo, int *status TSRMLS_
 int
 php_varnish_auth(int sock, char *secret, int secret_len, int *status, int tmo TSRMLS_DC)
 {/*{{{*/
-	char challenge[PHP_VARNISH_CHALLENGE_LEN+1], buf[64], *content, *auth_seq;
+	char challenge[PHP_VARNISH_CHALLENGE_LEN+1], buf[64], *content;
 	unsigned char binbuf[32];
-	int numbytes, content_len, auth_seq_len;
+	int numbytes, content_len;
 	PHP_SHA256_CTX ctx256;
 
 	if((numbytes = php_varnish_read_line0(sock, status, &content_len, tmo TSRMLS_CC)) != PHP_VARNISH_LINE0_MAX_LEN) {

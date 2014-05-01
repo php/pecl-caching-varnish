@@ -24,6 +24,8 @@ if test "$PHP_VARNISH" != "no"; then
       PHP_EVAL_LIBLINE($VARNISH_LIBRARY, VARNISH_SHARED_LIBADD)
       if $PKG_CONFIG varnishapi --atleast-version=4 ; then
         AC_DEFINE(HAVE_VARNISHAPILIB,4,[ ])
+        AC_TYPE_UINTPTR_T
+        AC_TYPE_UINT64_T
       else
         AC_DEFINE(HAVE_VARNISHAPILIB,3,[ ])
       fi
@@ -54,17 +56,28 @@ if test "$PHP_VARNISH" != "no"; then
     fi
 
     PHP_ADD_INCLUDE($VARNISH_INCDIR)
-    AC_CHECK_HEADER([$VARNISH_INCDIR/varnishapi.h], [], AC_MSG_ERROR('varnishapi.h' header not found))
-    AC_CHECK_HEADER([$VARNISH_INCDIR/vcli.h], [], AC_MSG_ERROR('vcli.h' header not found))
-    AC_CHECK_HEADER([$VARNISH_INCDIR/vsl.h], [], AC_MSG_ERROR('vsl.h' header not found))
+	AC_CHECK_HEADER([$VARNISH_INCDIR/vcli.h], [], AC_MSG_ERROR('vcli.h' header not found))
 
     LIBNAME=varnishapi
     LIBSYMBOL=VSM_New
 
     PHP_CHECK_LIBRARY($LIBNAME,$LIBSYMBOL,
     [
-     PHP_ADD_LIBRARY_WITH_PATH($LIBNAME, $VARNISH_LIBDIR, VARNISH_SHARED_LIBADD)
-     AC_DEFINE(HAVE_VARNISHAPILIB,1,[ ])
+      PHP_ADD_LIBRARY_WITH_PATH($LIBNAME, $VARNISH_LIBDIR, VARNISH_SHARED_LIBADD)
+
+      if test -n $VARNISH_INCDIR/varnishapi.h; then
+        dnl this is 3.x or earlier
+        AC_DEFINE(HAVE_VARNISHAPILIB,1,[ ])
+        AC_CHECK_HEADER([$VARNISH_INCDIR/varnishapi.h], [], AC_MSG_ERROR('varnishapi.h' header not found))
+        AC_CHECK_HEADER([$VARNISH_INCDIR/vsl.h], [], AC_MSG_ERROR('vsl.h' header not found))
+      else
+        dnl this is approx at least 4.x, for later will probably have to check for some specific stuff
+        AC_DEFINE(HAVE_VARNISHAPILIB,4,[ ])
+        AC_CHECK_HEADER([$VARNISH_INCDIR/tbl/vsl_tags.h], [], AC_MSG_ERROR('tbl/vsl_tags.h' header not found))
+        AC_CHECK_HEADER([$VARNISH_INCDIR/vapi/vsl.h], [], AC_MSG_ERROR('vapi/vsl.h' header not found))
+        AC_TYPE_UINTPTR_T
+        AC_TYPE_UINT64_T
+      fi
     ],[
       AC_MSG_ERROR([wrong varnishapi lib version or lib not found])
     ],[

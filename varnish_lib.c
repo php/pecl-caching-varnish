@@ -852,7 +852,11 @@ php_varnish_get_log(const struct VSM_data *vd, zval *line TSRMLS_DC)
 	}
 
 	if (i > 0) {
+#if PHP_MAJOR_VERSION >= 7
+		add_assoc_stringl(line, "data", VSL_DATA(p), VSL_LEN(p));
+#else
 		add_assoc_stringl(line, "data", VSL_DATA(p), VSL_LEN(p), 1);
+#endif
 		add_assoc_long(line, "tag", VSL_TAG(p));
 		add_assoc_long(line, "id", VSL_ID(p));
 	}

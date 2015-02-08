@@ -131,19 +131,37 @@ PHP_METHOD(VarnishStat, __construct)
 {
 #ifndef PHP_WIN32
 	struct ze_varnish_stat_obj *zvso;
-	zval *opts = NULL, **ident;
+	zval *opts = NULL;
+#if PHP_MAJOR_VERSION >= 7
+	zval *ident;
+#else
+	zval **ident;
+#endif
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|a", &opts) == FAILURE) {
 		return;
 	}
 
+#if PHP_MAJOR_VERSION >= 7
+	zvso = php_fetch_varnish_stat_obj(Z_OBJ_P(getThis()));
+#else
 	zvso = (struct ze_varnish_stat_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+#endif
 
 	if (NULL == opts) {
 		php_varnish_default_ident(&zvso->zvc.ident, (int*)&zvso->zvc.ident_len);
 		return;
 	}
 
+#if PHP_MAJOR_VERSION >= 7
+	if((ident = zend_hash_find(Z_ARRVAL_P(opts), zend_string_init("ident", sizeof("ident")-1, 0))) != NULL) {
+		convert_to_string(ident);
+		zvso->zvc.ident = estrdup(Z_STRVAL_P(ident));
+		zvso->zvc.ident_len = Z_STRLEN_P(ident);
+	} else {
+		php_varnish_default_ident(&zvso->zvc.ident, (int*)&zvso->zvc.ident_len);
+	}
+#else
 	if(zend_hash_find(Z_ARRVAL_P(opts), "ident", sizeof("ident"), (void**)&ident) != FAILURE) {
 		convert_to_string(*ident);
 		zvso->zvc.ident = estrdup(Z_STRVAL_PP(ident));
@@ -151,6 +169,8 @@ PHP_METHOD(VarnishStat, __construct)
 	} else {
 		php_varnish_default_ident(&zvso->zvc.ident, (int*)&zvso->zvc.ident_len);
 	}
+#endif
+
 #else 
 	 php_varnish_throw_win_unimpl_exception("VarnishStat functionality isn't available on windows" TSRMLS_CC);
 	 return;
@@ -169,7 +189,11 @@ PHP_METHOD(VarnishStat, getSnapshot)
 		return;
 	}
 
+#if PHP_MAJOR_VERSION >= 7
+	zvso = php_fetch_varnish_stat_obj(Z_OBJ_P(getThis()));
+#else
 	zvso = (struct ze_varnish_stat_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+#endif
 
 	/* Ensure the ctor was called properly and we have an ident to connect to */
 	if (!zvso->zvc.ident) {

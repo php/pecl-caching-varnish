@@ -148,11 +148,28 @@ PHP_METHOD(VarnishLog, __construct)
 		return;
 	}
 
+#if PHP_MAJOR_VERSION >= 7
+	zvlo = php_fetch_varnish_log_obj(Z_OBJ_P(getThis()));
+#else
 	zvlo = (struct ze_varnish_log_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+#endif
 
 	if (NULL == opts) {
 		php_varnish_default_ident(&zvlo->zvc.ident, (int*)&zvlo->zvc.ident_len);
 	} else {
+#if PHP_MAJOR_VERSION >= 7
+		zval *ident;
+
+		if((ident = zend_hash_find(Z_ARRVAL_P(opts), zend_string_init("ident", sizeof("ident")-1, 0))) != NULL) {
+			convert_to_string(ident);
+			zvlo->zvc.ident = estrdup(Z_STRVAL_P(ident));
+			zvlo->zvc.ident_len = Z_STRLEN_P(ident);
+		} else {
+			php_varnish_default_ident(&zvlo->zvc.ident, (int*)&zvlo->zvc.ident_len);
+		}
+#else
+		zval **ident;
+
 		if(zend_hash_find(Z_ARRVAL_P(opts), "ident", sizeof("ident"), (void**)&ident) != FAILURE) {
 			convert_to_string(*ident);
 			zvlo->zvc.ident = estrdup(Z_STRVAL_PP(ident));
@@ -160,6 +177,7 @@ PHP_METHOD(VarnishLog, __construct)
 		} else {
 			php_varnish_default_ident(&zvlo->zvc.ident, (int*)&zvlo->zvc.ident_len);
 		}
+#endif
 	}
 
 	zvlo->vd = VSM_New();
@@ -202,7 +220,11 @@ PHP_METHOD(VarnishLog, getLine)
 		return;
 	}
 
+#if PHP_MAJOR_VERSION >= 7
+	zvlo = php_fetch_varnish_log_obj(Z_OBJ_P(getThis()));
+#else
 	zvlo = (struct ze_varnish_log_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+#endif
 
 	array_init(return_value);
 	(void)php_varnish_get_log(zvlo->vd, return_value TSRMLS_CC);
@@ -224,7 +246,11 @@ PHP_METHOD(VarnishLog, getTagName)
 
 	php_varnish_log_get_tag_name((int)ind, &ret, &ret_len TSRMLS_CC);
 
+#if PHP_MAJOR_VERSION >= 7
+	RETURN_STRINGL(ret, ret_len);
+#else
 	RETURN_STRINGL(ret, ret_len, 0);
+#endif
 }
 /* }}} */
 #endif

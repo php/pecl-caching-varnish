@@ -600,7 +600,11 @@ PHP_METHOD(VarnishAdmin, start)
 PHP_METHOD(VarnishAdmin, banUrl)
 {
 	char *regex;
-	long regex_len;
+#if PHP_MAJOR_VERSION >= 7
+	size_t regex_len;
+#else
+	int regex_len;
+#endif
 	struct ze_varnish_adm_obj *zvao;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &regex, &regex_len) == FAILURE) {
@@ -629,7 +633,11 @@ PHP_METHOD(VarnishAdmin, banUrl)
 PHP_METHOD(VarnishAdmin, ban)
 {
 	char *regex;
-	long regex_len;
+#if PHP_MAJOR_VERSION >= 7
+	size_t regex_len;
+#else
+	int regex_len;
+#endif
 	struct ze_varnish_adm_obj *zvao;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &regex, &regex_len) == FAILURE) {
@@ -744,7 +752,11 @@ PHP_METHOD(VarnishAdmin, setHost)
 {
 	struct ze_varnish_adm_obj *zvao;
 	char *host;
-	long host_len;
+#if PHP_MAJOR_VERSION >= 7
+	size_t host_len;
+#else
+	int host_len;
+#endif
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &host, &host_len) == FAILURE) {
 		return;
@@ -771,7 +783,11 @@ PHP_METHOD(VarnishAdmin, setIdent)
 {
 	struct ze_varnish_adm_obj *zvao;
 	char *ident;
-	long ident_len;
+#if PHP_MAJOR_VERSION >= 7
+	size_t ident_len;
+#else
+	int ident_len;
+#endif
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &ident, &ident_len) == FAILURE) {
 		return;
@@ -798,7 +814,11 @@ PHP_METHOD(VarnishAdmin, setSecret)
 {
 	struct ze_varnish_adm_obj *zvao;
 	char *secret;
-	long secret_len;
+#if PHP_MAJOR_VERSION >= 7
+	size_t secret_len;
+#else
+	int secret_len;
+#endif
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &secret, &secret_len) == FAILURE) {
 		return;
@@ -915,7 +935,11 @@ PHP_METHOD(VarnishAdmin, vclUse)
 {
 	struct ze_varnish_adm_obj *zvao;
 	char *conf_name;
-	long conf_name_len;
+#if PHP_MAJOR_VERSION >= 7
+	size_t conf_name_len;
+#else
+	int conf_name_len;
+#endif
 	int ret;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &conf_name, &conf_name_len) == FAILURE) {

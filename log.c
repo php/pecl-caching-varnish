@@ -215,7 +215,7 @@ PHP_METHOD(VarnishLog, getLine)
 PHP_METHOD(VarnishLog, getTagName)
 {
 	char *ret;
-	long ind;
+	zend_long ind;
 	int ret_len;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &ind) == FAILURE) {

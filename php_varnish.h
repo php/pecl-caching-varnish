@@ -46,6 +46,9 @@ extern zend_module_entry varnish_module_entry;
 #include "TSRM.h"
 #endif
 
+#if PHP_MAJOR_VERSION < 7
+typedef zend_long long;
+#endif
 /*#define PHP_VARNISH_DEBUG*/
 
 #define PHP_VARNISH_VERSION "1.2.0"

@@ -180,7 +180,11 @@ PHP_METHOD(VarnishLog, __construct)
 #endif
 	}
 
+#if HAVE_VARNISHAPILIB >=4
+	zvlo->vd = VSL_New();
+#else
 	zvlo->vd = VSM_New();
+#endif
 	VSL_Setup(zvlo->vd);
 
 	if (zvlo->zvc.ident_len > 0) {

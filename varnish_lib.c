@@ -835,8 +835,13 @@ php_varnish_snap_stats(zval *storage, const char *ident TSRMLS_DC)
 #endif
 }/*}}}*/
 
+#if HAVE_VARNISHAPILIB >=4
+int
+php_varnish_get_log(const struct VSL_data *vd, zval *line TSRMLS_DC)
+#else
 int
 php_varnish_get_log(const struct VSM_data *vd, zval *line TSRMLS_DC)
+#endif
 {/*{{{*/ 
 	uint32_t *p;
 	int i;

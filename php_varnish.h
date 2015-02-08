@@ -146,7 +146,11 @@ struct ze_varnish_stat_obj {
 
 struct ze_varnish_log_obj {
 	struct ze_varnish_conn zvc;
+#if defined(HAVE_VARNISHAPILIB) && HAVE_VARNISHAPILIB >=4
+	struct VSL_data *vd;
+#else
 	struct VSM_data *vd;
+#endif
 	zend_object zo;
 };
 
@@ -181,7 +185,11 @@ struct ze_varnish_stat_obj {
 struct ze_varnish_log_obj {
 	zend_object zo;
 	struct ze_varnish_conn zvc;
+#if defined(HAVE_VARNISHAPILIB) && HAVE_VARNISHAPILIB >=4
+	struct VSL_data *vd;
+#else
 	struct VSM_data *vd;
+#endif
 };
 #endif
 

@@ -167,7 +167,11 @@ php_varnish_parse_add_param(zval *arr, char *line)
 	switch (PHP_VarnishParam[i].param_type) {
 		case PHP_VARNISH_PARAM_STRING:
 			j = sscanf(line, "%s %s\n", key, sval);
+#if PHP_MAJOR_VERSION >= 7
+			add_assoc_string(arr, key, sval);
+#else
 			add_assoc_string(arr, key, sval, 1);
+#endif
 			break;
 		case PHP_VARNISH_PARAM_QUOTED_STRING:
 			p = strchr(p, '"');
@@ -176,7 +180,11 @@ php_varnish_parse_add_param(zval *arr, char *line)
 				sval[i] = p[i];
 			}
 			sval[i-1] = '\0';
+#if PHP_MAJOR_VERSION >= 7
+			add_assoc_string(arr, key, sval);
+#else
 			add_assoc_string(arr, key, sval, 1);
+#endif
 			break;
 		case PHP_VARNISH_PARAM_DOUBLE:
 			j = sscanf(line, "%s %lf\n", key, &dval);
@@ -989,6 +997,15 @@ php_varnish_get_vcl_list(int sock, int *status, int tmo, zval *retval TSRMLS_DC)
 			buf[len] = '\0';
 
 			if (3 == sscanf(buf, "%32s %16ld %208s", st, &locks, name)) {
+#if PHP_MAJOR_VERSION >= 7
+				zval tmp;
+				array_init(&tmp);
+				add_assoc_stringl(&tmp, "status", st, strlen(st));
+				add_assoc_stringl(&tmp, "name", name, strlen(name));
+				add_assoc_long(&tmp, "locks", locks);
+
+				add_next_index_zval(retval, &tmp);
+#else
 				zval *tmp;
 				MAKE_STD_ZVAL(tmp);
 				array_init(tmp);
@@ -997,6 +1014,7 @@ php_varnish_get_vcl_list(int sock, int *status, int tmo, zval *retval TSRMLS_DC)
 				add_assoc_long(tmp, "locks", locks);
 
 				add_next_index_zval(retval, tmp);
+#endif
 			}
 
 			p0 = ++p1;

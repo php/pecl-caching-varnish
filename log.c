@@ -42,8 +42,29 @@
 #include "exception.h"
 
 
+#if PHP_MAJOR_VERSION >= 7
+extern zend_object_handlers default_varnish_log_handlers;
+#else
 extern zend_object_handlers default_varnish_handlers;
+#endif
 
+#if PHP_MAJOR_VERSION >= 7
+void
+php_varnish_log_obj_destroy(zend_object *obj)
+{/*{{{*/
+	struct ze_varnish_log_obj *zvlo = php_fetch_varnish_log_obj(obj);
+
+	zend_object_std_dtor(&zvlo->zo);
+
+	if (zvlo->zvc.ident_len > 0) {
+		efree(zvlo->zvc.ident);
+	}
+
+	if (zvlo->vd) {
+		zvlo->vd = NULL;
+	}
+}/*}}}*/
+#else
 void
 php_varnish_log_obj_destroy(void *obj TSRMLS_DC)
 {/*{{{*/
@@ -61,7 +82,26 @@ php_varnish_log_obj_destroy(void *obj TSRMLS_DC)
 
 	efree(zvlo);
 }/*}}}*/
+#endif
 
+#if PHP_MAJOR_VERSION >= 7
+zend_object *
+php_varnish_log_obj_init(zend_class_entry *ze)
+{/*{{{*/
+	struct ze_varnish_log_obj *zvlo;
+
+	zvlo = (struct ze_varnish_log_obj *)ecalloc(1, sizeof(struct ze_varnish_log_obj));
+
+	zend_object_std_init(&zvlo->zo, ze);
+	zvlo->zo.handlers = &default_varnish_log_handlers;
+
+	zvlo->zvc.ident	    = NULL;
+	zvlo->zvc.ident_len = 0;
+	zvlo->vd            = NULL;
+
+	return &zvlo->zo;
+}/*}}}*/
+#else
 zend_object_value
 php_varnish_log_obj_init(zend_class_entry *ze TSRMLS_DC)
 {   /*{{{*/
@@ -94,6 +134,7 @@ php_varnish_log_obj_init(zend_class_entry *ze TSRMLS_DC)
 
 	return ret;
 }/*}}}*/
+#endif
 
 /* {{{ proto void VarnishLog::__construct(array options)
  *  Varnish admin constructor */

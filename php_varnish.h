@@ -102,23 +102,67 @@ ZEND_END_MODULE_GLOBALS(varnish)*/
 
 extern zend_class_entry *VarnishException_ce;
 
+#if PHP_MAJOR_VERSION >= 7
+extern zend_object *php_varnish_adm_obj_init(zend_class_entry *);
+extern zend_object *php_varnish_stat_obj_init(zend_class_entry *);
+extern zend_object *php_varnish_log_obj_init(zend_class_entry *);
+extern void php_varnish_adm_obj_destroy(zend_object *);
+extern void php_varnish_stat_obj_destroy(zend_object *);
+extern void php_varnish_log_obj_destroy(zend_object *);
+#else
 extern zend_object_value php_varnish_adm_obj_init(zend_class_entry *ze TSRMLS_DC);
 extern zend_object_value php_varnish_stat_obj_init(zend_class_entry *ze TSRMLS_DC);
 extern zend_object_value php_varnish_log_obj_init(zend_class_entry *ze TSRMLS_DC);
+#endif
 
 struct ze_varnish_conn {
 	char *host;
-	long host_len;
-	int port;
+	char *ident;
 	char *secret;
-	long secret_len;
+	int host_len;
+	int ident_len;
+	int secret_len;
+	int port;
 	int timeout;
 	int sock;
-	char *ident;
-	long ident_len;
 	int authok;
 };
 
+#if PHP_MAJOR_VERSION >= 7
+struct ze_varnish_adm_obj {
+	struct ze_varnish_conn zvc;
+	int status;
+	int compat;
+	zend_object zo;
+};
+
+struct ze_varnish_stat_obj {
+	struct ze_varnish_conn zvc;
+	zend_object zo;
+};
+
+struct ze_varnish_log_obj {
+	struct ze_varnish_conn zvc;
+	struct VSM_data *vd;
+	zend_object zo;
+};
+
+static zend_always_inline struct ze_varnish_adm_obj *
+php_fetch_varnish_adm_obj(zend_object *obj)
+{/*{{{*/
+	return (struct ze_varnish_adm_obj *)((char *)obj - XtOffsetOf(struct ze_varnish_adm_obj, zo));
+}/*}}}*/
+static zend_always_inline struct ze_varnish_stat_obj *
+php_fetch_varnish_stat_obj(zend_object *obj)
+{/*{{{*/
+	return (struct ze_varnish_stat_obj *)((char *)obj - XtOffsetOf(struct ze_varnish_stat_obj, zo));
+}/*}}}*/
+static zend_always_inline struct ze_varnish_log_obj *
+php_fetch_varnish_log_obj(zend_object *obj)
+{/*{{{*/
+	return (struct ze_varnish_log_obj *)((char *)obj - XtOffsetOf(struct ze_varnish_log_obj, zo));
+}/*}}}*/
+#else
 struct ze_varnish_adm_obj {
 	zend_object zo;
 	struct ze_varnish_conn zvc;
@@ -136,6 +180,7 @@ struct ze_varnish_log_obj {
 	struct ze_varnish_conn zvc;
 	struct VSM_data *vd;
 };
+#endif
 
 #endif	/* PHP_VARNISH_H */
 

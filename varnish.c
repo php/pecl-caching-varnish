@@ -52,7 +52,13 @@ zend_class_entry *VarnishStat_ce;
 zend_class_entry *VarnishLog_ce;
 zend_class_entry *VarnishException_ce;
 
+#if PHP_MAJOR_VERSION >= 7
+zend_object_handlers default_varnish_adm_handlers;
+zend_object_handlers default_varnish_log_handlers;
+zend_object_handlers default_varnish_stat_handlers;
+#else
 zend_object_handlers default_varnish_handlers;
+#endif
 
 /* {{{ varnish_functions[]
  */
@@ -174,8 +180,25 @@ PHP_MINIT_FUNCTION(varnish)
 	/* REGISTER_INI_ENTRIES();*/
 	/*ZEND_INIT_MODULE_GLOBALS(varnish, php_varnish_globals_ctor, php_varnish_globals_dtor);*/
 
+#if PHP_MAJOR_VERSION >= 7
+	memcpy(&default_varnish_adm_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+	default_varnish_adm_handlers.clone_obj = NULL;
+	default_varnish_adm_handlers.offset = XtOffsetOf(struct ze_varnish_adm_obj, zo);
+	default_varnish_adm_handlers.free_obj = php_varnish_adm_obj_destroy;
+
+	memcpy(&default_varnish_log_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+	default_varnish_log_handlers.clone_obj = NULL;
+	default_varnish_log_handlers.offset = XtOffsetOf(struct ze_varnish_log_obj, zo);
+	default_varnish_log_handlers.free_obj = php_varnish_log_obj_destroy;
+
+	memcpy(&default_varnish_stat_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+	default_varnish_stat_handlers.clone_obj = NULL;
+	default_varnish_stat_handlers.offset = XtOffsetOf(struct ze_varnish_stat_obj, zo);
+	default_varnish_stat_handlers.free_obj = php_varnish_stat_obj_destroy;
+#else
 	memcpy(&default_varnish_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	default_varnish_handlers.clone_obj = NULL;
+#endif
 
 	/* Init internal classes */
 	INIT_CLASS_ENTRY(ce, "VarnishAdmin", VarnishAdmin_methods);
@@ -205,9 +228,13 @@ zend_declare_class_constant_long(VarnishLog_ce, "TAG_"#foo, strlen("TAG_"#foo), 
 #endif
 	/* Init exceptions */
 	INIT_CLASS_ENTRY(ce, "VarnishException", NULL);
+#if PHP_MAJOR_VERSION >= 7
+	VarnishException_ce = zend_register_internal_class_ex(&ce, zend_exception_get_default());
+#else
 	VarnishException_ce = zend_register_internal_class_ex(
 		&ce, NULL, "exception" TSRMLS_CC
-	);  
+	);
+#endif
 
 	REGISTER_LONG_CONSTANT("VARNISH_STATUS_SYNTAX", PHP_VARNISH_STATUS_SYNTAX, CONST_CS | CONST_PERSISTENT);
 	REGISTER_LONG_CONSTANT("VARNISH_STATUS_UNKNOWN", PHP_VARNISH_STATUS_UNKNOWN, CONST_CS | CONST_PERSISTENT);

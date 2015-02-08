@@ -41,8 +41,25 @@
 #include "varnish_lib.h"
 #include "exception.h"
 
+#if PHP_MAJOR_VERSION >= 7
+extern zend_object_handlers default_varnish_stat_handlers;
+#else
 extern zend_object_handlers default_varnish_handlers;
+#endif
 
+#if PHP_MAJOR_VERSION >= 7
+void
+php_varnish_stat_obj_destroy(zend_object *obj)
+{/*{{{*/
+	struct ze_varnish_stat_obj *zvso = php_fetch_varnish_stat_obj(obj);
+
+	zend_object_std_dtor(&zvso->zo);
+
+	if (zvso->zvc.ident_len > 0) {
+		efree(zvso->zvc.ident);
+	}
+}/*}}}*/
+#else
 void
 php_varnish_stat_obj_destroy(void *obj TSRMLS_DC)
 {/*{{{*/
@@ -56,7 +73,25 @@ php_varnish_stat_obj_destroy(void *obj TSRMLS_DC)
 
 	efree(zvso);
 }/*}}}*/
+#endif
 
+#if PHP_MAJOR_VERSION >= 7
+zend_object *
+php_varnish_stat_obj_init(zend_class_entry *ze)
+{/*{{{*/
+	struct ze_varnish_stat_obj *zvso;
+
+	zvso = (struct ze_varnish_stat_obj *)ecalloc(1, sizeof(struct ze_varnish_stat_obj));
+
+	zend_object_std_init(&zvso->zo, ze);
+	zvso->zo.handlers = &default_varnish_stat_handlers;
+
+	zvso->zvc.ident	 = NULL;
+	zvso->zvc.ident_len = 0;
+
+	return &zvso->zo;
+}/*}}}*/
+#else
 zend_object_value
 php_varnish_stat_obj_init(zend_class_entry *ze TSRMLS_DC)
 {   /*{{{*/
@@ -88,6 +123,7 @@ php_varnish_stat_obj_init(zend_class_entry *ze TSRMLS_DC)
 
 	return ret;
 }/*}}}*/
+#endif
 
 /* {{{ proto void VarnishStat::__construct(array options)
  *  Varnish admin constructor */

@@ -57,8 +57,38 @@
 #include "varnish_lib.h"
 #include "exception.h"
 
+#if PHP_MAJOR_VERSION >= 7
+extern zend_object_handlers default_varnish_adm_handlers;
+#else
 extern zend_object_handlers default_varnish_handlers;
+#endif
 
+#if PHP_MAJOR_VERSION >= 7
+void
+php_varnish_adm_obj_destroy(zend_object *obj)
+{/*{{{*/
+	struct ze_varnish_adm_obj *zvao = php_fetch_varnish_adm_obj(obj);
+
+	zend_object_std_dtor(&zvao->zo);
+
+	if (zvao->zvc.host_len > 0) {
+		efree(zvao->zvc.host);
+	}
+	if (zvao->zvc.ident_len > 0) {
+		efree(zvao->zvc.ident);
+	}
+	if (zvao->zvc.secret_len > 0) {
+		efree(zvao->zvc.secret);
+	}
+	if (zvao->zvc.sock >= 0) {
+#ifdef PHP_WIN32
+		closesocket(zvao->zvc.sock);
+#else
+		close(zvao->zvc.sock);
+#endif
+	}
+}/*}}}*/
+#else
 void
 php_varnish_adm_obj_destroy(void *obj TSRMLS_DC)
 {/*{{{*/
@@ -84,7 +114,35 @@ php_varnish_adm_obj_destroy(void *obj TSRMLS_DC)
 	}
 	efree(zvao);
 }/*}}}*/
+#endif
 
+#if PHP_MAJOR_VERSION >= 7
+zend_object *
+php_varnish_adm_obj_init(zend_class_entry *ze)
+{/*{{{*/
+	struct ze_varnish_adm_obj *zvao;
+
+	zvao = (struct ze_varnish_adm_obj *)ecalloc(1, sizeof(struct ze_varnish_adm_obj));
+
+	zend_object_std_init(&zvao->zo, ze);
+	zvao->zo.handlers = &default_varnish_adm_handlers;
+
+	zvao->zvc.host_len	 = 0;
+	zvao->zvc.host		 = NULL;
+	zvao->zvc.port	     = -1;
+	zvao->zvc.secret_len = 0;
+	zvao->zvc.secret	 = NULL;
+	zvao->zvc.timeout	 = 0;
+	zvao->zvc.sock	     = -1;
+	zvao->zvc.ident_len  = 0;
+	zvao->zvc.ident	     = NULL;
+	zvao->zvc.authok     = 0;
+	zvao->status		 = PHP_VARNISH_STATUS_CLOSE;
+	zvao->compat		 = PHP_VARNISH_COMPAT_3;
+
+	return &zvao->zo;
+}/*}}}*/
+#else
 zend_object_value
 php_varnish_adm_obj_init(zend_class_entry *ze TSRMLS_DC)
 {/*{{{*/
@@ -126,6 +184,7 @@ php_varnish_adm_obj_init(zend_class_entry *ze TSRMLS_DC)
 
 	return ret;
 }/*}}}*/
+#endif
 
 void
 php_varnish_throw_diag_f_exception(void *priv /* fd to output, ignored here */, const char *fmt, ...)
@@ -152,18 +211,76 @@ php_varnish_throw_diag_f_exception(void *priv /* fd to output, ignored here */, 
 PHP_METHOD(VarnishAdmin, __construct)
 {
 	struct ze_varnish_adm_obj *zvao;
-	zval *opts = NULL, **secret, **addr, **port, **timeout, **ident, **compat;
+	zval *opts = NULL;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|a", &opts) == FAILURE) {
 		return;
 	}
 
+#if PHP_MAJOR_VERSION >= 7
+	zvao = php_fetch_varnish_adm_obj(Z_OBJ_P(getThis()));
+#else
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+#endif
 
 	if (NULL == opts) {
 		php_varnish_default_ident(&zvao->zvc.ident, (int*)&zvao->zvc.ident_len);
 	} else {
 		/* read config options */
+#if PHP_MAJOR_VERSION >= 7
+		zval *secret, *addr, *port, *timeout, *ident, *compat;
+
+		if((addr = zend_hash_find(Z_ARRVAL_P(opts), zend_string_init("host", sizeof("host")-1, 0))) != NULL) {
+			convert_to_string(addr);
+			zvao->zvc.host = estrdup(Z_STRVAL_P(addr));
+			zvao->zvc.host_len = (int)Z_STRLEN_P(addr);
+		}
+
+		if((ident = zend_hash_find(Z_ARRVAL_P(opts), zend_string_init("ident", sizeof("ident")-1, 0))) != NULL) {
+			convert_to_string(ident);
+			zvao->zvc.ident = estrdup(Z_STRVAL_P(ident));
+			zvao->zvc.ident_len = (int)Z_STRLEN_P(ident);
+		}
+
+		if((port = zend_hash_find(Z_ARRVAL_P(opts), zend_string_init("port", sizeof("port")-1, 0))) != NULL) {
+			convert_to_long(port);
+			zvao->zvc.port = (int)Z_LVAL_P(port);
+		}
+
+		if (zvao->zvc.ident_len > 0 && (zvao->zvc.host_len > 0 || zvao->zvc.port > -1)) {
+			php_varnish_throw_ident_vs_host_exception(TSRMLS_C);
+			return;
+		}
+
+		if (0 == zvao->zvc.ident_len) {
+			if (zvao->zvc.host_len > 0 && zvao->zvc.port < 0) {
+				zvao->zvc.port = 2000;
+			} else if (0 == zvao->zvc.host_len || zvao->zvc.port < 0) {
+				php_varnish_default_ident(&zvao->zvc.ident, (int*)&zvao->zvc.ident_len);
+			}
+		}
+
+		if((timeout = zend_hash_find(Z_ARRVAL_P(opts), zend_string_init("timeout", sizeof("timeout")-1, 0))) != NULL) {
+			convert_to_long(timeout);
+			zvao->zvc.timeout = (int)Z_LVAL_P(timeout);
+		}
+
+		if((compat = zend_hash_find(Z_ARRVAL_P(opts), zend_string_init("compat", sizeof("compat")-1, 0))) != NULL) {
+			convert_to_long(compat);
+			zvao->compat = (int)Z_LVAL_P(compat);
+		}
+		if (!php_varnish_check_compat(zvao->compat)) {
+			return;
+		}
+
+		if((secret = zend_hash_find(Z_ARRVAL_P(opts), zend_string_init("secret", sizeof("secret")-1, 0))) != NULL) {
+			convert_to_string(secret);
+			zvao->zvc.secret = estrdup(Z_STRVAL_P(secret));
+			zvao->zvc.secret_len = (int)Z_STRLEN_P(secret);
+		}
+#else
+		zval **secret, **addr, **port, **timeout, **ident, **compat;
+
 		if(zend_hash_find(Z_ARRVAL_P(opts), "host", sizeof("host"), (void**)&addr) != FAILURE) {
 			convert_to_string(*addr);
 			zvao->zvc.host = estrdup(Z_STRVAL_PP(addr));
@@ -212,6 +329,7 @@ PHP_METHOD(VarnishAdmin, __construct)
 			zvao->zvc.secret = estrdup(Z_STRVAL_PP(secret));
 			zvao->zvc.secret_len = Z_STRLEN_PP(secret);
 		}
+#endif
 	}
 }
 /* }}} */
@@ -226,8 +344,12 @@ PHP_METHOD(VarnishAdmin, connect)
 		return;
 	}
 
+#if PHP_MAJOR_VERSION >= 7
+	zvao = php_fetch_varnish_adm_obj(Z_OBJ_P(getThis()));
+#else
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
-	
+#endif
+
 	/* get the socket */
 	if (zvao->zvc.ident_len > 0) {
 #ifndef PHP_WIN32
@@ -265,7 +387,11 @@ PHP_METHOD(VarnishAdmin, auth)
 		return;
 	}
 
+#if PHP_MAJOR_VERSION >= 7
+	zvao = php_fetch_varnish_adm_obj(Z_OBJ_P(getThis()));
+#else
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+#endif
 
 	zvao->status = PHP_VARNISH_STATUS_AUTH;
 
@@ -311,7 +437,11 @@ PHP_METHOD(VarnishAdmin, getParams)
 		return;
 	}
 
+#if PHP_MAJOR_VERSION >= 7
+	zvao = php_fetch_varnish_adm_obj(Z_OBJ_P(getThis()));
+#else
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+#endif
 
 	if (!php_varnish_adm_can_go(zvao TSRMLS_CC)) {
 		return;
@@ -328,7 +458,12 @@ PHP_METHOD(VarnishAdmin, setParam)
 {
 	zval *val, *val_str = NULL;
 	char *name, *param;
-	long name_len, param_len;
+#if PHP_MAJOR_VERSION >= 7
+	size_t name_len;
+#else
+	int name_len;
+#endif
+	int param_len;
 	struct ze_varnish_adm_obj *zvao;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sz", &name, &name_len, &val) == FAILURE) {
@@ -336,13 +471,40 @@ PHP_METHOD(VarnishAdmin, setParam)
 		return;
 	}
 
+#if PHP_MAJOR_VERSION >= 7
+	zvao = php_fetch_varnish_adm_obj(Z_OBJ_P(getThis()));
+#else
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+#endif
 
 	if (!php_varnish_adm_can_go(zvao TSRMLS_CC)) {
 		return;
 	}
 
 	switch (Z_TYPE_P(val)) {
+#if PHP_MAJOR_VERSION >= 7
+		case IS_TRUE:
+			param = "on";
+			param_len = 2;
+			break;
+
+		case IS_FALSE:
+			param = "off";
+			param_len = 3;
+			break;
+
+		default: {
+			zval val_str;
+
+			ZVAL_COPY(val, &val_str);
+			convert_to_string(val);
+
+			param = Z_STRVAL(val_str);
+			param_len = Z_STRLEN(val_str);
+
+			zval_dtor(&val_str);
+		}
+#else
 		case IS_BOOL:
 			if (Z_BVAL_P(val)) {
 				param = "on";
@@ -366,13 +528,16 @@ PHP_METHOD(VarnishAdmin, setParam)
 
 			param = Z_STRVAL_P(val);
 			param_len = Z_STRLEN_P(val);
+#endif
 	}
 
 	(void)php_varnish_set_param(zvao->zvc.sock, &zvao->status, name, name_len, param, param_len, zvao->zvc.timeout TSRMLS_CC);
 
+#if PHP_MAJOR_VERSION < 7
 	if (val_str && val != val_str) {
 		zval_ptr_dtor(&val_str);
 	}
+#endif
 
 	RETURN_LONG(zvao->status);
 }
@@ -388,7 +553,11 @@ PHP_METHOD(VarnishAdmin, stop)
 		return;
 	}
 
+#if PHP_MAJOR_VERSION >= 7
+	zvao = php_fetch_varnish_adm_obj(Z_OBJ_P(getThis()));
+#else
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+#endif
 
 	if (!php_varnish_adm_can_go(zvao TSRMLS_CC)) {
 		return;
@@ -410,7 +579,11 @@ PHP_METHOD(VarnishAdmin, start)
 		return;
 	}
 
+#if PHP_MAJOR_VERSION >= 7
+	zvao = php_fetch_varnish_adm_obj(Z_OBJ_P(getThis()));
+#else
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+#endif
 
 	if (!php_varnish_adm_can_go(zvao TSRMLS_CC)) {
 		return;
@@ -435,7 +608,11 @@ PHP_METHOD(VarnishAdmin, banUrl)
 		return;
 	}
 
+#if PHP_MAJOR_VERSION >= 7
+	zvao = php_fetch_varnish_adm_obj(Z_OBJ_P(getThis()));
+#else
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+#endif
 
 	if (!php_varnish_adm_can_go(zvao TSRMLS_CC)) {
 		return;
@@ -460,7 +637,11 @@ PHP_METHOD(VarnishAdmin, ban)
 		return;
 	}
 
+#if PHP_MAJOR_VERSION >= 7
+	zvao = php_fetch_varnish_adm_obj(Z_OBJ_P(getThis()));
+#else
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+#endif
 
 	if (!php_varnish_adm_can_go(zvao TSRMLS_CC)) {
 		return;
@@ -483,7 +664,11 @@ PHP_METHOD(VarnishAdmin, isRunning)
 		return;
 	}
 
+#if PHP_MAJOR_VERSION >= 7
+	zvao = php_fetch_varnish_adm_obj(Z_OBJ_P(getThis()));
+#else
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+#endif
 
 	if (!php_varnish_adm_can_go(zvao TSRMLS_CC)) {
 		return;
@@ -507,7 +692,11 @@ PHP_METHOD(VarnishAdmin, getPanic)
 		return;
 	}
 
+#if PHP_MAJOR_VERSION >= 7
+	zvao = php_fetch_varnish_adm_obj(Z_OBJ_P(getThis()));
+#else
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+#endif
 
 	if (!php_varnish_adm_can_go(zvao TSRMLS_CC)) {
 		return;
@@ -515,7 +704,11 @@ PHP_METHOD(VarnishAdmin, getPanic)
 
 	php_varnish_get_panic(zvao->zvc.sock, &zvao->status, &content, &content_len, zvao->zvc.timeout TSRMLS_CC);
 
+#if PHP_MAJOR_VERSION >= 7
+	RETURN_STRINGL(content, content_len);
+#else
 	RETURN_STRINGL(content, content_len, 0);
+#endif
 }
 /* }}} */
 
@@ -529,7 +722,11 @@ PHP_METHOD(VarnishAdmin, clearPanic)
 		return;
 	}
 
+#if PHP_MAJOR_VERSION >= 7
+	zvao = php_fetch_varnish_adm_obj(Z_OBJ_P(getThis()));
+#else
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+#endif
 
 	if (!php_varnish_adm_can_go(zvao TSRMLS_CC)) {
 		return;
@@ -553,7 +750,11 @@ PHP_METHOD(VarnishAdmin, setHost)
 		return;
 	}
 
+#if PHP_MAJOR_VERSION >= 7
+	zvao = php_fetch_varnish_adm_obj(Z_OBJ_P(getThis()));
+#else
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+#endif
 
 	if (zvao->zvc.host_len > 0) {
 		efree(zvao->zvc.host);
@@ -576,7 +777,11 @@ PHP_METHOD(VarnishAdmin, setIdent)
 		return;
 	}
 
+#if PHP_MAJOR_VERSION >= 7
+	zvao = php_fetch_varnish_adm_obj(Z_OBJ_P(getThis()));
+#else
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+#endif
 
 	if (zvao->zvc.ident_len > 0) {
 		efree(zvao->zvc.ident);
@@ -599,7 +804,11 @@ PHP_METHOD(VarnishAdmin, setSecret)
 		return;
 	}
 
+#if PHP_MAJOR_VERSION >= 7
+	zvao = php_fetch_varnish_adm_obj(Z_OBJ_P(getThis()));
+#else
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+#endif
 
 	if (zvao->zvc.secret_len > 0) {
 		efree(zvao->zvc.secret);
@@ -621,7 +830,11 @@ PHP_METHOD(VarnishAdmin, setTimeout)
 		return;
 	}
 
+#if PHP_MAJOR_VERSION >= 7
+	zvao = php_fetch_varnish_adm_obj(Z_OBJ_P(getThis()));
+#else
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+#endif
 
 	convert_to_long(tmo);
 	zvao->zvc.timeout = (int)Z_LVAL_P(tmo);
@@ -639,7 +852,11 @@ PHP_METHOD(VarnishAdmin, setPort)
 		return;
 	}
 
+#if PHP_MAJOR_VERSION >= 7
+	zvao = php_fetch_varnish_adm_obj(Z_OBJ_P(getThis()));
+#else
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+#endif
 
 	convert_to_long(port);
 	zvao->zvc.port = (int)Z_LVAL_P(port);
@@ -658,7 +875,11 @@ PHP_METHOD(VarnishAdmin, setCompat)
 		return;
 	}
 
+#if PHP_MAJOR_VERSION >= 7
+	zvao = php_fetch_varnish_adm_obj(Z_OBJ_P(getThis()));
+#else
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+#endif
 
 	convert_to_long(compat);
 	zvao->compat = (int)Z_LVAL_P(compat);
@@ -673,7 +894,11 @@ PHP_METHOD(VarnishAdmin, getVclList)
 {
 	struct ze_varnish_adm_obj *zvao;
 
+#if PHP_MAJOR_VERSION >= 7
+	zvao = php_fetch_varnish_adm_obj(Z_OBJ_P(getThis()));
+#else
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+#endif
 
 	if (!php_varnish_adm_can_go(zvao TSRMLS_CC)) {
 		return;
@@ -697,7 +922,11 @@ PHP_METHOD(VarnishAdmin, vclUse)
 		return;
 	}
 
+#if PHP_MAJOR_VERSION >= 7
+	zvao = php_fetch_varnish_adm_obj(Z_OBJ_P(getThis()));
+#else
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+#endif
 
 	/*ret = php_varnish_vcl_use(zvao->zvc.sock, &zvao->status, zvao->zvc.timeout, conf_name, conf_name_len TSRMLS_CC);*/
 	ret = php_varnish_vcl_use(zvao->zvc.sock, &zvao->status, zvao->zvc.timeout, conf_name, conf_name_len TSRMLS_CC);
@@ -716,7 +945,12 @@ PHP_METHOD(VarnishAdmin, disconnect)
 		return;
 	}
 
+#if PHP_MAJOR_VERSION >= 7
+	zvao = php_fetch_varnish_adm_obj(Z_OBJ_P(getThis()));
+#else
 	zvao = (struct ze_varnish_adm_obj *) zend_object_store_get_object(getThis() TSRMLS_CC);
+#endif
+
 #ifdef PHP_WIN32
 	RETURN_BOOL(zvao->zvc.sock < 0 ? 0 : (closesocket(zvao->zvc.sock) == 0));
 #else

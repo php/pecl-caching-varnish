@@ -36,16 +36,20 @@ if test "$PHP_VARNISH" != "no"; then
   else
     dnl # --with-varnish -> check with-path
     SEARCH_PATH="$PHP_VARNISH /usr/local /usr"
-    SEARCH_FOR="varnishapi.h"
+    SEARCH_FOR="varnishapi.h vcli.h"
     AC_MSG_CHECKING([for varnish files in default path])
     for i in $SEARCH_PATH ; do
-      if test -r $i/include/varnish/$SEARCH_FOR; then
-        VARNISH_INCDIR=$i/include/varnish
-        VARNISH_LIBDIR=$i/$PHP_LIBDIR
-      elif test -r $i/include/$SEARCH_FOR; then
-        VARNISH_INCDIR=$i/include
-        VARNISH_LIBDIR=$i/$PHP_LIBDIR
-      fi
+      for j in $SEARCH_FOR ; do
+        if test -r $i/include/varnish/$j; then
+          VARNISH_INCDIR=$i/include/varnish
+          VARNISH_LIBDIR=$i/lib
+          break
+        elif test -r $i/include/$j; then
+          VARNISH_INCDIR=$i/include
+          VARNISH_LIBDIR=$i/lib
+          break
+        fi
+      done
     done
 
     if test -z "$VARNISH_INCDIR"; then
@@ -65,7 +69,7 @@ if test "$PHP_VARNISH" != "no"; then
     [
       PHP_ADD_LIBRARY_WITH_PATH($LIBNAME, $VARNISH_LIBDIR, VARNISH_SHARED_LIBADD)
 
-      if test -n $VARNISH_INCDIR/varnishapi.h; then
+      if test -f $VARNISH_INCDIR/varnishapi.h; then
         dnl this is 3.x or earlier
         AC_DEFINE(HAVE_VARNISHAPILIB,1,[ ])
         AC_CHECK_HEADER([$VARNISH_INCDIR/varnishapi.h], [], AC_MSG_ERROR('varnishapi.h' header not found))
@@ -73,8 +77,10 @@ if test "$PHP_VARNISH" != "no"; then
       else
         dnl this is approx at least 4.x, for later will probably have to check for some specific stuff
         AC_DEFINE(HAVE_VARNISHAPILIB,4,[ ])
-        AC_CHECK_HEADER([$VARNISH_INCDIR/tbl/vsl_tags.h], [], AC_MSG_ERROR('tbl/vsl_tags.h' header not found))
-        AC_CHECK_HEADER([$VARNISH_INCDIR/vapi/vsl.h], [], AC_MSG_ERROR('vapi/vsl.h' header not found))
+        dnl there's an issue with two lines below, it might be because STLM macro isn't defined,
+        dnl so the compiler decides them to be unusable
+        dnl AC_CHECK_HEADER([$VARNISH_INCDIR/tbl/vsl_tags.h], [], AC_MSG_ERROR('tbl/vsl_tags.h' header not found))
+        dnl AC_CHECK_HEADER([$VARNISH_INCDIR/vapi/vsl.h], [], AC_MSG_ERROR('vapi/vsl.h' header not found))
         AC_TYPE_UINTPTR_T
         AC_TYPE_UINT64_T
       fi

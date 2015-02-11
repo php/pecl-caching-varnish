@@ -229,23 +229,30 @@ PHP_METHOD(VarnishAdmin, __construct)
 		/* read config options */
 #if PHP_MAJOR_VERSION >= 7
 		zval *secret, *addr, *port, *timeout, *ident, *compat;
+		zend_string *tmp;
 
-		if((addr = zend_hash_find(Z_ARRVAL_P(opts), zend_string_init("host", sizeof("host")-1, 0))) != NULL) {
+		tmp = zend_string_init("host", sizeof("host")-1, 0);
+		if((addr = zend_hash_find(Z_ARRVAL_P(opts), tmp)) != NULL) {
 			convert_to_string(addr);
 			zvao->zvc.host = estrdup(Z_STRVAL_P(addr));
 			zvao->zvc.host_len = (int)Z_STRLEN_P(addr);
 		}
+		zend_string_release(tmp);
 
-		if((ident = zend_hash_find(Z_ARRVAL_P(opts), zend_string_init("ident", sizeof("ident")-1, 0))) != NULL) {
+		tmp = zend_string_init("ident", sizeof("ident")-1, 0);
+		if((ident = zend_hash_find(Z_ARRVAL_P(opts), tmp)) != NULL) {
 			convert_to_string(ident);
 			zvao->zvc.ident = estrdup(Z_STRVAL_P(ident));
 			zvao->zvc.ident_len = (int)Z_STRLEN_P(ident);
 		}
+		zend_string_release(tmp);
 
-		if((port = zend_hash_find(Z_ARRVAL_P(opts), zend_string_init("port", sizeof("port")-1, 0))) != NULL) {
+		tmp = zend_string_init("port", sizeof("port")-1, 0);
+		if((port = zend_hash_find(Z_ARRVAL_P(opts), tmp)) != NULL) {
 			convert_to_long(port);
 			zvao->zvc.port = (int)Z_LVAL_P(port);
 		}
+		zend_string_release(tmp);
 
 		if (zvao->zvc.ident_len > 0 && (zvao->zvc.host_len > 0 || zvao->zvc.port > -1)) {
 			php_varnish_throw_ident_vs_host_exception(TSRMLS_C);
@@ -260,24 +267,30 @@ PHP_METHOD(VarnishAdmin, __construct)
 			}
 		}
 
-		if((timeout = zend_hash_find(Z_ARRVAL_P(opts), zend_string_init("timeout", sizeof("timeout")-1, 0))) != NULL) {
+		tmp = zend_string_init("timeout", sizeof("timeout")-1, 0);
+		if((timeout = zend_hash_find(Z_ARRVAL_P(opts), tmp)) != NULL) {
 			convert_to_long(timeout);
 			zvao->zvc.timeout = (int)Z_LVAL_P(timeout);
 		}
+		zend_string_release(tmp);
 
-		if((compat = zend_hash_find(Z_ARRVAL_P(opts), zend_string_init("compat", sizeof("compat")-1, 0))) != NULL) {
+		tmp = zend_string_init("compat", sizeof("compat")-1, 0);
+		if((compat = zend_hash_find(Z_ARRVAL_P(opts), tmp)) != NULL) {
 			convert_to_long(compat);
 			zvao->compat = (int)Z_LVAL_P(compat);
 		}
+		zend_string_release(tmp);
 		if (!php_varnish_check_compat(zvao->compat)) {
 			return;
 		}
 
-		if((secret = zend_hash_find(Z_ARRVAL_P(opts), zend_string_init("secret", sizeof("secret")-1, 0))) != NULL) {
+		tmp = zend_string_init("secret", sizeof("secret")-1, 0);
+		if((secret = zend_hash_find(Z_ARRVAL_P(opts), tmp)) != NULL) {
 			convert_to_string(secret);
 			zvao->zvc.secret = estrdup(Z_STRVAL_P(secret));
 			zvao->zvc.secret_len = (int)Z_STRLEN_P(secret);
 		}
+		zend_string_release(tmp);
 #else
 		zval **secret, **addr, **port, **timeout, **ident, **compat;
 

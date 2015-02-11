@@ -456,11 +456,14 @@ PHP_METHOD(VarnishAdmin, getParams)
  Set a varnish instance configuration */
 PHP_METHOD(VarnishAdmin, setParam)
 {
-	zval *val, *val_str = NULL;
+	zval *val;
 	char *name, *param;
 #if PHP_MAJOR_VERSION >= 7
+	zval val_str;
 	size_t name_len;
+	zend_bool converted = 0;
 #else
+	zval *val_str = NULL;
 	int name_len;
 #endif
 	int param_len;
@@ -493,17 +496,14 @@ PHP_METHOD(VarnishAdmin, setParam)
 			param_len = 3;
 			break;
 
-		default: {
-			zval val_str;
-
-			ZVAL_COPY(val, &val_str);
-			convert_to_string(val);
+		default:
+			ZVAL_COPY(&val_str, val);
+			convert_to_string(&val_str);
 
 			param = Z_STRVAL(val_str);
 			param_len = Z_STRLEN(val_str);
 
-			zval_dtor(&val_str);
-		}
+			converted = 1;
 #else
 		case IS_BOOL:
 			if (Z_BVAL_P(val)) {
@@ -533,7 +533,11 @@ PHP_METHOD(VarnishAdmin, setParam)
 
 	(void)php_varnish_set_param(zvao->zvc.sock, &zvao->status, name, name_len, param, param_len, zvao->zvc.timeout TSRMLS_CC);
 
-#if PHP_MAJOR_VERSION < 7
+#if PHP_MAJOR_VERSION >= 7
+	if (converted) {
+		zval_dtor(&val_str);
+	}
+#else
 	if (val_str && val != val_str) {
 		zval_ptr_dtor(&val_str);
 	}

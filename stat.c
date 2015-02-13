@@ -129,7 +129,10 @@ php_varnish_stat_obj_init(zend_class_entry *ze TSRMLS_DC)
  *  Varnish admin constructor */
 PHP_METHOD(VarnishStat, __construct)
 {
-#ifndef PHP_WIN32
+#if defined(HAVE_VARNISHAPILIB) && HAVE_VARNISHAPILIB >= 4
+	 php_varnish_throw_win_unimpl_exception("VarnishStat functionality isn't available for Varnish >= 4" TSRMLS_CC);
+	 return;
+#elif !defined(PHP_WIN32)
 	struct ze_varnish_stat_obj *zvso;
 	zval *opts = NULL;
 #if PHP_MAJOR_VERSION >= 7
@@ -178,7 +181,7 @@ PHP_METHOD(VarnishStat, __construct)
 }
 /* }}} */
 
-#ifndef PHP_WIN32
+#if defined(HAVE_VARNISHAPILIB) && HAVE_VARNISHAPILIB < 4
 /* {{{ proto array VarnishStat::getSnapshot(void)
   Get a statistics snapshot */
 PHP_METHOD(VarnishStat, getSnapshot)

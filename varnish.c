@@ -98,7 +98,7 @@ const zend_function_entry VarnishAdmin_methods[] = {
 /* {{{ VarnishStat_methods{} */
 const zend_function_entry VarnishStat_methods[] = {
 	PHP_ME(VarnishStat, __construct, NULL, ZEND_ACC_PUBLIC)
-#ifndef PHP_WIN32
+#if defined(HAVE_VARNISHAPILIB) && HAVE_VARNISHAPILIB < 4
 	PHP_ME(VarnishStat, getSnapshot, NULL, ZEND_ACC_PUBLIC)
 #endif
 	{NULL, NULL, NULL}
@@ -108,7 +108,7 @@ const zend_function_entry VarnishStat_methods[] = {
 /* {{{ VarnishLog_methods{} */
 const zend_function_entry VarnishLog_methods[] = {
 	PHP_ME(VarnishLog, __construct, NULL, ZEND_ACC_PUBLIC)
-#ifndef PHP_WIN32
+#if defined(HAVE_VARNISHAPILIB) && HAVE_VARNISHAPILIB < 4
 	PHP_ME(VarnishLog, getLine, NULL, ZEND_ACC_PUBLIC)
 	PHP_ME(VarnishLog, getTagName, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
 #endif

@@ -82,12 +82,12 @@ PHP_METHOD(VarnishAdmin, vclUse);
 PHP_METHOD(VarnishAdmin, disconnect);
 
 PHP_METHOD(VarnishStat, __construct);
-#ifndef PHP_WIN32
+#if defined(HAVE_VARNISHAPILIB) && HAVE_VARNISHAPILIB < 4
 PHP_METHOD(VarnishStat, getSnapshot);
 #endif
 
 PHP_METHOD(VarnishLog, __construct);
-#ifndef PHP_WIN32
+#if defined(HAVE_VARNISHAPILIB) && HAVE_VARNISHAPILIB < 4
 PHP_METHOD(VarnishLog, getLine);
 PHP_METHOD(VarnishLog, getTagName);
 #endif
@@ -146,11 +146,7 @@ struct ze_varnish_stat_obj {
 
 struct ze_varnish_log_obj {
 	struct ze_varnish_conn zvc;
-#if defined(HAVE_VARNISHAPILIB) && HAVE_VARNISHAPILIB >=4
-	struct VSL_data *vd;
-#else
 	struct VSM_data *vd;
-#endif
 	zend_object zo;
 };
 
@@ -185,11 +181,7 @@ struct ze_varnish_stat_obj {
 struct ze_varnish_log_obj {
 	zend_object zo;
 	struct ze_varnish_conn zvc;
-#if defined(HAVE_VARNISHAPILIB) && HAVE_VARNISHAPILIB >=4
-	struct VSL_data *vd;
-#else
 	struct VSM_data *vd;
-#endif
 };
 #endif
 

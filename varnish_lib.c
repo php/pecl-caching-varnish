@@ -355,16 +355,21 @@ php_varnish_sock_ident(const char *ident, char **addr, int *addr_len, int *port,
 #endif
 
 	vsd = VSM_New();
-	if (VSM_n_Arg(vsd, ident)) {
 #if HAVE_VARNISHAPILIB >= 4
+	if (VSM_n_Arg(vsd, ident) > 0) {
 		if (VSM_Open(vsd)) {
 #else
+	if (VSM_n_Arg(vsd, ident)) {
 		if (VSM_Open(vsd, 1)) {
 #endif
 			zend_throw_exception_ex(
 				VarnishException_ce,
 				PHP_VARNISH_SHM_EXCEPTION TSRMLS_CC,
+#if HAVE_VARNISHAPILIB >= 4
+				VSM_Error(vsd)
+#else
 				"Could not open shared memory"
+#endif
 			);
 			return sock;
 		}
@@ -378,7 +383,11 @@ php_varnish_sock_ident(const char *ident, char **addr, int *addr_len, int *port,
 			zend_throw_exception_ex(
 				VarnishException_ce,
 				PHP_VARNISH_SHM_EXCEPTION TSRMLS_CC,
+#if HAVE_VARNISHAPILIB >= 4
+				VSM_Error(vsd)
+#else
 				"No address and port found in the shared memory"
+#endif
 			);
 			VSM_Delete(vsd);
 			return sock;
@@ -847,6 +856,7 @@ php_varnish_get_log(const struct VSM_data *vd, zval *line TSRMLS_DC)
 	int i;
 
 	i = VSL_NextLog(vd, &p, NULL);
+
 	if (i < 0) {
 		zend_throw_exception_ex(
 			VarnishException_ce,

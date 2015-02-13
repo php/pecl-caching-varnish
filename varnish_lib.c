@@ -726,7 +726,7 @@ int
 php_varnish_ban(int sock, int *status, char *reg, int reg_len, int tmo, int type, int compat TSRMLS_DC)
 {/*{{{*/
 	char *content, buf[2048];
-	int content_len, int_len, ban_flag;
+	int content_len, int_len = 0, ban_flag;
 
 	/* for now there is only varnish 2 vs 3 issue, so kiss */
 	ban_flag = (PHP_VARNISH_COMPAT_2 == compat);

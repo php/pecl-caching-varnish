@@ -47,7 +47,7 @@ extern zend_module_entry varnish_module_entry;
 #endif
 
 #if PHP_MAJOR_VERSION < 7
-typedef zend_long long;
+typedef long zend_long;
 #endif
 /*#define PHP_VARNISH_DEBUG*/
 

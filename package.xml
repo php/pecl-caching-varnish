@@ -22,7 +22,8 @@
 	<license uri="http://www.opensource.org/licenses/bsd-license.php">BSD</license>
 	<notes>
 		- m4 updated for Varnish 4.x compliance (Remi Collet)
-		- partial Varnish 4.x compatibility
+		- Varnish 4.x compatibility, but
+		- VarnishStat and VarnishLog aren't supported with Varnish 4.x anymore
 		- PHP7 compatibility
 	</notes>
 	<contents>

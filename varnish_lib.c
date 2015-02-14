@@ -350,8 +350,6 @@ php_varnish_sock_ident(const char *ident, char **addr, int *addr_len, int *port,
 	char *t_arg, *t_start, *p, tmp_addr[41];
 #if HAVE_VARNISHAPILIB >= 4
 	struct VSM_fantom vt;
-#else
-	char *p;
 #endif
 
 	vsd = VSM_New();

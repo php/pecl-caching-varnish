@@ -812,6 +812,13 @@ php_varnish_snap_stats_cb(void *priv, const struct VSC_point const *pt)
 	return 0;
 }/*}}}*/
 
+#if HAVE_VARNISHAPILIB >= 4
+int
+php_varnish_snap_stats(zval *storage, const char *ident TSRMLS_DC)
+{/*{{{*/
+	return 0;
+}/*}}}*/
+#else
 int
 php_varnish_snap_stats(zval *storage, const char *ident TSRMLS_DC)
 {/*{{{*/
@@ -832,25 +839,21 @@ php_varnish_snap_stats(zval *storage, const char *ident TSRMLS_DC)
 		return 0;
 	}
 
-#if HAVE_VARNISHAPILIB >= 4
-	/* XXX use VSM_fantom */
-	vcm = VSC_Main(vd, NULL);
-
-	return !VSC_Iter(vd, NULL, php_varnish_snap_stats_cb, storage);
-#else
 	vcm = VSC_Main(vd);
 
 	return !VSC_Iter(vd, php_varnish_snap_stats_cb, storage);
-#endif
 }/*}}}*/
+#endif
 
-#if HAVE_VARNISHAPILIB >=4
+#if HAVE_VARNISHAPILIB >= 4
 int
-php_varnish_get_log(const struct VSL_data *vd, zval *line TSRMLS_DC)
+php_varnish_get_log(const struct VSM_data *vd, zval *line TSRMLS_DC)
+{/*{{{*/ 
+	return 0;
+}/*}}}*/ 
 #else
 int
 php_varnish_get_log(const struct VSM_data *vd, zval *line TSRMLS_DC)
-#endif
 {/*{{{*/ 
 	uint32_t *p;
 	int i;
@@ -879,6 +882,7 @@ php_varnish_get_log(const struct VSM_data *vd, zval *line TSRMLS_DC)
 	return 1;
 
 }/*}}}*/ 
+#endif
 #endif
 
 int

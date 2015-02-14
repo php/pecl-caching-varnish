@@ -777,6 +777,7 @@ php_varnish_ban(int sock, int *status, char *reg, int reg_len, int tmo, int type
 }/*}}}*/
 
 #ifndef PHP_WIN32
+#if HAVE_VARNISHAPILIB < 4
 static int
 php_varnish_snap_stats_cb(void *priv, const struct VSC_point const *pt)
 {/*{{{*/
@@ -811,6 +812,7 @@ php_varnish_snap_stats_cb(void *priv, const struct VSC_point const *pt)
 
 	return 0;
 }/*}}}*/
+#endif
 
 #if HAVE_VARNISHAPILIB >= 4
 int

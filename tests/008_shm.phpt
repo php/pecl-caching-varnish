@@ -1,6 +1,7 @@
 --TEST--
 Check for the basic VarnishLog::getLine() functionality
 --SKIPIF--
+<?php print "skip VarnishStat and VarnishLog are not supported anymore"; ?>
 <?php if(substr(PHP_OS, 0, 3) == "WIN") die("skip now for Windows"); ?>
 <?php if (!extension_loaded("varnish") || !file_exists(dirname(__FILE__) . '/config.php')) print "skip"; ?>
 <?php if (!getenv("VARNISH_TEST_SHM")) print "skip VARNISH_TEST_SHM not set"; ?>

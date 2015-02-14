@@ -10,10 +10,10 @@
 		<email>ab@php.net</email>
 		<active>yes</active>
 	</lead>
-	<date>2015-02-13</date>
+	<date>2015-02-14</date>
 	<version>
-		<release>1.2.0</release>
-		<api>1.2.0</api>
+		<release>1.2.1</release>
+		<api>1.2.1</api>
 	</version>
 	<stability>
 		<release>stable</release>
@@ -21,10 +21,7 @@
 	</stability>
 	<license uri="http://www.opensource.org/licenses/bsd-license.php">BSD</license>
 	<notes>
-		- m4 updated for Varnish 4.x compliance (Remi Collet)
-		- Varnish 4.x compatibility, but
-		- VarnishStat and VarnishLog aren't supported when linking to Varnish 4.x anymore
-		- PHP7 compatibility
+		- fixed build with Varnish 4.x (thanks Remi Collet)
 	</notes>
 	<contents>
 		<dir name="/">
@@ -100,6 +97,24 @@
 	<providesextension>varnish</providesextension>
 	<extsrcrelease/>
 	<changelog>
+		<release>
+			<date>2015-02-13</date>
+			<version>
+				<release>1.2.0</release>
+				<api>1.2.0</api>
+			</version>
+			<stability>
+				<release>stable</release>
+				<api>stable</api>
+			</stability>
+			<license uri="http://www.opensource.org/licenses/bsd-license.php">BSD</license>
+			<notes>
+				- m4 updated for Varnish 4.x compliance (Remi Collet)
+				- Varnish 4.x compatibility, but
+				- VarnishStat and VarnishLog aren't supported when linking to Varnish 4.x anymore
+				- PHP7 compatibility
+			</notes>
+		</release>
 		<release>
 			<date>2013-10-01</date>
 			<version>

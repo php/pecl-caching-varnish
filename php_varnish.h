@@ -82,12 +82,12 @@ PHP_METHOD(VarnishAdmin, vclUse);
 PHP_METHOD(VarnishAdmin, disconnect);
 
 PHP_METHOD(VarnishStat, __construct);
-#if defined(HAVE_VARNISHAPILIB) && HAVE_VARNISHAPILIB < 4
+#if defined(HAVE_VARNISHAPILIB) && HAVE_VARNISHAPILIB < 40
 PHP_METHOD(VarnishStat, getSnapshot);
 #endif
 
 PHP_METHOD(VarnishLog, __construct);
-#if defined(HAVE_VARNISHAPILIB) && HAVE_VARNISHAPILIB < 4
+#if defined(HAVE_VARNISHAPILIB) && HAVE_VARNISHAPILIB < 40
 PHP_METHOD(VarnishLog, getLine);
 PHP_METHOD(VarnishLog, getTagName);
 #endif

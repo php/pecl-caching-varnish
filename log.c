@@ -140,7 +140,7 @@ php_varnish_log_obj_init(zend_class_entry *ze TSRMLS_DC)
  *  Varnish admin constructor */
 PHP_METHOD(VarnishLog, __construct)
 {
-#if defined(HAVE_VARNISHAPILIB) && HAVE_VARNISHAPILIB >= 4
+#if defined(HAVE_VARNISHAPILIB) && HAVE_VARNISHAPILIB >= 40
 	 php_varnish_throw_win_unimpl_exception("VarnishLog functionality isn't available for Varnish >= 4" TSRMLS_CC);
 	 return;
 #elif !defined(PHP_WIN32)
@@ -212,7 +212,7 @@ PHP_METHOD(VarnishLog, __construct)
 }
 /* }}} */
 
-#if defined(HAVE_VARNISHAPILIB) && HAVE_VARNISHAPILIB < 4
+#if defined(HAVE_VARNISHAPILIB) && HAVE_VARNISHAPILIB < 40
 /* {{{ proto array VarnishLog::getLine(void)
  * Get the next log entry */
 PHP_METHOD(VarnishLog, getLine)

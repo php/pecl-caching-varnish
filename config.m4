@@ -23,16 +23,16 @@ if test "$PHP_VARNISH" != "no"; then
       PHP_EVAL_INCLINE($VARNISH_INCLUDE)
       PHP_EVAL_LIBLINE($VARNISH_LIBRARY, VARNISH_SHARED_LIBADD)
       if $PKG_CONFIG varnishapi --atleast-version=5 ; then
-        AC_DEFINE(HAVE_VARNISHAPILIB,5,[ ])
-        AC_TYPE_UINTPTR_T
-        AC_TYPE_UINT64_T
+        AC_DEFINE(HAVE_VARNISHAPILIB,50,[ ])
+      elif $PKG_CONFIG varnishapi --atleast-version=4.1 ; then
+        AC_DEFINE(HAVE_VARNISHAPILIB,41,[ ])
       elif $PKG_CONFIG varnishapi --atleast-version=4 ; then
-        AC_DEFINE(HAVE_VARNISHAPILIB,4,[ ])
-        AC_TYPE_UINTPTR_T
-        AC_TYPE_UINT64_T
+        AC_DEFINE(HAVE_VARNISHAPILIB,40,[ ])
       else
-        AC_DEFINE(HAVE_VARNISHAPILIB,3,[ ])
+        AC_DEFINE(HAVE_VARNISHAPILIB,30,[ ])
       fi
+      AC_TYPE_UINTPTR_T
+      AC_TYPE_UINT64_T
     else
       AC_MSG_RESULT(version too old)
       AC_MSG_ERROR(Please reinstall varnish version >= 3.0)
@@ -46,11 +46,11 @@ if test "$PHP_VARNISH" != "no"; then
       for j in $SEARCH_FOR ; do
         if test -r $i/include/varnish/$j; then
           VARNISH_INCDIR=$i/include/varnish
-          VARNISH_LIBDIR=$i/lib
+          VARNISH_LIBDIR=$i/$PHP_LIBDIR
           break
         elif test -r $i/include/$j; then
           VARNISH_INCDIR=$i/include
-          VARNISH_LIBDIR=$i/lib
+          VARNISH_LIBDIR=$i/$PHP_LIBDIR
           break
         fi
       done
@@ -75,19 +75,22 @@ if test "$PHP_VARNISH" != "no"; then
 
       if test -f $VARNISH_INCDIR/varnishapi.h; then
         dnl this is 3.x or earlier
-        AC_DEFINE(HAVE_VARNISHAPILIB,1,[ ])
+        AC_DEFINE(HAVE_VARNISHAPILIB,30,[ ])
         AC_CHECK_HEADER([$VARNISH_INCDIR/varnishapi.h], [], AC_MSG_ERROR('varnishapi.h' header not found))
         AC_CHECK_HEADER([$VARNISH_INCDIR/vsl.h], [], AC_MSG_ERROR('vsl.h' header not found))
+      elif test -f $VARNISH_INCDIR/vapi/vsm.h; then
+        dnl this is approx at least 4.1.x, for later will probably have to check for some specific stuff
+        AC_DEFINE(HAVE_VARNISHAPILIB,41,[ ])
       else
         dnl this is approx at least 4.x, for later will probably have to check for some specific stuff
-        AC_DEFINE(HAVE_VARNISHAPILIB,4,[ ])
+        AC_DEFINE(HAVE_VARNISHAPILIB,40,[ ])
         dnl there's an issue with two lines below, it might be because STLM macro isn't defined,
         dnl so the compiler decides them to be unusable
         dnl AC_CHECK_HEADER([$VARNISH_INCDIR/tbl/vsl_tags.h], [], AC_MSG_ERROR('tbl/vsl_tags.h' header not found))
         dnl AC_CHECK_HEADER([$VARNISH_INCDIR/vapi/vsl.h], [], AC_MSG_ERROR('vapi/vsl.h' header not found))
-        AC_TYPE_UINTPTR_T
-        AC_TYPE_UINT64_T
       fi
+      AC_TYPE_UINTPTR_T
+      AC_TYPE_UINT64_T
     ],[
       AC_MSG_ERROR([wrong varnishapi lib version or lib not found])
     ],[

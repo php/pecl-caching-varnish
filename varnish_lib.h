@@ -36,10 +36,10 @@
 #endif
 
 #ifndef PHP_WIN32
-#if HAVE_VARNISHAPILIB >= 5
+#if HAVE_VARNISHAPILIB >= 41
 #include <vapi/vsm.h>
 #endif
-#if HAVE_VARNISHAPILIB >= 4
+#if HAVE_VARNISHAPILIB >= 40
 #include <vcli.h>
 #include <vmod_abi.h>
 #include <vapi/vsl.h>

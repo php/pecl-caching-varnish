@@ -348,12 +348,12 @@ php_varnish_sock_ident(const char *ident, char **addr, int *addr_len, int *port,
 	int sock = -1, j;
 	struct VSM_data *vsd;
 	char *t_arg, *t_start, *p, tmp_addr[41];
-#if HAVE_VARNISHAPILIB >= 4
+#if HAVE_VARNISHAPILIB >= 40
 	struct VSM_fantom vt;
 #endif
 
 	vsd = VSM_New();
-#if HAVE_VARNISHAPILIB >= 4
+#if HAVE_VARNISHAPILIB >= 40
 	if (VSM_n_Arg(vsd, ident) > 0) {
 		if (VSM_Open(vsd)) {
 #else
@@ -363,7 +363,7 @@ php_varnish_sock_ident(const char *ident, char **addr, int *addr_len, int *port,
 			zend_throw_exception_ex(
 				VarnishException_ce,
 				PHP_VARNISH_SHM_EXCEPTION TSRMLS_CC,
-#if HAVE_VARNISHAPILIB >= 4
+#if HAVE_VARNISHAPILIB >= 40
 				VSM_Error(vsd)
 #else
 				"Could not open shared memory"
@@ -372,7 +372,7 @@ php_varnish_sock_ident(const char *ident, char **addr, int *addr_len, int *port,
 			return sock;
 		}
 
-#if HAVE_VARNISHAPILIB >= 4
+#if HAVE_VARNISHAPILIB >= 40
 		if (!VSM_Get(vsd, &vt, "Arg", "-T", "")) {
 #else
 		p = VSM_Find_Chunk(vsd, "Arg", "-T", "", NULL);
@@ -381,7 +381,7 @@ php_varnish_sock_ident(const char *ident, char **addr, int *addr_len, int *port,
 			zend_throw_exception_ex(
 				VarnishException_ce,
 				PHP_VARNISH_SHM_EXCEPTION TSRMLS_CC,
-#if HAVE_VARNISHAPILIB >= 4
+#if HAVE_VARNISHAPILIB >= 40
 				VSM_Error(vsd)
 #else
 				"No address and port found in the shared memory"
@@ -390,7 +390,7 @@ php_varnish_sock_ident(const char *ident, char **addr, int *addr_len, int *port,
 			VSM_Delete(vsd);
 			return sock;
 		}
-#if HAVE_VARNISHAPILIB >= 4
+#if HAVE_VARNISHAPILIB >= 40
 		t_start = t_arg = estrdup(vt.b);
 #else
 		t_start = t_arg = estrdup(p);
@@ -406,7 +406,7 @@ php_varnish_sock_ident(const char *ident, char **addr, int *addr_len, int *port,
 		return sock;
 	}
 
-#if HAVE_VARNISHAPILIB >= 4
+#if HAVE_VARNISHAPILIB >= 40
 	VSM_Delete(vsd);
 #endif
 
@@ -528,7 +528,7 @@ php_varnish_auth_ident(int sock, const char *ident, int tmo, int *status TSRMLS_
 	char *s_arg, *answer = NULL;
 	int fd;
 	char buf[CLI_AUTH_RESPONSE_LEN + 1];
-#if HAVE_VARNISHAPILIB >= 4
+#if HAVE_VARNISHAPILIB >= 40
 	struct VSM_fantom vt;
 #else
 	char *p;
@@ -538,7 +538,7 @@ php_varnish_auth_ident(int sock, const char *ident, int tmo, int *status TSRMLS_
 	if (PHP_VARNISH_STATUS_AUTH == *status) {
 		vsd = VSM_New();
 		if (VSM_n_Arg(vsd, ident)) {
-#if HAVE_VARNISHAPILIB >= 4
+#if HAVE_VARNISHAPILIB >= 40
 			if (VSM_Open(vsd)) {
 #else
 			if (VSM_Open(vsd, 1)) {
@@ -551,7 +551,7 @@ php_varnish_auth_ident(int sock, const char *ident, int tmo, int *status TSRMLS_
 				return sock;
 			}
 
-#if HAVE_VARNISHAPILIB >= 4
+#if HAVE_VARNISHAPILIB >= 40
 			if (VSM_Get(vsd, &vt, "Arg", "-S", "")) {
 				s_arg = estrdup(vt.b);
 #else
@@ -570,7 +570,7 @@ php_varnish_auth_ident(int sock, const char *ident, int tmo, int *status TSRMLS_
 					return 0;
 				}
 				efree(s_arg);
-#if HAVE_VARNISHAPILIB >= 4
+#if HAVE_VARNISHAPILIB >= 40
 			} else {
 				VSM_Delete(vsd);
 				return 0;
@@ -775,7 +775,7 @@ php_varnish_ban(int sock, int *status, char *reg, int reg_len, int tmo, int type
 }/*}}}*/
 
 #ifndef PHP_WIN32
-#if HAVE_VARNISHAPILIB < 4
+#if HAVE_VARNISHAPILIB < 40
 static int
 php_varnish_snap_stats_cb(void *priv, const struct VSC_point const *pt)
 {/*{{{*/
@@ -783,7 +783,7 @@ php_varnish_snap_stats_cb(void *priv, const struct VSC_point const *pt)
 	int f0, f1;
 	zval *storage, *current;
 	char buf0[128];
-#if HAVE_VARNISHAPILIB >= 4
+#if HAVE_VARNISHAPILIB >= 40
 	const char *type  = pt->section->type;
 	const char *ident = pt->section->ident;
 	const char *name  = pt->desc->name;
@@ -812,7 +812,7 @@ php_varnish_snap_stats_cb(void *priv, const struct VSC_point const *pt)
 }/*}}}*/
 #endif
 
-#if HAVE_VARNISHAPILIB >= 4
+#if HAVE_VARNISHAPILIB >= 40
 int
 php_varnish_snap_stats(zval *storage, const char *ident TSRMLS_DC)
 {/*{{{*/
@@ -845,7 +845,7 @@ php_varnish_snap_stats(zval *storage, const char *ident TSRMLS_DC)
 }/*}}}*/
 #endif
 
-#if HAVE_VARNISHAPILIB >= 4
+#if HAVE_VARNISHAPILIB >= 40
 int
 php_varnish_get_log(const struct VSM_data *vd, zval *line TSRMLS_DC)
 {/*{{{*/ 

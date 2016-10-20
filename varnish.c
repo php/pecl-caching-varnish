@@ -98,7 +98,7 @@ const zend_function_entry VarnishAdmin_methods[] = {
 /* {{{ VarnishStat_methods{} */
 const zend_function_entry VarnishStat_methods[] = {
 	PHP_ME(VarnishStat, __construct, NULL, ZEND_ACC_PUBLIC)
-#if defined(HAVE_VARNISHAPILIB) && HAVE_VARNISHAPILIB < 4
+#if defined(HAVE_VARNISHAPILIB) && HAVE_VARNISHAPILIB < 40
 	PHP_ME(VarnishStat, getSnapshot, NULL, ZEND_ACC_PUBLIC)
 #endif
 	{NULL, NULL, NULL}
@@ -108,7 +108,7 @@ const zend_function_entry VarnishStat_methods[] = {
 /* {{{ VarnishLog_methods{} */
 const zend_function_entry VarnishLog_methods[] = {
 	PHP_ME(VarnishLog, __construct, NULL, ZEND_ACC_PUBLIC)
-#if defined(HAVE_VARNISHAPILIB) && HAVE_VARNISHAPILIB < 4
+#if defined(HAVE_VARNISHAPILIB) && HAVE_VARNISHAPILIB < 40
 	PHP_ME(VarnishLog, getLine, NULL, ZEND_ACC_PUBLIC)
 	PHP_ME(VarnishLog, getTagName, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
 #endif
@@ -215,7 +215,7 @@ PHP_MINIT_FUNCTION(varnish)
 
 /* log is not working on windows at the time*/
 #ifndef PHP_WIN32
-#if HAVE_VARNISHAPILIB >= 4
+#if HAVE_VARNISHAPILIB >= 40
 #define SLTM(name, flags, shortdesc, longdesc) \
 zend_declare_class_constant_long(VarnishLog_ce, "TAG_"#name, strlen("TAG_"#name), SLT_##name TSRMLS_CC);
 #include "tbl/vsl_tags.h"

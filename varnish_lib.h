@@ -41,6 +41,7 @@
 #endif
 #if HAVE_VARNISHAPILIB >= 4
 #include <vcli.h>
+#include <vmod_abi.h>
 #include <vapi/vsl.h>
 #include <vapi/vsc.h>
 #else

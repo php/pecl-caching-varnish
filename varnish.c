@@ -279,8 +279,11 @@ PHP_MINFO_FUNCTION(varnish)
 {
 	php_info_print_table_start();
 	php_info_print_table_header(2, "varnish support", "enabled");
-	php_info_print_table_row(2, "Version", PHP_VARNISH_VERSION);
+	php_info_print_table_row(2, "Extension version", PHP_VARNISH_VERSION);
 	php_info_print_table_row(2, "Revision", "$Id$");
+#ifdef VMOD_ABI_Version
+	php_info_print_table_row(2, "Varnish version", VMOD_ABI_Version);
+#endif
 	php_info_print_table_end();
 
 	/* 

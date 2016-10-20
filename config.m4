@@ -22,7 +22,11 @@ if test "$PHP_VARNISH" != "no"; then
 
       PHP_EVAL_INCLINE($VARNISH_INCLUDE)
       PHP_EVAL_LIBLINE($VARNISH_LIBRARY, VARNISH_SHARED_LIBADD)
-      if $PKG_CONFIG varnishapi --atleast-version=4 ; then
+      if $PKG_CONFIG varnishapi --atleast-version=5 ; then
+        AC_DEFINE(HAVE_VARNISHAPILIB,5,[ ])
+        AC_TYPE_UINTPTR_T
+        AC_TYPE_UINT64_T
+      elif $PKG_CONFIG varnishapi --atleast-version=4 ; then
         AC_DEFINE(HAVE_VARNISHAPILIB,4,[ ])
         AC_TYPE_UINTPTR_T
         AC_TYPE_UINT64_T

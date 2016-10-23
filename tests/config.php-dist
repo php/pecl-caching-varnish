@@ -1,0 +1,21 @@
+<?php
+
+$args_ident = array(
+	"ident" => "/var/lib/varnish/silent",
+	"timeout" => 1000,
+);
+
+$args_ipv4 = array(
+	"host" => "127.0.0.1",
+	"port" => 6082,
+	"secret" => "3cc62b09-5c5b-4322-9660-25817d148612",
+	"timeout" => 1000,
+);
+
+$args_ipv6 = array(
+	"host" => "::1",
+	"port" => 6082,
+	"secret" => "3cc62b09-5c5b-4322-9660-25817d148612",
+	"timeout" => 1000,
+);
+

@@ -22,7 +22,9 @@ if test "$PHP_VARNISH" != "no"; then
 
       PHP_EVAL_INCLINE($VARNISH_INCLUDE)
       PHP_EVAL_LIBLINE($VARNISH_LIBRARY, VARNISH_SHARED_LIBADD)
-      if $PKG_CONFIG varnishapi --atleast-version=5 ; then
+      if $PKG_CONFIG varnishapi --atleast-version=5.2 ; then
+        AC_DEFINE(HAVE_VARNISHAPILIB,52,[ ])
+      elif $PKG_CONFIG varnishapi --atleast-version=5 ; then
         AC_DEFINE(HAVE_VARNISHAPILIB,50,[ ])
       elif $PKG_CONFIG varnishapi --atleast-version=4.1 ; then
         AC_DEFINE(HAVE_VARNISHAPILIB,41,[ ])

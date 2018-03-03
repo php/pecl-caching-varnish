@@ -346,14 +346,23 @@ int
 php_varnish_sock_ident(const char *ident, char **addr, int *addr_len, int *port, int tmo, int *status TSRMLS_DC)
 {/*{{{*/
 	int sock = -1, j;
+#if HAVE_VARNISHAPILIB >= 52
+	struct vsm *vsd;
+#else
 	struct VSM_data *vsd;
+#endif
 	char *t_arg, *t_start, *p, tmp_addr[41];
-#if HAVE_VARNISHAPILIB >= 40
+#if HAVE_VARNISHAPILIB >= 52
+	struct vsm_fantom vt;
+#elif HAVE_VARNISHAPILIB >= 40
 	struct VSM_fantom vt;
 #endif
 
 	vsd = VSM_New();
-#if HAVE_VARNISHAPILIB >= 40
+#if HAVE_VARNISHAPILIB >= 52
+	if (VSM_Arg(vsd, 0, ident) > 0) {
+		if (VSM_Attach(vsd, -1)) {
+#elif HAVE_VARNISHAPILIB >= 40
 	if (VSM_n_Arg(vsd, ident) > 0) {
 		if (VSM_Open(vsd)) {
 #else
@@ -372,7 +381,9 @@ php_varnish_sock_ident(const char *ident, char **addr, int *addr_len, int *port,
 			return sock;
 		}
 
-#if HAVE_VARNISHAPILIB >= 40
+#if HAVE_VARNISHAPILIB >= 52
+		if (!VSM_Dup(vsd, "Arg", "-T")) {
+#elif HAVE_VARNISHAPILIB >= 40
 		if (!VSM_Get(vsd, &vt, "Arg", "-T", "")) {
 #else
 		p = VSM_Find_Chunk(vsd, "Arg", "-T", "", NULL);
@@ -387,7 +398,11 @@ php_varnish_sock_ident(const char *ident, char **addr, int *addr_len, int *port,
 				"No address and port found in the shared memory"
 #endif
 			);
+#if HAVE_VARNISHAPILIB >= 52
+			VSM_Destroy(&vsd);
+#else
 			VSM_Delete(vsd);
+#endif
 			return sock;
 		}
 #if HAVE_VARNISHAPILIB >= 40
@@ -406,7 +421,9 @@ php_varnish_sock_ident(const char *ident, char **addr, int *addr_len, int *port,
 		return sock;
 	}
 
-#if HAVE_VARNISHAPILIB >= 40
+#if HAVE_VARNISHAPILIB >= 52
+	VSM_Destroy(&vsd);
+#elif HAVE_VARNISHAPILIB >= 40
 	VSM_Delete(vsd);
 #endif
 
@@ -524,11 +541,17 @@ php_varnish_sock(const char *addr, int port, int tmo, int *status TSRMLS_DC)
 int
 php_varnish_auth_ident(int sock, const char *ident, int tmo, int *status TSRMLS_DC)
 {/*{{{*/
+#if HAVE_VARNISHAPILIB >= 52
+	struct vsm *vsd;
+#else
 	struct VSM_data *vsd;
+#endif
 	char *s_arg, *answer = NULL;
 	int fd;
 	char buf[CLI_AUTH_RESPONSE_LEN + 1];
-#if HAVE_VARNISHAPILIB >= 40
+#if HAVE_VARNISHAPILIB >= 52
+	struct vsm_fantom vt;
+#elif HAVE_VARNISHAPILIB >= 40
 	struct VSM_fantom vt;
 #else
 	char *p;
@@ -537,8 +560,14 @@ php_varnish_auth_ident(int sock, const char *ident, int tmo, int *status TSRMLS_
 	(void)VCLI_ReadResult(sock, status, &answer, tmo);
 	if (PHP_VARNISH_STATUS_AUTH == *status) {
 		vsd = VSM_New();
+#if HAVE_VARNISHAPILIB >= 52
+		if (VSM_Arg(vsd, 0, ident)) {
+#else
 		if (VSM_n_Arg(vsd, ident)) {
-#if HAVE_VARNISHAPILIB >= 40
+#endif
+#if HAVE_VARNISHAPILIB >= 52
+	if (VSM_Attach(vsd, -1)) {
+#elif HAVE_VARNISHAPILIB >= 40
 			if (VSM_Open(vsd)) {
 #else
 			if (VSM_Open(vsd, 1)) {
@@ -552,7 +581,11 @@ php_varnish_auth_ident(int sock, const char *ident, int tmo, int *status TSRMLS_
 			}
 
 #if HAVE_VARNISHAPILIB >= 40
+#if HAVE_VARNISHAPILIB >= 52
+			if (!VSM_Dup(vsd, "Arg", "-S")) {
+#else
 			if (VSM_Get(vsd, &vt, "Arg", "-S", "")) {
+#endif
 				s_arg = estrdup(vt.b);
 #else
 			p = VSM_Find_Chunk(vsd, "Arg", "-S", "", NULL);
@@ -570,7 +603,11 @@ php_varnish_auth_ident(int sock, const char *ident, int tmo, int *status TSRMLS_
 					return 0;
 				}
 				efree(s_arg);
-#if HAVE_VARNISHAPILIB >= 40
+#if HAVE_VARNISHAPILIB >= 52
+			} else {
+				VSM_Destroy(&vsd);
+				return 0;
+#elif HAVE_VARNISHAPILIB >= 40
 			} else {
 				VSM_Delete(vsd);
 				return 0;
@@ -822,7 +859,11 @@ php_varnish_snap_stats(zval *storage, const char *ident TSRMLS_DC)
 int
 php_varnish_snap_stats(zval *storage, const char *ident TSRMLS_DC)
 {/*{{{*/
+#if HAVE_VARNISHAPILIB >= 52
+	struct vsm *vsd;
+#else
 	struct VSM_data *vd;
+#endif
 	const struct VSC_C_main *vcm;
 
 	vd = VSM_New();
@@ -845,7 +886,13 @@ php_varnish_snap_stats(zval *storage, const char *ident TSRMLS_DC)
 }/*}}}*/
 #endif
 
-#if HAVE_VARNISHAPILIB >= 40
+#if HAVE_VARNISHAPILIB >= 52
+int
+php_varnish_get_log(const struct vsm *vd, zval *line TSRMLS_DC)
+{/*{{{*/ 
+	return 0;
+}/*}}}*/ 
+#elif HAVE_VARNISHAPILIB >= 40
 int
 php_varnish_get_log(const struct VSM_data *vd, zval *line TSRMLS_DC)
 {/*{{{*/ 

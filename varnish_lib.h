@@ -163,6 +163,7 @@ php_varnish_vcl_use(int sock, int *status, int tmo, char *vcl_name, int vcl_name
 #endif
 
 /*{{{ varnish param names */
+#define PHP_VARNISH_PARAM_ACCEPT_FILTER "accept_filter"
 #define PHP_VARNISH_PARAM_ACCEPTOR_SLEEP_DECAY "acceptor_sleep_decay"
 #define PHP_VARNISH_PARAM_ACCEPTOR_SLEEP_INCR "acceptor_sleep_incr"
 #define PHP_VARNISH_PARAM_ACCEPTOR_SLEEP_MAX "acceptor_sleep_max"

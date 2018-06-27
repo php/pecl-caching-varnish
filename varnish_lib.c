@@ -373,6 +373,7 @@ php_varnish_sock_ident(const char *ident, char **addr, int *addr_len, int *port,
 			zend_throw_exception_ex(
 				VarnishException_ce,
 				PHP_VARNISH_SHM_EXCEPTION TSRMLS_CC,
+				"%s",
 #if HAVE_VARNISHAPILIB >= 40
 				VSM_Error(vsd)
 #else
@@ -394,6 +395,7 @@ php_varnish_sock_ident(const char *ident, char **addr, int *addr_len, int *port,
 			zend_throw_exception_ex(
 				VarnishException_ce,
 				PHP_VARNISH_SHM_EXCEPTION TSRMLS_CC,
+				"%s",
 #if HAVE_VARNISHAPILIB >= 40
 				VSM_Error(vsd)
 #else

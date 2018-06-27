@@ -86,6 +86,7 @@ php_varnish_throw_win_unimpl_exception(char *msg TSRMLS_DC)
 	zend_throw_exception_ex(
 		VarnishException_ce,
 		PHP_VARNISH_UNIMPL_EXCEPTION TSRMLS_CC,
+		"%s", 
 		(NULL != msg) ? msg : "The functionality you're trying to use is not available on windows"
 	);  
 }

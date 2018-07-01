@@ -51,7 +51,7 @@ typedef long zend_long;
 #endif
 /*#define PHP_VARNISH_DEBUG*/
 
-#define PHP_VARNISH_VERSION "1.2.4"
+#define PHP_VARNISH_VERSION "1.2.5-dev"
 
 PHP_MINIT_FUNCTION(varnish);
 PHP_MSHUTDOWN_FUNCTION(varnish);

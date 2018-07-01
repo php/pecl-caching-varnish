@@ -10,10 +10,10 @@
 		<email>ab@php.net</email>
 		<active>yes</active>
 	</lead>
-	<date>2018-07-01</date>
+	<date>xxxx-xx-xx</date>
 	<version>
-		<release>1.2.4</release>
-		<api>1.2.4</api>
+		<release>1.2.5</release>
+		<api>1.2.5</api>
 	</version>
 	<stability>
 		<release>stable</release>
@@ -21,7 +21,7 @@
 	</stability>
 	<license uri="http://www.opensource.org/licenses/bsd-license.php">BSD</license>
 	<notes>
-		- fix build error -Werror=format-security (Remi Collet)
+		- todo
 	</notes>
 	<contents>
 		<dir name="/">
@@ -97,6 +97,21 @@
 	<providesextension>varnish</providesextension>
 	<extsrcrelease/>
 	<changelog>
+		<release>
+			<date>2018-07-01</date>
+			<version>
+				<release>1.2.4</release>
+				<api>1.2.4</api>
+			</version>
+			<stability>
+				<release>stable</release>
+				<api>stable</api>
+			</stability>
+			<license uri="http://www.opensource.org/licenses/bsd-license.php">BSD</license>
+			<notes>
+				- fix build error -Werror=format-security (Remi Collet)
+			</notes>
+		</release>
 		<release>
 			<date>2018-03-04</date>
 			<version>

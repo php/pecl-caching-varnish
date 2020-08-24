@@ -40,6 +40,24 @@
 
 #include "varnish_lib.h"
 
+/* Compatibility with PHP < 8 */
+#if PHP_VERSION_ID < 70200
+#undef  ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX
+#endif
+
+#ifndef ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX
+#define ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(name, return_reference, required_num_args, type, allow_null) \
+        ZEND_BEGIN_ARG_INFO_EX(name, _unused, return_reference, required_num_args)
+#endif
+
+#ifndef ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE
+#define ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(pass_by_ref, name, type_hint, allow_null, default_value) \
+        ZEND_ARG_TYPE_INFO(pass_by_ref, name, type_hint, allow_null)
+#endif 
+
+/* Arginfo generated with PHP 8 */ 
+#include "varnish_arginfo.h"
+
 /*ZEND_DECLARE_MODULE_GLOBALS(varnish)*/
 
 /* True global resources - no need for thread safety here
@@ -70,36 +88,36 @@ const zend_function_entry varnish_functions[] = {
 /* {{{ VarnishAdmin_methods[]
  */
 const zend_function_entry VarnishAdmin_methods[] = {
-	PHP_ME(VarnishAdmin, __construct, NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(VarnishAdmin, connect, NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(VarnishAdmin, auth, NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(VarnishAdmin, getParams, NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(VarnishAdmin, setParam, NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(VarnishAdmin, stop, NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(VarnishAdmin, start, NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(VarnishAdmin, banUrl, NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(VarnishAdmin, ban, NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(VarnishAdmin, isRunning, NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(VarnishAdmin, getPanic, NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(VarnishAdmin, clearPanic, NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(VarnishAdmin, setHost, NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(VarnishAdmin, setIdent, NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(VarnishAdmin, setTimeout, NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(VarnishAdmin, setPort, NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(VarnishAdmin, setSecret, NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(VarnishAdmin, setCompat, NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(VarnishAdmin, getVclList, NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(VarnishAdmin, vclUse, NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(VarnishAdmin, disconnect, NULL, ZEND_ACC_PUBLIC)
+	PHP_ME(VarnishAdmin, __construct, arginfo_class_VarnishAdmin___construct, ZEND_ACC_PUBLIC)
+	PHP_ME(VarnishAdmin, connect, arginfo_class_VarnishAdmin_connect, ZEND_ACC_PUBLIC)
+	PHP_ME(VarnishAdmin, auth, arginfo_class_VarnishAdmin_auth, ZEND_ACC_PUBLIC)
+	PHP_ME(VarnishAdmin, getParams, arginfo_class_VarnishAdmin_getParams, ZEND_ACC_PUBLIC)
+	PHP_ME(VarnishAdmin, setParam, arginfo_class_VarnishAdmin_setParam, ZEND_ACC_PUBLIC)
+	PHP_ME(VarnishAdmin, stop, arginfo_class_VarnishAdmin_stop, ZEND_ACC_PUBLIC)
+	PHP_ME(VarnishAdmin, start, arginfo_class_VarnishAdmin_start, ZEND_ACC_PUBLIC)
+	PHP_ME(VarnishAdmin, banUrl, arginfo_class_VarnishAdmin_banUrl, ZEND_ACC_PUBLIC)
+	PHP_ME(VarnishAdmin, ban, arginfo_class_VarnishAdmin_ban, ZEND_ACC_PUBLIC)
+	PHP_ME(VarnishAdmin, isRunning, arginfo_class_VarnishAdmin_isRunning, ZEND_ACC_PUBLIC)
+	PHP_ME(VarnishAdmin, getPanic, arginfo_class_VarnishAdmin_getPanic, ZEND_ACC_PUBLIC)
+	PHP_ME(VarnishAdmin, clearPanic, arginfo_class_VarnishAdmin_clearPanic, ZEND_ACC_PUBLIC)
+	PHP_ME(VarnishAdmin, setHost, arginfo_class_VarnishAdmin_setHost, ZEND_ACC_PUBLIC)
+	PHP_ME(VarnishAdmin, setIdent, arginfo_class_VarnishAdmin_setIdent, ZEND_ACC_PUBLIC)
+	PHP_ME(VarnishAdmin, setTimeout, arginfo_class_VarnishAdmin_setTimeout, ZEND_ACC_PUBLIC)
+	PHP_ME(VarnishAdmin, setPort, arginfo_class_VarnishAdmin_setPort, ZEND_ACC_PUBLIC)
+	PHP_ME(VarnishAdmin, setSecret, arginfo_class_VarnishAdmin_setSecret, ZEND_ACC_PUBLIC)
+	PHP_ME(VarnishAdmin, setCompat, arginfo_class_VarnishAdmin_setCompat, ZEND_ACC_PUBLIC)
+	PHP_ME(VarnishAdmin, getVclList, arginfo_class_VarnishAdmin_getVclList, ZEND_ACC_PUBLIC)
+	PHP_ME(VarnishAdmin, vclUse, arginfo_class_VarnishAdmin_vclUse, ZEND_ACC_PUBLIC)
+	PHP_ME(VarnishAdmin, disconnect, arginfo_class_VarnishAdmin_disconnect, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */
 
 /* {{{ VarnishStat_methods{} */
 const zend_function_entry VarnishStat_methods[] = {
-	PHP_ME(VarnishStat, __construct, NULL, ZEND_ACC_PUBLIC)
+	PHP_ME(VarnishStat, __construct, arginfo_class_VarnishStat___construct, ZEND_ACC_PUBLIC)
 #if defined(HAVE_VARNISHAPILIB) && HAVE_VARNISHAPILIB < 40
-	PHP_ME(VarnishStat, getSnapshot, NULL, ZEND_ACC_PUBLIC)
+	PHP_ME(VarnishStat, getSnapshot, arginfo_class_VarnishStat_getSnapshot, ZEND_ACC_PUBLIC)
 #endif
 	{NULL, NULL, NULL}
 };
@@ -107,10 +125,10 @@ const zend_function_entry VarnishStat_methods[] = {
 
 /* {{{ VarnishLog_methods{} */
 const zend_function_entry VarnishLog_methods[] = {
-	PHP_ME(VarnishLog, __construct, NULL, ZEND_ACC_PUBLIC)
+	PHP_ME(VarnishLog, __construct, arginfo_class_VarnishLog___construct, ZEND_ACC_PUBLIC)
 #if defined(HAVE_VARNISHAPILIB) && HAVE_VARNISHAPILIB < 40
-	PHP_ME(VarnishLog, getLine, NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(VarnishLog, getTagName, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+	PHP_ME(VarnishLog, getLine, arginfo_class_VarnishLog_getLine, ZEND_ACC_PUBLIC)
+	PHP_ME(VarnishLog, getTagName, arginfo_class_VarnishLog_getTagName, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
 #endif
 	{NULL, NULL, NULL}
 };

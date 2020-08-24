@@ -131,6 +131,14 @@ struct ze_varnish_conn {
 	int authok;
 };
 
+#if PHP_MAJOR_VERSION >= 8
+#define TSRMLS_D void
+#define TSRMLS_DC
+#define TSRMLS_C
+#define TSRMLS_CC
+#define TSRMLS_FETCH()
+#endif
+
 #if PHP_MAJOR_VERSION >= 7
 struct ze_varnish_adm_obj {
 	struct ze_varnish_conn zvc;

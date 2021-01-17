@@ -1,0 +1,22 @@
+// $Id$
+// vim:ft=javascript
+
+ARG_ENABLE("varnish", "enable varnish support", "no");
+
+if (PHP_VARNISH != "no") {
+	if (CHECK_HEADER_ADD_INCLUDE('Ws2tcpip.h', 'CFLAGS_VARNISH') &&
+		CHECK_HEADER_ADD_INCLUDE("php_varnish.h", "CFLAGS_VARNISH", PHP_VARNISH + ";" + configure_module_dirname) &&
+		CHECK_HEADER_ADD_INCLUDE("exception.h", "CFLAGS_VARNISH", PHP_VARNISH + ";" + configure_module_dirname) &&
+		CHECK_HEADER_ADD_INCLUDE("varnish_lib.h", "CFLAGS_VARNISH", PHP_VARNISH + ";" + configure_module_dirname) &&
+		CHECK_LIB('Ws2_32.lib', 'varnish')) {
+
+		ADD_EXTENSION_DEP("varnish", "hash", false);
+
+		EXTENSION("varnish", "varnish.c varnish_lib.c adm.c exception.c log.c stat.c");
+
+		AC_DEFINE('HAVE_VARNISH', 1, 'Have varnish library');
+	} else {
+		WARNING('varnish not enabled, headers missing');
+	}
+}
+

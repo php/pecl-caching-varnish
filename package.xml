@@ -12,8 +12,8 @@
 	</lead>
 	<date>2021-01-17</date>
 	<version>
-		<release>1.2.5</release>
-		<api>1.2.5</api>
+		<release>1.2.6</release>
+		<api>1.2.6</api>
 	</version>
 	<stability>
 		<release>stable</release>
@@ -21,7 +21,7 @@
 	</stability>
 	<license uri="http://www.opensource.org/licenses/bsd-license.php">BSD</license>
 	<notes>
-		- Fix PHP 8.0 compatibility (Remi Collet)
+		- todo
 	</notes>
 	<contents>
 		<dir name="/">
@@ -97,6 +97,21 @@
 	<providesextension>varnish</providesextension>
 	<extsrcrelease/>
 	<changelog>
+		<release>
+			<date>2021-01-17</date>
+			<version>
+				<release>1.2.5</release>
+				<api>1.2.5</api>
+			</version>
+			<stability>
+				<release>stable</release>
+				<api>stable</api>
+			</stability>
+			<license uri="http://www.opensource.org/licenses/bsd-license.php">BSD</license>
+			<notes>
+				- Fix PHP 8.0 compatibility (Remi Collet)
+			</notes>
+		</release>
 		<release>
 			<date>2018-07-01</date>
 			<version>

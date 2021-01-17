@@ -10,7 +10,7 @@
 		<email>ab@php.net</email>
 		<active>yes</active>
 	</lead>
-	<date>xxxx-xx-xx</date>
+	<date>2021-01-17</date>
 	<version>
 		<release>1.2.5</release>
 		<api>1.2.5</api>
@@ -21,7 +21,7 @@
 	</stability>
 	<license uri="http://www.opensource.org/licenses/bsd-license.php">BSD</license>
 	<notes>
-		- todo
+		- Fix PHP 8.0 compatibility (Remi Collet)
 	</notes>
 	<contents>
 		<dir name="/">

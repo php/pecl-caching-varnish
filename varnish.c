@@ -47,7 +47,7 @@
 
 #ifndef ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX
 #define ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(name, return_reference, required_num_args, type, allow_null) \
-        ZEND_BEGIN_ARG_INFO_EX(name, _unused, return_reference, required_num_args)
+        ZEND_BEGIN_ARG_INFO_EX(name, 0, return_reference, required_num_args)
 #endif
 
 #ifndef ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE

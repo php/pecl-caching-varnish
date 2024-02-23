@@ -40,7 +40,6 @@
 
 #ifdef PHP_WIN32
 #undef UNICODE
-#include "win32/inet.h"
 #include <winsock2.h>
 #include <windows.h>
 #include <Ws2tcpip.h>
